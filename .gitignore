@@ -1,0 +1,14 @@
+node_modules/
+.lab/
+.lab-test-*/
+.npm-cache/
+.bootstrap/
+.DS_Store
+*.log
+coverage/
+.env
+.env.*
+evidence/
+comparison-data/
+__pycache__/
+*.pyc
