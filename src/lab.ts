@@ -16,6 +16,7 @@ import { createServer } from "node:net";
 import { dirname, join, resolve } from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
 import { fileURLToPath } from "node:url";
+import { ReadyGateway } from "./gateway.ts";
 
 export const PROJECT = fileURLToPath(new URL("../", import.meta.url));
 const ENTRY = resolve(
@@ -1037,6 +1038,24 @@ export class Lab {
     await this.stop();
     await this.start();
     return { restarted: true, runtime: `OpenClaw ${VERSION}` };
+  }
+
+  /** Lab owner only: borrow its already-running Gateway without lifecycle control. */
+  attachMemoryClient() {
+    if (
+      !this.child ||
+      this.child.exitCode !== null ||
+      !this.port ||
+      !this.token
+    )
+      throw new Error(
+        "The lab owner must start its Gateway before attaching a client.",
+      );
+    return new ReadyGateway({
+      url: `http://127.0.0.1:${this.port}`,
+      token: this.token,
+      agentId: "main",
+    });
   }
 
   async stop() {
