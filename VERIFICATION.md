@@ -2,6 +2,28 @@
 
 Runtime: **OpenClaw 2026.9.9 (`bcfc888`)**, project-local **Node 24.16.0**. It uses the real native runtime, not a replacement engine or mocked memory responses. Raw machine-specific test outputs and runtime state remain local under ignored directories; this portable record contains no local user paths or credentials.
 
+## Ready-Gateway integration acceptance
+
+The server-side `ReadyGateway` client uses the documented `POST /tools/invoke` envelope and native `memory_search`/`memory_get` schemas, inspected in the pinned installed release. It imports Node HTTP only; a client-only installation needs no local OpenClaw package. Its constructor makes no network request and it exposes no Gateway lifecycle, indexing, write or provider-configuration API. The existing managed lab remains available.
+
+**29 synthetic transport tests passed** (0 failures). These cover fixed agent/session routing and request arguments, pooled sockets, structured/text result envelopes, unavailable/disabled/stale replies, HTTP auth/policy/rate/server errors, connection refusal/disconnect, malformed JSON/UTF-8/result shapes, missing sources, absolute body deadlines, caller cancellation, byte limits, redirects, outstanding-request bounds, closed clients and caller-driven retry. These are HTTP fault fixtures, not engine acceptance. Failure messages do not echo a token, response body, URL or nested transport cause.
+
+The separate **real ready-Gateway test passed**, using the pinned native runtime and a fresh synthetic source. It accepted keyword recall with `provider: none`, actual source reads and missing-source errors. Closing a client left the same independently owned Gateway available to another client. When the fixture owner stopped its Gateway, the client returned `connection_failed`; only the owner started a replacement, which retained native recall. The ready client performed no spawn/restart/stop operation.
+
+One uncontrolled macOS run measured first ready request **176.51 ms** and warm samples **33.38, 23.01, 24.01, 36.32, 25.26 ms** (median **25.26 ms**). The fixture owner's Gateway startup was separately **34.83 s**. The real test took **91.77 s**. These values do not guarantee zero startup, latency, peak resources or general performance. Native initialization and reconnection can still cost time.
+
+Fresh independent source copies, with no dependency/cache/runtime-state/user-config reuse, completed both installers. Full setup installed Node 24.16.0 and OpenClaw 2026.9.9; client-only setup installed Node 24.16.0 without a local OpenClaw package. The minimal copy passed all 29 transport tests and the documented example exited with its expected missing-configuration message before any Gateway call. Full-copy typecheck, lint and installer shell syntax passed. Dependency installation phase output is not a controlled cold-install benchmark.
+
+The local CI definition is parsed YAML and pins official checkout/setup-node v6 commit refs. It defines lint/types, complete synthetic/native tests and a client-only clean setup, with read-only repository permissions and no retained checkout credential. **GitHub has not executed this workflow in this task.** No push, merge or release occurred.
+
+The complete clean-install `npm test` passed in **511.12 seconds**: **45 counted tests, 41 passed, 0 failed, 4 explicitly skipped, 0 cancelled**. The 41 passes comprise **29 synthetic transport tests and 12 counted native runtime checks/subtests**. Managed dreaming, canonical file-memory operations, no-model reset capture, the Python JSONL consumer and ready-Gateway ownership all passed. A native retrieval parent is included in the counted totals; counts are not feature parity scores.
+
+In that full clean run, the separately owned Gateway startup was **16.56 s**, first ready request **36.31 ms**, and five warm requests were **88.85, 47.36, 26.33, 26.81, 27.81 ms** (median **27.81 ms**). Its ready test took **41.76 s**. Keep these observations separate from the earlier standalone run: cache state and OS load were uncontrolled, and neither run promises zero startup or general latency.
+
+Real embedding/chat/consolidation acceptance is still blocked by missing approved model endpoints. The four skips are existing native semantic retrieval, the new ready-client semantic retrieval, genuine dreaming narrative, and model chat/flush/compaction. The ready semantic test joins the existing model gates; missing models are skipped, not simulated. The fixture uses only its managed, temporary in-memory test authentication. No persistent credential was created, saved or discovered; no personal provider configuration, unrelated memory, paid provider or model download was used.
+
+All executable source, tests, installer, lockfile and CI files in the clean copy matched implementation commit `30ec253`; the only later difference was this verification prose. Shell syntax, clean-copy typecheck and lint, workflow YAML parsing, whitespace checks, client-only transport tests and the missing-configuration example check passed. GitHub Actions execution, genuine model output/quality, model-assisted consolidation additions/merges/supersessions and production authorization remain unverified. This stage creates local commits only.
+
 ## Accepted original foundation baseline
 
 The last complete baseline ran for **517.1 seconds**: **13 counted tests, 10 passed, 0 failed, 3 explicitly skipped, 0 cancelled**. Typecheck and lint passed. The count includes the retrieval parent and seven behavioral subtests, native dreaming and native lifecycle acceptance.
@@ -35,7 +57,7 @@ The final complete `npm test` on that clean installation ran for **912.6 seconds
 
 The first protocol attempt failed when a second simultaneous workspace Gateway did not become ready. Its cause was not proven. The sequential host was then bounded to one active workspace Gateway, matching the terminal shell, and the subsequent standalone and clean-install full-package acceptance passed. No failed run is counted as a pass.
 
-Raw `evidence/`, `.lab/`, temporary test workspaces, caches, logs, `.env` files and Python bytecode are excluded by `.gitignore`. The lockfile is retained for reproducibility. Repository publication is verified separately from this local acceptance record. No CI workflow is configured.
+Raw `evidence/`, `.lab/`, temporary test workspaces, caches, logs, `.env` files and Python bytecode are excluded by `.gitignore`. The lockfile is retained for reproducibility. Repository publication is verified separately from this local acceptance record. That baseline had no CI workflow; the ready-Gateway addition prepares one locally as described above.
 
 ## Model-dependent acceptance still pending
 
