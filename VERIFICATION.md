@@ -35,7 +35,7 @@ The final complete `npm test` on that clean installation ran for **912.6 seconds
 
 The first protocol attempt failed when a second simultaneous workspace Gateway did not become ready. Its cause was not proven. The sequential host was then bounded to one active workspace Gateway, matching the terminal shell, and the subsequent standalone and clean-install full-package acceptance passed. No failed run is counted as a pass.
 
-Raw `evidence/`, `.lab/`, temporary test workspaces, caches, logs, `.env` files and Python bytecode are excluded by `.gitignore`. The lockfile is retained for reproducibility. No remote repository, commit publication or CI result is claimed before verification. No CI workflow is configured.
+Raw `evidence/`, `.lab/`, temporary test workspaces, caches, logs, `.env` files and Python bytecode are excluded by `.gitignore`. The lockfile is retained for reproducibility. Repository publication is verified separately from this local acceptance record. No CI workflow is configured.
 
 ## Model-dependent acceptance still pending
 
