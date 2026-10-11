@@ -8,6 +8,28 @@
     "What this means for your app": "Turn dreaming on before recall. Keep the source session in the same native workspace.",
     "Status": "PASS",
     "Evidence": "tests/lifecycle-budget.test.ts; tests/native-bootstrap.test.ts",
-    "Commit": "548da33 (baseline; working changes)"
+    "Commit": "1ce744d"
+  },
+  {
+    "Round": "2. Retained-session real model acceptance",
+    "Test goal": "Update a prior durable preference with native consolidation and create a model Dream Diary.",
+    "What we did": "Keep the real source session in one workspace. Ask GPT-6 Sol to write an updated daily note. Search it and run the native dreaming sweep.",
+    "Expected result": "A sourced durable update replaces the prior preference. The model writes the diary.",
+    "Actual result": "The native agent wrote the daily note. The sweep reported zero candidates. No durable update or model diary was accepted. Six bounded requests were admitted. The provider usage counter rose from about 0.16523 USD to 0.18909 USD.",
+    "What this means for your app": "A saved daily note alone does not prove consolidation. Investigate native indexing and recall eligibility before relying on an automatic durable update.",
+    "Status": "FAIL",
+    "Evidence": "evidence/provenance-acceptance/acceptance.json (local, ignored); retained synthetic source session in the test workspace",
+    "Commit": "1ce744d"
+  },
+  {
+    "Round": "3. Installed Python wheel and separate app",
+    "Test goal": "Use the installed Python client with the real TypeScript bridge and native memory.",
+    "What we did": "Build a wheel and source archive. Install the wheel in a clean Python 3.12 virtual environment. Run a separate Python app in isolated mode.",
+    "Expected result": "Recall and sources work. Updates and deletion affect recall. Memory survives restarts. Other users and workspaces do not recall this note.",
+    "Actual result": "All eleven integration checks passed with the native no-key engine. Native reset capture passed from an explicit synthetic fixture. The fixture was not a model reply. The app inserted recalled content into its prompt.",
+    "What this means for your app": "Your app can supply its scope and notes through the installed client. Index after each file change. Installing the wheel alone creates no memory notes. Automatic consolidation is not guaranteed.",
+    "Status": "PASS",
+    "Evidence": "examples/sdk_app.py; evidence/sdk-acceptance/result.json (local, ignored); python/dist/openclaw_memory_bridge-0.1.0-py3-none-any.whl (local build)",
+    "Commit": "1ce744d baseline; SDK working changes"
   }
 ]
