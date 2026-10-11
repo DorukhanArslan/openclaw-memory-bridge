@@ -1270,17 +1270,42 @@ export class Lab {
           "Consolidation envelope exceeds the cumulative 5 USD test ceiling.",
         );
       const prior =
-        "# Long-Term Memory\n\n- Fictional Project Vega uses indigo filters every Thursday.\n- Unrelated synthetic project Lyra uses silver notebooks.\n";
+        "# Long-Term Memory\n\n- Fictional Project Vega uses indigo filters every Thursday.\n- Unrelated synthetic project Lyra uses silver notebooks.\n- Fictional Atlas uses paper charts.\n- Fictional Cygnus uses brass clocks.\n- Fictional Draco uses white folders.\n";
       await writeFile(join(this.directory, "workspace", "MEMORY.md"), prior, {
         mode: 0o600,
         flag: "wx",
       });
       result.before = await snapshot();
       const day = new Date().toISOString().slice(0, 10);
-      result.conversation = await this.chat(
-        "main",
-        `This is synthetic data. My durable preference for fictional Project Vega has changed: use amber filters every Friday instead of indigo filters every Thursday. Save this updated preference to memory/${day}.md with the native write tool. Do not edit MEMORY.md. Reply briefly after you save it.`,
+      // The official embedded CLI is local operator input. Generic gateway
+      // call requests only method-minimal scopes and cannot attest owner input.
+      // No scope, security policy, or stored provenance is changed here.
+      await this.stop();
+      result.conversation = JSON.parse(
+        await this.native(
+          [
+            "agent",
+            "--local",
+            "--agent",
+            "main",
+            "--session-key",
+            "agent:main:main",
+            "--message",
+            `This is synthetic data. My durable preference for fictional Project Vega has changed: use amber filters every Friday instead of indigo filters every Thursday. Save this updated preference to memory/${day}.md with the native write tool. Do not edit MEMORY.md. Reply briefly after you save it.`,
+            "--thinking",
+            "off",
+            "--timeout",
+            "120",
+            "--json",
+          ],
+          150000,
+          false,
+          true,
+        ),
       );
+      result.inputOrigin =
+        "Official agent --local operator CLI; native ownership classification, no manual provenance edits";
+      result.sourceHistory = await this.sessionHistory("main");
       result.sourceSession = await this.sessionState("main");
       result.afterConversation = await snapshot();
       const daily =
@@ -1298,6 +1323,7 @@ export class Lab {
       for (const query of ["amber", "Vega amber", "Friday"])
         (result.recalls as unknown[]).push(await this.search(query, "main"));
       result.beforeSweepStatus = await this.dreamStatus();
+      result.beforeSweepExplanation = await this.explain("amber");
       result.sweep = await this.dreamRun();
       // Cron completion can precede detached native diary calls. Observe the
       // native publication log; do not manufacture text or accept a fallback.
@@ -1312,7 +1338,12 @@ export class Lab {
           /narrative generation (?:failed|used fallback)|consolidation .*fallback/.test(
             log,
           );
-        if (completed >= 3 || degraded) break;
+        if (
+          completed >= 3 ||
+          degraded ||
+          /candidates=0, applied=0.*narrativesPending=0/.test(log)
+        )
+          break;
         await delay(1000);
       }
       result.after = await snapshot();

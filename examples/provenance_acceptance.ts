@@ -6,7 +6,7 @@ import { createLifecycleLedger } from "../src/lifecycle-request-budget.ts";
 
 if (process.argv.length !== 2)
   throw new Error("Fixed acceptance takes no arguments.");
-const evidence = join(PROJECT, "evidence/provenance-acceptance");
+const evidence = join(PROJECT, "evidence/provenance-owner-acceptance");
 await mkdir(evidence, { recursive: true, mode: 0o700 });
 const ledger = join(evidence, "request-ledger.json");
 try {
@@ -21,7 +21,7 @@ try {
 // into another workspace and never alter the native memory database.
 const lab = await new Lab(
   "provenance",
-  join(PROJECT, ".lab-test-provenance"),
+  join(PROJECT, ".lab-test-provenance-owner"),
 ).init();
 try {
   const result = await lab.boundedProvenanceAcceptance(ledger);
