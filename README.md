@@ -58,4 +58,4 @@ Local embedding/text servers and native provider selection are optional; see [PR
 ./node_modules/node/bin/node --import ./src/load-env.ts --test --test-concurrency=1 tests/*.test.ts
 ```
 
-Latest full run: **75 tests, 71 passed, 0 failed, 4 skipped**. Skipped broad model tests remain separate from the fixed genuine-provider evidence above. Transport fault fixtures and dummy-provider smoke are explicitly mocked; native memory tests use actual OpenClaw. See [VERIFICATION.md](VERIFICATION.md) for evidence and [THIRD_PARTY.md](THIRD_PARTY.md) for runtime attribution. Current work is local; no push or deployment was made.
+Latest local full run: **75 tests, 71 passed, 0 failed, 4 skipped**. Skipped broad model tests remain separate from the fixed genuine-provider evidence above. Transport fault fixtures and dummy-provider smoke are explicitly mocked; native memory tests use actual OpenClaw. See [VERIFICATION.md](VERIFICATION.md) for evidence and [THIRD_PARTY.md](THIRD_PARTY.md) for runtime attribution. GitHub Actions results must be checked separately for the exact published commit. Delivery uses the feature branch; no main merge or deployment is included.
