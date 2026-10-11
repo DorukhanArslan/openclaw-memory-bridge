@@ -52,6 +52,17 @@
     "What this means for your app": "This is a transport budget adapter. It does not implement memory or prove real model consolidation. Protocol fixtures verify errors only.",
     "Status": "PASS",
     "Evidence": "tests/lifecycle-budget.test.ts; python/tests/test_client.py",
-    "Commit": "727e655 baseline; working changes"
+    "Commit": "bde6cd2"
+  },
+  {
+    "Round": "6. Real bounded utility model calls",
+    "Test goal": "Run actual consolidation and diary model calls within the finite envelope.",
+    "What we did": "Use a real owner session and the utility output adapter. Keep the original source workspace.",
+    "Expected result": "The model chooses a valid native consolidation plan. Detached diary calls finish before restart.",
+    "Actual result": "Model requests ran with explicit token limits. Native consolidation rejected a plan that crossed project groups. One REM model diary was written. The test stopped the Gateway too early after the consolidation rejection, so two detached diary calls used fallback. Consolidation and complete diary acceptance failed.",
+    "What this means for your app": "Native validation protects project groups and lineage. Keep the Gateway running until all native diary publications finish. A correction without matching lineage cannot be claimed as a verified supersession.",
+    "Status": "FAIL",
+    "Evidence": "evidence/provenance-bounded-acceptance/acceptance.json (local, ignored)",
+    "Commit": "bde6cd2"
   }
 ]

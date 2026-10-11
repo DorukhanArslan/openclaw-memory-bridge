@@ -1236,7 +1236,7 @@ export class Lab {
       limits: CONSOLIDATION_LIMITS,
       testThresholds: { minScore: 0, minRecallCount: 1, minUniqueQueries: 1 },
       baselineAdapter:
-        "A synthetic prior durable preference is an explicit application fixture. The new daily note must be written by the native agent. No session or database is imported.",
+        "A synthetic prior duplicate is an explicit application fixture with matching project scope. The daily duplicate must be written by the native agent. No session or database is imported. This tests native duplicate merging, not unverified lineage-based supersession.",
     };
     const stages = result.stages as Record<string, string>;
     const snapshot = async () => {
@@ -1272,7 +1272,7 @@ export class Lab {
           "Consolidation envelope exceeds the cumulative 5 USD test ceiling.",
         );
       const prior =
-        "# Long-Term Memory\n\n- Fictional Project Vega uses indigo filters every Thursday.\n- Unrelated synthetic project Lyra uses silver notebooks.\n- Fictional Atlas uses paper charts.\n- Fictional Cygnus uses brass clocks.\n- Fictional Draco uses white folders.\n";
+        "# Long-Term Memory\n\n- Synthetic Project Vega uses amber filters every Friday. <!-- project: github.com/DorukhanArslan/openclaw-memory-bridge -->\n- Unrelated synthetic project Lyra uses silver notebooks.\n- Fictional Atlas uses paper charts.\n- Fictional Cygnus uses brass clocks.\n- Fictional Draco uses white folders.\n";
       await writeFile(join(this.directory, "workspace", "MEMORY.md"), prior, {
         mode: 0o600,
         flag: "wx",
@@ -1293,7 +1293,7 @@ export class Lab {
             "--session-key",
             "agent:main:main",
             "--message",
-            `This is synthetic data. My durable preference for fictional Project Vega has changed: use amber filters every Friday instead of indigo filters every Thursday. Save this updated preference to memory/${day}.md with the native write tool. Do not edit MEMORY.md. Reply briefly after you save it.`,
+            `Use the native write tool to save exactly this one line to memory/${day}.md, with no heading: Synthetic Project Vega uses amber filters every Friday. <!-- project: github.com/DorukhanArslan/openclaw-memory-bridge -->. This is synthetic test data. Do not edit MEMORY.md. Reply briefly after the write.`,
             "--thinking",
             "off",
             "--timeout",
@@ -1336,10 +1336,9 @@ export class Lab {
         );
         const completed = (log.match(/dream diary entry written for/g) ?? [])
           .length;
-        const degraded =
-          /narrative generation (?:failed|used fallback)|consolidation .*fallback/.test(
-            log,
-          );
+        const degraded = /narrative generation (?:failed|used fallback)/.test(
+          log,
+        );
         if (
           completed >= 3 ||
           degraded ||
@@ -1370,18 +1369,26 @@ export class Lab {
         !/consolidation .*fallback/i.test(log)
           ? "pass"
           : "fail";
-      stages.durableUpdate =
+      stages.durableMerge =
         /amber/i.test(memory) &&
         /Friday/i.test(memory) &&
         !/indigo/i.test(memory) &&
-        /silver notebooks/i.test(memory)
+        /silver notebooks/i.test(memory) &&
+        (
+          memory.match(
+            /Synthetic Project Vega uses amber filters every Friday/g,
+          ) ?? []
+        ).length === 1 &&
+        /Consolidated Memory/.test(memory)
           ? "pass"
           : "fail";
-      stages.sourceReference = new RegExp(`source=memory/${day}`).test(memory)
+      stages.sourceReference = new RegExp(
+        `(?:source=|Source: )memory/${day}`,
+      ).test(memory)
         ? "pass"
         : "fail";
       stages.modelDiary =
-        /dream diary entry written for/.test(log) &&
+        (log.match(/dream diary entry written for/g) ?? []).length >= 3 &&
         !/narrative generation (?:failed|used fallback)/.test(log) &&
         dreams.length > 100
           ? "pass"
