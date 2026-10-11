@@ -1,5 +1,8 @@
 import {
   closeSync,
+  constants,
+  fstatSync,
+  ftruncateSync,
   openSync,
   readFileSync,
   unlinkSync,
@@ -27,6 +30,43 @@ type Ledger = {
   outputTokens: number;
   profile?: "consolidation";
 };
+// Open the final ledger component without following a link. Verify the opened
+// descriptor, not a path checked earlier. Never truncate before this check.
+function withLedgerFile<T>(
+  path: string,
+  writable: boolean,
+  use: (fd: number) => T,
+): T {
+  if (typeof constants.O_NOFOLLOW !== "number")
+    throw new Error("No-follow ledger access is unavailable on this platform.");
+  const fd = openSync(
+    path,
+    (writable ? constants.O_RDWR : constants.O_RDONLY) |
+      constants.O_NOFOLLOW |
+      constants.O_NONBLOCK,
+  );
+  try {
+    if (!fstatSync(fd).isFile())
+      throw new Error("Lifecycle ledger must be a regular file.");
+    return use(fd);
+  } finally {
+    closeSync(fd);
+  }
+}
+export function readLifecycleLedger(path: string): Ledger {
+  return withLedgerFile(
+    path,
+    false,
+    (fd) => JSON.parse(readFileSync(fd, "utf8")) as Ledger,
+  );
+}
+function writeLifecycleLedger(path: string, value: unknown) {
+  withLedgerFile(path, true, (fd) => {
+    ftruncateSync(fd, 0);
+    writeFileSync(fd, JSON.stringify(value));
+  });
+}
+
 export function createLifecycleLedger(path: string, profile?: "consolidation") {
   const fd = openSync(path, "wx", 0o600);
   try {
@@ -78,7 +118,7 @@ export function admitLifecycleRequest(
       : new TextDecoder("utf-8", { fatal: true }).decode(
           init.body as Uint8Array,
         );
-  const ledgerProfile = JSON.parse(readFileSync(path, "utf8")) as Ledger;
+  const ledgerProfile = readLifecycleLedger(path);
   if (
     ledgerProfile.profile !== undefined &&
     ledgerProfile.profile !== "consolidation"
@@ -103,25 +143,21 @@ export function admitLifecycleRequest(
     output < 1 ||
     output > limits.outputPerRequest
   ) {
-    writeFileSync(
-      path,
-      JSON.stringify({
-        ...ledgerProfile,
-        lastDenial: {
-          reason: "model_output",
-          modelMatches: body.model === "openai/gpt-6-sol",
-          completionTokens: body.max_completion_tokens ?? null,
-          maxTokens: body.max_tokens ?? null,
-        },
-      }),
-      { mode: 0o600 },
-    );
+    writeLifecycleLedger(path, {
+      ...ledgerProfile,
+      lastDenial: {
+        reason: "model_output",
+        modelMatches: body.model === "openai/gpt-6-sol",
+        completionTokens: body.max_completion_tokens ?? null,
+        maxTokens: body.max_tokens ?? null,
+      },
+    });
     throw new Error("Finite lifecycle model/output bound denied.");
   }
   const lock = `${path}.lock`;
   const fd = openSync(lock, "wx", 0o600);
   try {
-    const ledger = JSON.parse(readFileSync(path, "utf8")) as Ledger;
+    const ledger = readLifecycleLedger(path);
     if (
       ![ledger.requests, ledger.inputBytes, ledger.outputTokens].every(
         (value) => Number.isSafeInteger(value) && value >= 0,
@@ -139,22 +175,18 @@ export function admitLifecycleRequest(
       next.inputBytes > limits.inputBytes ||
       next.outputTokens > limits.outputTokens
     ) {
-      writeFileSync(
-        path,
-        JSON.stringify({
-          ...ledger,
-          lastDenial:
-            next.inputBytes > limits.inputBytes
-              ? "input_bytes"
-              : next.outputTokens > limits.outputTokens
-                ? "output_tokens"
-                : "request_count",
-        }),
-        { mode: 0o600 },
-      );
+      writeLifecycleLedger(path, {
+        ...ledger,
+        lastDenial:
+          next.inputBytes > limits.inputBytes
+            ? "input_bytes"
+            : next.outputTokens > limits.outputTokens
+              ? "output_tokens"
+              : "request_count",
+      });
       throw new Error("Finite lifecycle request budget exhausted.");
     }
-    writeFileSync(path, JSON.stringify(next), { mode: 0o600 });
+    writeLifecycleLedger(path, next);
   } finally {
     closeSync(fd);
     unlinkSync(lock);
@@ -169,7 +201,7 @@ export function boundConsolidationUtilityRequest(
   input: string | URL | Request,
   init?: RequestInit,
 ): RequestInit | undefined {
-  const ledger = JSON.parse(readFileSync(path, "utf8")) as Ledger;
+  const ledger = readLifecycleLedger(path);
   if (ledger.profile !== "consolidation") return init;
   const url = new URL(
     typeof input === "string"

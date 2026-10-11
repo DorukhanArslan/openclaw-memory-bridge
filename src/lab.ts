@@ -22,10 +22,12 @@ import {
   assertNativeOperationAllowed,
   PAID_SELECTION,
 } from "./budget-preflight.ts";
+import { consolidationCheckpoint } from "./consolidation-checkpoint.ts";
 import { ReadyGateway } from "./gateway.ts";
 import {
   CONSOLIDATION_LIMITS,
   LIFECYCLE_LIMITS,
+  readLifecycleLedger,
 } from "./lifecycle-request-budget.ts";
 import {
   confirmSmoke,
@@ -1048,9 +1050,7 @@ export class Lab {
         result.nativeConsolidationLog = [];
       }
       result.finalMarkdown = await snapshot();
-      result.requestLedger = JSON.parse(
-        await readFile(this.lifecycleLedger, "utf8"),
-      );
+      result.requestLedger = readLifecycleLedger(this.lifecycleLedger);
       this.lifecycleLedger = undefined;
       this.settings = { provider: "none" };
       await this.provision();
@@ -1096,17 +1096,7 @@ export class Lab {
         "utf8",
       ),
     );
-    const day = new Date().toISOString().slice(0, 10);
-    const note = checkpoint.afterFlush?.[`memory/${day}.md`];
-    if (
-      checkpoint.stages?.flush !== "pass" ||
-      checkpoint.stages?.extraction !== "pass" ||
-      typeof note !== "string" ||
-      Buffer.byteLength(note) > 1000 ||
-      !/indigo filters every Thursday/i.test(note) ||
-      !/synthetic Project Borealis/i.test(note)
-    )
-      throw new Error("Verified synthetic model-note checkpoint is required.");
+    const { day, note } = consolidationCheckpoint(checkpoint);
     this.lifecycleLedger = resolve(ledgerPath);
     this.settings = {
       provider: "none",
@@ -1186,9 +1176,7 @@ export class Lab {
       } catch {
         result.costMeasurement = "unavailable";
       }
-      result.requestLedger = JSON.parse(
-        await readFile(this.lifecycleLedger, "utf8"),
-      );
+      result.requestLedger = readLifecycleLedger(this.lifecycleLedger);
       try {
         result.nativeDiagnostics = this.redact(
           await readFile(join(this.directory, "openclaw.log"), "utf8"),
@@ -1415,9 +1403,7 @@ export class Lab {
       } catch {
         result.costMeasurement = "unavailable";
       }
-      result.requestLedger = JSON.parse(
-        await readFile(this.lifecycleLedger, "utf8"),
-      );
+      result.requestLedger = readLifecycleLedger(this.lifecycleLedger);
       this.lifecycleLedger = undefined;
       this.settings = { provider: "none" };
       await this.provision();

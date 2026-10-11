@@ -86,5 +86,49 @@
     "Status": "PASS",
     "Evidence": "evidence/sdk-acceptance/final-result.json; evidence/sdk-acceptance/node-tests.log; python/tests/test_client.py (raw evidence local, ignored)",
     "Commit": "57dc69e"
+  },
+  {
+    "Round": "9a. Checkpoint date review reproduction",
+    "Test goal": "Check a valid prior-day checkpoint just after UTC midnight.",
+    "What we did": "Freeze the test clock at the next UTC day. Use a synthetic verified daily artifact from the prior day.",
+    "Expected result": "Select the date stored in the checkpoint artifact.",
+    "Actual result": "The existing selector rejected the valid prior-day artifact. The review finding applies to this branch.",
+    "What this means for your app": "The continuation could fail after midnight even when its checkpoint is valid.",
+    "Status": "FAIL",
+    "Evidence": "tests/review-regression.test.ts; evidence/review-regression/red.log (local, ignored)",
+    "Commit": "d9c8220 baseline; reproduced before behavior fix"
+  },
+  {
+    "Round": "9b. Ledger symlink review reproduction",
+    "Test goal": "Check whether ledger recording can overwrite a symlink target.",
+    "What we did": "Create a ledger symlink to a temporary synthetic JSON fixture. Admit one bounded request without making a network call.",
+    "Expected result": "Reject the link and leave the target byte-identical.",
+    "Actual result": "The existing recorder followed the link and changed the temporary target. The review finding applies to this branch. No user file or secret was involved.",
+    "What this means for your app": "Validate and open ledger files without following links before reading or writing them.",
+    "Status": "FAIL",
+    "Evidence": "tests/review-regression.test.ts; evidence/review-regression/red.log (local, ignored)",
+    "Commit": "d9c8220 baseline; reproduced before behavior fix"
+  },
+  {
+    "Round": "10a. Checkpoint date review fix",
+    "Test goal": "Use the date of the verified checkpoint artifact.",
+    "What we did": "Select one valid dated note from afterFlush. Reject ambiguous, invalid-date, or unverified records. Test the prior-day note after UTC midnight.",
+    "Expected result": "A valid prior-day artifact remains usable. Invalid evidence is rejected.",
+    "Actual result": "The targeted checks passed after reproducing the original failure. Selection no longer depends on the current UTC day.",
+    "What this means for your app": "A valid continuation no longer fails only because midnight passed. The selected source keeps its recorded date.",
+    "Status": "PASS",
+    "Evidence": "src/consolidation-checkpoint.ts; tests/review-regression.test.ts; evidence/review-regression/green.log (local, ignored)",
+    "Commit": "d9c8220 baseline; working fix"
+  },
+  {
+    "Round": "10b. Ledger symlink review fix",
+    "Test goal": "Reject symbolic links and nonregular ledger files before recording requests.",
+    "What we did": "Use O_NOFOLLOW and check the opened file descriptor. Use this reader in all acceptance entry points and the native request recorder. Test valid, linked, dangling, and directory fixtures.",
+    "Expected result": "Reject unsafe paths. Keep linked targets unchanged. Preserve regular-file counters.",
+    "Actual result": "All targeted checks passed. Both admitted-request and denial-record paths rejected the symlink. The temporary target stayed byte-identical. Regular ledgers retained their counters.",
+    "What this means for your app": "The recorder does not follow a ledger symlink when it reads or writes the final path component. This is a narrow file-access fix.",
+    "Status": "PASS",
+    "Evidence": "src/lifecycle-request-budget.ts; tests/review-regression.test.ts; evidence/review-regression/green.log (local, ignored)",
+    "Commit": "d9c8220 baseline; working fix"
   }
 ]

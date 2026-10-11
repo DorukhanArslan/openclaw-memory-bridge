@@ -1,15 +1,11 @@
 import "../src/load-env.ts";
-import {
-  lstat,
-  mkdir,
-  mkdtemp,
-  readFile,
-  rm,
-  writeFile,
-} from "node:fs/promises";
+import { lstat, mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { Lab, PROJECT } from "../src/lab.ts";
-import { createLifecycleLedger } from "../src/lifecycle-request-budget.ts";
+import {
+  createLifecycleLedger,
+  readLifecycleLedger,
+} from "../src/lifecycle-request-budget.ts";
 import { requireEnvironment } from "../src/project-env.ts";
 
 requireEnvironment(["OPENROUTER_API_KEY"]);
@@ -25,7 +21,7 @@ try {
   const stat = await lstat(ledger);
   if (!stat.isFile() || stat.isSymbolicLink())
     throw new Error("Invalid lifecycle ledger.");
-  const prior = JSON.parse(await readFile(ledger, "utf8"));
+  const prior = readLifecycleLedger(ledger);
   if (
     prior.requests !== 0 ||
     prior.inputBytes !== 0 ||
