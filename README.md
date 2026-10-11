@@ -1,69 +1,61 @@
-# OpenClaw memory bridge
+# OpenClaw memory foundation
 
-This bridge connects applications to the existing OpenClaw memory engine. You do not need to write a new memory engine.
+A small developer lab and server-side bridge to OpenClaw's existing TypeScript memory engine. It uses a private loopback Gateway, native `memory_search`/`memory_get` and the native index. Tested runtimes: **OpenClaw 2026.9.9**, **Node 24.16.0**. Use synthetic data only.
 
-The bridge uses the official OpenClaw CLI and Gateway. It requires OpenClaw **2026.9.9** and Node **24.16.0**. The installer supplies both inside the project.
+## Run locally without a key
 
-## Quick start
-
-Use synthetic data only. Setup requires `npm` and access to the npm registry. Keyword search requires no model or API key.
+From this project directory, dependencies are already installed on the development computer:
 
 ```bash
-git clone https://github.com/DorukhanArslan/openclaw-memory-bridge.git
-cd openclaw-memory-bridge
-bash scripts/install.sh
-npm start
+./node_modules/node/bin/node src/cli.ts shell
 ```
 
-The terminal shows an `alpha>` prompt. Enter these commands:
+On a fresh copy, first run `bash scripts/install.sh` with npm available. The installer supplies the pinned project-local runtimes from the official registry; it does not replace system Node.
+
+At the `alpha>` prompt:
 
 ```text
 note sample Synthetic Aurora uses cobalt telescopes.
 index
 search cobalt
 get memory/sample.md
+restart
+search cobalt
+use beta
+search cobalt
+use alpha
+note sample Synthetic Aurora now uses amber telescopes.
+index
+search amber
+delete sample
+index
+search amber
 exit
 ```
 
-Index notes after each write, update, or deletion. Enter `help` for more commands. Run `npm run demo` for an automatic example.
+Reindex after writes, updates and deletion. `use` selects a separate lab workspace; it provides corpus separation, not enterprise tenant security. Markdown and native SQLite state persist under `.lab/`. The lab starts its own loopback Gateway on demand and stops it at exit. Run `./node_modules/node/bin/node src/cli.ts demo` for a repeatable write/recall/source/restart scenario, or `help` for commands.
 
-## Python connection
+## Native engine and adapters
 
-Python applications use the local JSONL process protocol. The example uses only the Python standard library. It starts the bridge as a child process.
+OpenClaw owns indexing, keyword/vector retrieval, source reads, persistence, agent flush, compaction and dreaming. Application adapters write/delete synthetic Markdown, route workspaces, manage private child processes and present results. There is no standalone memory SDK or invented Gateway write endpoint. Source deletion plus reindex removes current hits; it does not erase other copies or backups.
 
-Use Python **3.9 or later** for this example:
+The [ready Gateway client](GATEWAY.md) connects a server application to an independently owned private Gateway through `POST /tools/invoke`. It never starts or stops that Gateway. Keep its operator token in the authorized server environment. Optional agent routing does not replace application authorization. A minimal client-only installation is available with `bash scripts/install.sh --client-only`. A [JSONL contract](PROTOCOL.md) and generic Python consumer are also included.
 
-```bash
-python3 examples/python_consumer.py
-```
+## Model acceptance and limits
 
-The example tests recall, source reads, process restarts, workspace separation, and deletion. See the [process contract](PROTOCOL.md) for requests and responses.
+- No-key keyword recall, source reads, updates, deletion, persistence and workspace separation pass against actual OpenClaw.
+- The fixed real GPT-6 Sol chat, `text-embedding-3-small` index, semantic recall and source read passed; see [SMOKE.md](SMOKE.md).
+- Genuine conversation → native successful flush → model-written daily note, compaction, reset capture and daily-source recall after Gateway replacement passed separately; see [LIFECYCLE.md](LIFECYCLE.md).
+- Model consolidation remains unverified: the native sweep found zero eligible deep candidates; `MEMORY.md` did not change. Dream Diary utility requests failed finite output admission and used native fallback prose. No fallback is counted as model success.
 
-## Memory operations
-
-The bridge writes and deletes Markdown notes. OpenClaw creates the search index. Native `memory_search` returns results with sources. Native `memory_get` reads the source text.
-
-The bridge starts a loopback Gateway on demand. The bridge stops its child processes at exit. Workspace data stays in `.lab/` after exit.
-
-## Limits
-
-- This project is a developer lab. Workspace separation provides no enterprise tenant security.
-- Vector search requires a local embedding model.
-- Chat, automatic memory flush, compaction, and model-assisted dreaming require a local text model. Their model tests remain pending.
-- The promotion demo sets its native test thresholds to zero. It does not prove model-based consolidation.
-- Session capture tests use a synthetic transcript fixture. They do not produce a model conversation.
-- The bridge depends on this OpenClaw release. Test a new release before use.
+Local embedding/text servers and native provider selection are optional; see [PROVIDERS.md](PROVIDERS.md). Put an authorized key once in the ignored owner-only project `.env` using a local editor. Runtime loading preserves inherited environment values and never logs the key. General paid execution remains blocked by the [budget guard](BUDGET.md); the completed fixed acceptances do not unlock arbitrary paid commands. Their 5 USD test budget is separate from the 50 USD key cap.
 
 ## Checks
 
 ```bash
-npm test
-npm run typecheck
-npm run lint
+./node_modules/node/bin/node node_modules/typescript/bin/tsc --noEmit
+./node_modules/node/bin/node node_modules/@biomejs/biome/bin/biome check .
+./node_modules/node/bin/node --import ./src/load-env.ts --test --test-concurrency=1 tests/*.test.ts
 ```
 
-The tests use the actual OpenClaw runtime. They cover recall, updates, deletion, sources, persistence, workspace separation, native dreaming, and session capture.
-
-The latest complete run had **11 passes, 0 failures, and 3 skipped model tests**. The repository has no CI workflow.
-
-See the [OpenClaw runtime attribution](THIRD_PARTY.md) for its MIT license notice.
+Latest local full run: **75 tests, 71 passed, 0 failed, 4 skipped**. Skipped broad model tests remain separate from the fixed genuine-provider evidence above. Transport fault fixtures and dummy-provider smoke are explicitly mocked; native memory tests use actual OpenClaw. See [VERIFICATION.md](VERIFICATION.md) for evidence and [THIRD_PARTY.md](THIRD_PARTY.md) for runtime attribution. GitHub Actions results must be checked separately for the exact published commit. Delivery uses the feature branch; no main merge or deployment is included.

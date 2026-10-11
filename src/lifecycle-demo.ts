@@ -36,7 +36,7 @@ export async function lifecycleDemo(
       limitations: [
         "The transcript is an explicitly injected synthetic operator fixture. No text model was executed.",
         "The native hook saved filtered conversation excerpts; this is not model-based durable fact extraction.",
-        "Actual chat.send, model-backed extraction/flush, and summarizing compaction require a selected local tool-capable text model.",
+        "Actual chat.send, model-backed extraction/flush, and summarizing compaction require a selected tool-capable text model.",
       ],
     };
   } finally {

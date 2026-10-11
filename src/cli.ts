@@ -27,12 +27,15 @@ const help = `OpenClaw memory foundation — synthetic data only
   npm run lab -- diary WS             native Dream Diary read
   npm run lab -- dream-off WS         disable lab dreaming
   npm run lab -- model WS URL MODEL   select an explicit local text completion model
+  npm run lab -- native-model WS PROVIDER/MODEL KEY_ENV  native provider + env SecretRef; config only
+  npm run lab -- native-vector WS URL MODEL KEY_ENV     native compatible embeddings; config only
+  npm run lab -- validate-config WS   native schema validation; no model request
   npm run lab -- ingestion WS on|off  native reset-to-memory hook (no model needed)
   npm run lab -- session-fixture WS SESSION TEXT  native synthetic transcript injection
   npm run lab -- session-history WS SESSION  native chat history in this lab only
   npm run lab -- session-state WS SESSION    native stored session metadata
   npm run lab -- session-reset WS SESSION [new] capture via hook, await artifact, index
-  npm run lab -- chat WS SESSION TEXT  real local-model agent turn; wait for completion
+  npm run lab -- chat WS SESSION TEXT  real selected-model agent turn; wait for completion
   npm run lab -- flush-config WS normal|test|off  native automatic flush configuration
   npm run lab -- compact WS SESSION [test] native model summarization (does not force flush)
   npm run lab -- lifecycle-demo       no-key native session hook/recall/restart example
@@ -41,8 +44,10 @@ Shell: use NAME, note ID TEXT, delete ID, index, search QUERY, get PATH,
        status, list, restart, keyword, vector URL MODEL, help, exit.
 Lifecycle shell: ingestion on, session-fixture SESSION TEXT,
        session-reset SESSION [new], session-history SESSION, session-state SESSION,
-       model URL ID, chat SESSION TEXT, flush-config normal|test|off, compact SESSION.
+       model URL ID, native-model PROVIDER/MODEL KEY_ENV, native-vector URL MODEL KEY_ENV,
+       validate-config, chat SESSION TEXT, flush-config normal|test|off, compact SESSION.
 This is a terminal interface: there is no browser UI or public/local UI URL.
+Credential-backed native operations remain blocked pending a verified spending boundary; see BUDGET.md.
 The shell starts OpenClaw on demand; index/status stop it before running its CLI.
 Notebooks are persisted in .lab/WS/workspace/memory. Notes are application writes;
 search, source reads, indexing and SQLite persistence are native OpenClaw.`;
@@ -101,6 +106,16 @@ async function action(lab: Lab, command: string, args: string[]) {
       return lab.dreamOff();
     case "model":
       return lab.configureTextModel(args[0] ?? "", args[1] ?? "");
+    case "native-model":
+      return lab.configureNativeModel(args[0] ?? "", args[1] ?? "");
+    case "native-vector":
+      return lab.configureNativeVector(
+        args[0] ?? "",
+        args[1] ?? "",
+        args[2] ?? "",
+      );
+    case "validate-config":
+      return lab.validateConfig();
     case "ingestion":
       if (!["on", "off"].includes(args[0] ?? ""))
         throw new Error("Use ingestion on|off.");

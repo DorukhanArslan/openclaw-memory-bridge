@@ -1,0 +1,45 @@
+name: Native memory checks
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 24.16.0
+      - name: Install pinned runtime from the lockfile
+        run: bash scripts/install.sh
+      - name: Check types and style
+        run: |
+          npm run typecheck
+          npm run lint
+          bash -n scripts/install.sh
+      - name: Test synthetic transport and native OpenClaw workflows
+        run: npm test
+      - name: Check the client-only clean setup
+        run: |
+          client_dir=$(mktemp -d)
+          git archive HEAD | tar -x -C "$client_dir"
+          cd "$client_dir"
+          bash scripts/install.sh --client-only
+          .bootstrap/node_modules/node/bin/node --test tests/gateway.test.ts
+          test ! -e node_modules/openclaw
+
+# Genuine model tests keep their explicit local-model gates. This workflow does
+# not configure credentials, download models or treat skipped tests as passes.

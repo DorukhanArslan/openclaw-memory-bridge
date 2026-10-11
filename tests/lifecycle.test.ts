@@ -35,7 +35,7 @@ test("REAL no-model lifecycle: native transcript fixture → reset hook → reca
       assert.equal((await beta.search("indigo")).results.length, 0);
       await assert.rejects(
         beta.chat("test", "synthetic text"),
-        /Select a local text model/,
+        /Select a native tool-capable text model/,
       );
       await assert.rejects(beta.configureFlush("test"), /First select/);
       await beta.configureTextModel(
