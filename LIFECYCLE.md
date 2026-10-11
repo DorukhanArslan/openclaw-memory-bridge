@@ -1,6 +1,20 @@
 # Native lifecycle acceptance — 2026-10-11
 
-This lab uses OpenClaw 2026.9.9's existing agent lifecycle. The application supplies synthetic input, supervises requests and observes native files/RPC results. It does not extract facts, summarize conversations or implement consolidation itself. Paid acceptance is closed for this checkpoint.
+This lab uses OpenClaw 2026.9.9's existing agent lifecycle. The application supplies synthetic input, supervises requests and observes native files/RPC results. It does not extract facts, summarize conversations or implement consolidation itself. The latest acceptance below supersedes the earlier failed continuation. No new paid run is scheduled.
+
+## Latest real native consolidation and diary acceptance
+
+The official `agent --local` operator path produced a daily duplicate in the same native workspace that held its source session. The source session ID was unchanged after Gateway restart. Generic `gateway call chat.send` uses method-minimal scopes in this release and produces non-owner memory provenance; its earlier daily write was recalled but rejected for promotion. No stored trust label, native database, security setting, or operator scope was edited to bypass that check.
+
+The baseline durable duplicate was an explicit synthetic application fixture with matching project scope. The daily source was genuinely written by the native model. Native validated consolidation reported **Added: 0, Merged: 1, Superseded: 0**. The writer replaced the duplicate with one sourced entry and its promotion marker. All four unrelated facts remained. Light, REM, and deep diary publication completed with real model text and no fallback. After native reindex and Gateway replacement, `memory_search` recalled `MEMORY.md` with source lines.
+
+[Sanitized before/after evidence](reports/native-acceptance-summary.json) records these checks. Raw synthetic evidence remains ignored in `evidence/provenance-merge-acceptance/acceptance.json`. The native source workspace is retained locally for audit. Earlier failed scenarios are retained separately and are not counted as successes. [Each test round](reports/test-report.html) states its actual result.
+
+The pinned native utility completion path omits an explicit output-token limit. The application transport adds `max_completion_tokens: 2048` only for this fixed approved model/profile when both native output fields are absent. It preserves model, prompt, tools, source provenance, and the native consolidation algorithm. This is a budget adapter. It is not a new memory capability. Aggregate limits are 16 dispatches, 180000 serialized input bytes, 40000 output tokens, and 8192 tokens per explicitly bounded request. Their conservative advertised-rate envelope is 4.44 USD. The current cumulative usage plus that envelope is checked against 5 USD before dispatch. Native retries share the same owner-only ledger.
+
+The passing scenario made six dispatches, with 39479 serialized input bytes and 10240 reserved output tokens. The immediate sampled cumulative key counter was about 0.22686 USD. Provider counters can lag and include concurrent key use; this is not settled per-generation billing or an atomic provider reservation.
+
+**Changed-fact supersession is not tested.** Native validation requires matching lineage and prevents merges between different facts or project groups. The earlier changed-preference scenario failed those checks and used append-only fallback. The successful duplicate merge does not imply arbitrary automatic updates. Python note update/delete tests exercise application Markdown adapters followed by the native index.
 
 ## Accepted genuine model behavior
 
@@ -21,7 +35,7 @@ Accepted evidence in ignored `evidence/lifecycle-acceptance/acceptance.json`:
 
 This run dispatched 11 supervised native requests, with 244,404 serialized input bytes and 10,752 requested output tokens. Its later REM step stopped on a native stderr warning mixed into JSON; the full command exited 2. The JSON adapter now reads stdout separately. The already observed stages remain accepted; the interrupted run is not an overall success. The separate continuation below verified the repaired CLI parsing.
 
-## Consolidation remains unaccepted
+## Historical consolidation continuation: not accepted
 
 The continuation copied the verified model-produced daily note into a **fresh, separate synthetic workspace**. That copy is an application adapter; it does not preserve original source-session provenance or prove automatic end-to-end consolidation of the original conversation. One genuine agent recall turn and three native keyword queries followed.
 

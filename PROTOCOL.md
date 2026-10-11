@@ -45,3 +45,9 @@ with FoundationClient(Path("/path/to/foundation"), Path("/path/to/synthetic-stat
 ```
 
 Run `python3 examples/python_consumer.py` for its real-engine smoke scenario or `npm run test:protocol` for automated acceptance. A host restart means closing/recreating the client with the same root; `restart` alone replaces only its Gateway. Deletion removes current source hits after native reindex, not previously promoted copies, diaries/backups or secure erasure. The supported boundary is OpenClaw CLI/Gateway, with explicit version coupling to `2026.9.9`; there are no private memory module imports.
+
+## Python SDK lifecycle inspection additions
+
+Protocol v1 also supports `configure` with boolean `args.ingestion`; `fixture` with explicit synthetic `args.session` and `args.text`; `session_history`, `session_state`, and `session_reset` with `args.session`; and read-only `dream_status` / `dream_diary`. Fixture injection returns `modelExecuted: false`. Native reset capture requires ingestion enabled. These operations call existing native methods and hooks; they do not synthesize extraction.
+
+The installed Python SDK maps the caller's workspace/user pair to a stable local route and passes the session key for recall and lifecycle inspection. This is routing only. It provides no user authorization boundary. Each client owns its sequential JSONL stream and private process. Close it after a transport timeout before deciding whether to retry an uncertain operation. The SDK supplies no general paid-chat or dream-write endpoint.

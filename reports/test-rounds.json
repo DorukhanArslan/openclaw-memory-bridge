@@ -64,5 +64,27 @@
     "Status": "FAIL",
     "Evidence": "evidence/provenance-bounded-acceptance/acceptance.json (local, ignored)",
     "Commit": "bde6cd2"
+  },
+  {
+    "Round": "7. Real native duplicate merge and complete model Dream Diary",
+    "Test goal": "Merge a duplicate memory with the native model and keep its source. Complete all model diary calls.",
+    "What we did": "Use the official local operator CLI. Preserve its native session. Write a daily duplicate with matching project scope. Record recall. Run native dreaming and wait for all three diary publications. Restart and recall the durable source.",
+    "Expected result": "The native validated writer merges one duplicate. Unrelated facts remain. The durable entry cites the daily source. All three diary phases write real model text.",
+    "Actual result": "All six acceptance stages passed. The native model reported Added: 0, Merged: 1, Superseded: 0. MEMORY.md contains one Vega fact with its source and native promotion marker. All four unrelated facts remain. Light, REM, and deep diary publications completed without fallback. Durable recall passed after restart. Six requests used 39479 input bytes and reserved 10240 output tokens. The sampled cumulative provider counter is about 0.22686 USD.",
+    "What this means for your app": "Native duplicate consolidation and model diary generation work in this bounded scenario. The app must preserve provenance, match project scope, and wait for diary completion. Changed-fact supersession still needs matching native lineage and is not verified by this test.",
+    "Status": "PASS",
+    "Evidence": "evidence/provenance-merge-acceptance/acceptance.json (local, ignored); reports/native-acceptance-summary.json",
+    "Commit": "57dc69e"
+  },
+  {
+    "Round": "8. Final SDK and regression checks",
+    "Test goal": "Verify the final installed SDK and check existing bridge behavior.",
+    "What we did": "Rebuild and reinstall the wheel in the clean venv. Repeat the separate real-engine app with a fresh root. Run the full serial Node test suite, Python transport tests, TypeScript, Biome, and whitespace checks.",
+    "Expected result": "All applicable checks pass. Optional model checks remain explicitly skipped.",
+    "Actual result": "The final installed SDK passed all eleven real-engine checks again. Node: 77 tests, 73 passed, zero failed, four skipped. Three Python protocol tests passed. TypeScript, Biome, whitespace, and report portability checks passed.",
+    "What this means for your app": "The installed client and existing bridge work together with the pinned engine. Mocks test transport failures only. Skipped tests are not claimed as new model or vector passes.",
+    "Status": "PASS",
+    "Evidence": "evidence/sdk-acceptance/final-result.json; evidence/sdk-acceptance/node-tests.log; python/tests/test_client.py (raw evidence local, ignored)",
+    "Commit": "57dc69e"
   }
 ]
