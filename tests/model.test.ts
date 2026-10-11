@@ -5,21 +5,16 @@ import { test } from "node:test";
 import { setTimeout as delay } from "node:timers/promises";
 import { DAILY_FIXTURE } from "../src/dream-demo.ts";
 import { Lab, PROJECT } from "../src/lab.ts";
+import { modelGate, selectTextModel } from "./model-selection.ts";
 
-test("REAL optional local text model: native dreaming narrative", {
-  skip:
-    !process.env.LAB_MODEL_URL || !process.env.LAB_MODEL_NAME
-      ? "Set LAB_MODEL_URL and LAB_MODEL_NAME for an explicitly selected local text model."
-      : false,
+test("REAL optional selected text model: native dreaming narrative", {
+  skip: modelGate("text", process.env),
   timeout: 600000,
 }, async () => {
   const root = await mkdtemp(join(PROJECT, ".lab-test-"));
   const lab = await new Lab("model", root).init();
   try {
-    await lab.configureTextModel(
-      process.env.LAB_MODEL_URL ?? "",
-      process.env.LAB_MODEL_NAME ?? "",
-    );
+    await selectTextModel(lab);
     await lab.writeDaily(new Date().toISOString().slice(0, 10), DAILY_FIXTURE);
     await lab.index();
     await lab.remStage();

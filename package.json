@@ -12,6 +12,7 @@
     "test:protocol": "node_modules/node/bin/node --test tests/protocol.test.ts",
     "test:transport": "node_modules/node/bin/node --test tests/gateway.test.ts",
     "test:ready": "node_modules/node/bin/node --test tests/ready-gateway.test.ts",
+    "test:config": "node_modules/node/bin/node --test tests/provider-handoff.test.ts",
     "test": "node_modules/node/bin/node --test --test-concurrency=1 tests/*.test.ts",
     "test:vector": "node_modules/node/bin/node --test tests/vector.test.ts",
     "test:model": "node_modules/node/bin/node --test tests/model.test.ts",

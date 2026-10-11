@@ -17,6 +17,17 @@ import { dirname, join, resolve } from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
 import { fileURLToPath } from "node:url";
 import { ReadyGateway } from "./gateway.ts";
+import {
+  credentialEnv,
+  forwardCredentials,
+  nativeModel,
+  providerEndpoint,
+  redactCredentials,
+  secretRef,
+  type TextModel,
+  textModelConfig,
+  textModelRef,
+} from "./provider-handoff.ts";
 
 export const PROJECT = fileURLToPath(new URL("../", import.meta.url));
 const ENTRY = resolve(
@@ -71,10 +82,15 @@ export type SearchResult = {
 };
 type Settings = (
   | { provider: "none" }
-  | { provider: "openai-compatible"; model: string; baseUrl: string }
+  | {
+      provider: "openai-compatible";
+      model: string;
+      baseUrl: string;
+      keyEnv?: string;
+    }
 ) & {
   dreaming?: boolean;
-  textModel?: { baseUrl: string; model: string };
+  textModel?: TextModel;
   sessionMemory?: boolean;
   flush?: "normal" | "test";
 };
@@ -171,7 +187,11 @@ export class Lab {
         const settings = JSON.parse(
           await readFile(settingsPath, "utf8"),
         ) as Settings;
-        if (settings.textModel) localEndpoint(settings.textModel.baseUrl);
+        if (settings.textModel) {
+          if ("ref" in settings.textModel)
+            nativeModel(settings.textModel.ref, settings.textModel.keyEnv);
+          else localEndpoint(settings.textModel.baseUrl);
+        }
         if (
           settings.provider === "openai-compatible" &&
           typeof settings.model === "string" &&
@@ -179,12 +199,17 @@ export class Lab {
         ) {
           this.settings = {
             ...settings,
-            baseUrl: localEndpoint(settings.baseUrl),
+            baseUrl: settings.keyEnv
+              ? providerEndpoint(settings.baseUrl)
+              : localEndpoint(settings.baseUrl),
+            ...(settings.keyEnv
+              ? { keyEnv: credentialEnv(settings.keyEnv) }
+              : {}),
           };
         } else if (settings.provider === "none") this.settings = settings;
         else
           throw new Error(
-            "Invalid lab settings; only keyword or explicitly configured local embeddings are supported.",
+            "Invalid lab settings; select keyword or explicitly configured native embeddings.",
           );
       } catch (error) {
         if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
@@ -197,8 +222,26 @@ export class Lab {
     }
   }
 
+  private credentialNames(): string[] {
+    return [
+      ...(this.settings.provider === "openai-compatible" && this.settings.keyEnv
+        ? [this.settings.keyEnv]
+        : []),
+      ...(this.settings.textModel && "ref" in this.settings.textModel
+        ? [this.settings.textModel.keyEnv]
+        : []),
+    ];
+  }
+
+  private redact(text: string): string {
+    return redactCredentials(
+      text,
+      forwardCredentials(this.credentialNames(), process.env),
+    );
+  }
+
   private env(): NodeJS.ProcessEnv {
-    // Deliberately do not inherit process.env, API keys, proxies, .env or personal HOME.
+    // The operator opts in to exact provider names. All other environment stays isolated.
     return {
       PATH: `${dirname(process.execPath)}:/usr/bin:/bin`,
       HOME: this.home,
@@ -213,6 +256,7 @@ export class Lab {
       OPENCLAW_NO_RESPAWN: "1",
       OPENCLAW_SKIP_CHANNELS: "1",
       OPENCLAW_NO_AUTO_UPDATE: "1",
+      ...forwardCredentials(this.credentialNames(), process.env),
     };
   }
 
@@ -226,7 +270,9 @@ export class Lab {
             model: this.settings.model,
             remote: {
               baseUrl: this.settings.baseUrl,
-              apiKey: "local-lab-placeholder",
+              apiKey: this.settings.keyEnv
+                ? secretRef(this.settings.keyEnv)
+                : "local-lab-placeholder",
             },
             sources: ["memory"],
             fallback: "none",
@@ -235,6 +281,18 @@ export class Lab {
       this.config,
       JSON.stringify(
         {
+          ...(this.credentialNames().length
+            ? {
+                secrets: {
+                  providers: {
+                    "bridge-env": {
+                      source: "env",
+                      allowlist: this.credentialNames(),
+                    },
+                  },
+                },
+              }
+            : {}),
           gateway: {
             mode: "local",
             port: this.port || 18789,
@@ -255,14 +313,14 @@ export class Lab {
                   ? { keepRecentTokens: 512, recentTurnsPreserve: 1 }
                   : {}),
                 ...(this.settings.textModel
-                  ? { model: `lab/${this.settings.textModel.model}` }
+                  ? { model: textModelRef(this.settings.textModel) }
                   : {}),
                 memoryFlush: {
                   enabled: Boolean(
                     this.settings.flush && this.settings.textModel,
                   ),
                   ...(this.settings.textModel
-                    ? { model: `lab/${this.settings.textModel.model}` }
+                    ? { model: textModelRef(this.settings.textModel) }
                     : {}),
                   softThresholdTokens: 4000,
                   forceFlushTranscriptBytes:
@@ -272,7 +330,7 @@ export class Lab {
               ...(this.settings.textModel
                 ? {
                     model: {
-                      primary: `lab/${this.settings.textModel.model}`,
+                      primary: textModelRef(this.settings.textModel),
                       fallbacks: [],
                     },
                   }
@@ -287,21 +345,7 @@ export class Lab {
           },
           ...(this.settings.textModel
             ? {
-                models: {
-                  providers: {
-                    lab: {
-                      api: "openai-completions",
-                      baseUrl: this.settings.textModel.baseUrl,
-                      apiKey: "local-lab-placeholder",
-                      models: [
-                        {
-                          id: this.settings.textModel.model,
-                          name: this.settings.textModel.model,
-                        },
-                      ],
-                    },
-                  },
-                },
+                models: textModelConfig(this.settings.textModel),
               }
             : {}),
           plugins: {
@@ -424,10 +468,10 @@ export class Lab {
     this.commands.set(child, done);
     let output = "";
     child.stdout.on("data", (data: Buffer) => {
-      output = (output + data.toString()).slice(-100000);
+      output = this.redact(output + data.toString()).slice(-100000);
     });
     child.stderr.on("data", (data: Buffer) => {
-      output = (output + data.toString()).slice(-100000);
+      output = this.redact(output + data.toString()).slice(-100000);
     });
     let forceTimer: ReturnType<typeof setTimeout> | undefined;
     const timer = setTimeout(() => {
@@ -475,6 +519,7 @@ export class Lab {
       baseUrl: localEndpoint(url),
       model,
     };
+    delete this.settings.keyEnv;
     await this.saveSettings();
     return this.index();
   }
@@ -513,6 +558,54 @@ export class Lab {
     };
   }
 
+  /** Configure references only. Native config validation makes no provider request. */
+  async configureNativeModel(ref: string, keyEnv: string) {
+    const selected = nativeModel(ref, keyEnv);
+    await this.applyNativeSettings({ ...this.settings, textModel: selected });
+    return { configured: ref, credentialEnv: keyEnv, configurationOnly: true };
+  }
+
+  /** OpenClaw owns the generic embedding transport and SecretRef resolution. */
+  async configureNativeVector(url: string, model: string, keyEnv: string) {
+    if (!model.trim() || model.length > 200)
+      throw new Error("Supply the chosen native embedding model name.");
+    await this.applyNativeSettings({
+      ...this.settings,
+      provider: "openai-compatible",
+      baseUrl: providerEndpoint(url),
+      model,
+      keyEnv: credentialEnv(keyEnv),
+    });
+    return {
+      configured: "openai-compatible",
+      model,
+      credentialEnv: keyEnv,
+      configurationOnly: true,
+      needsIndex: true,
+    };
+  }
+
+  private async applyNativeSettings(next: Settings) {
+    await this.stop();
+    const previous = this.settings;
+    this.settings = next;
+    try {
+      await this.saveSettings();
+      await this.validateConfig();
+    } catch (error) {
+      this.settings = previous;
+      await this.saveSettings();
+      throw error;
+    }
+  }
+
+  async validateConfig() {
+    await this.stop();
+    return JSON.parse(
+      await this.native(["config", "validate", "--json"]),
+    ) as unknown;
+  }
+
   async configureIngestion(enabled: boolean) {
     await this.stop();
     this.settings.sessionMemory = enabled;
@@ -529,7 +622,7 @@ export class Lab {
   async configureFlush(mode: "normal" | "test" | "off") {
     if (mode !== "off" && !this.settings.textModel)
       throw new Error(
-        "First select a running local tool-capable text model with model URL ID. No provider is inferred.",
+        "First select a tool-capable model with model or native-model. No provider is inferred.",
       );
     await this.stop();
     this.settings.flush = mode === "off" ? undefined : mode;
@@ -537,7 +630,7 @@ export class Lab {
     return {
       memoryFlush: mode,
       model: this.settings.textModel
-        ? `lab/${this.settings.textModel.model}`
+        ? textModelRef(this.settings.textModel)
         : null,
       forceFlushTranscriptBytes: mode === "test" ? 1024 : "2mb",
       trigger:
@@ -556,7 +649,7 @@ export class Lab {
       key: this.sessionKey(session),
       agentId: "main",
       ...(this.settings.textModel
-        ? { model: `lab/${this.settings.textModel.model}` }
+        ? { model: textModelRef(this.settings.textModel) }
         : {}),
     });
   }
@@ -679,7 +772,7 @@ export class Lab {
   async chat(session: string, text: string) {
     if (!this.settings.textModel)
       throw new Error(
-        "Select a local text model with model URL ID before real chat execution.",
+        "Select a native tool-capable text model before real chat execution.",
       );
     if (!text.trim() || Buffer.byteLength(text) > 64000)
       throw new Error("Supply a synthetic chat turn, at most 64 KB.");
@@ -727,7 +820,7 @@ export class Lab {
   async compactSession(session: string, testRetention = false) {
     if (!this.settings.textModel)
       throw new Error(
-        "Native summarizing compaction requires a selected local text model.",
+        "Native summarizing compaction requires a selected tool-capable text model.",
       );
     if (testRetention) {
       await this.stop();
@@ -910,7 +1003,7 @@ export class Lab {
       }),
       signal: AbortSignal.timeout(40000),
     });
-    const body = (await response.json()) as {
+    const body = JSON.parse(this.redact(await response.text())) as {
       ok: boolean;
       result?: {
         details?: unknown;
@@ -955,7 +1048,7 @@ export class Lab {
       spawnError = error;
     });
     const consume = (data: Buffer) => {
-      this.logTail = (this.logTail + data.toString()).slice(-12000);
+      this.logTail = this.redact(this.logTail + data.toString()).slice(-12000);
     };
     child.stdout.on("data", consume);
     child.stderr.on("data", consume);

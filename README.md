@@ -19,6 +19,10 @@ Supply `BRIDGE_GATEWAY_URL` and `BRIDGE_GATEWAY_TOKEN` through your authorized s
 
 Keep the operator token on the server. Authenticate users and authorize their routes before recall. Route selection provides no tenant security. See the [Gateway integration](GATEWAY.md) for the interface, limits and error codes.
 
+## Select native providers
+
+OpenClaw supplies OpenRouter and other providers. The managed lab's `native-model` command passes a provider/model reference and an env SecretRef; `native-vector` configures embeddings separately. Both validate config without model requests. Enter a key yourself at the hidden local prompt in [PROVIDERS.md](PROVIDERS.md). Project `.env` files are not automatically loaded. Provider acceptance needs an approved model and budget.
+
 ## Run the managed lab
 
 Setup requires `npm` and access to the npm registry. The full installer supplies the pinned Node and OpenClaw runtimes. Keyword search requires no model or API key.
@@ -45,7 +49,7 @@ Python applications can use the managed lab's local JSONL process contract. Run 
 ## Limits and checks
 
 - Use synthetic data in this lab. Source deletion removes current indexed hits after reindex; it does not erase other copies or backups.
-- Vector search requires a local embedding model. Model-generated dreaming, consolidation and chat flush require a genuine local text model. Model acceptance remains pending.
+- Vector search requires a genuine embedding model. Model-generated dreaming, consolidation and chat flush require a genuine tool-capable text model. Local servers and selected native providers are supported; model acceptance remains pending.
 - The promotion demo uses zero test thresholds. Session capture uses a labelled transcript fixture. These checks do not prove model-generated memory.
 - A first client request can pay connection and native initialization cost. Warm calls can reuse sockets. No zero-startup or latency guarantee applies.
 

@@ -3,12 +3,10 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { join } from "node:path";
 import { test } from "node:test";
 import { Lab, PROJECT } from "../src/lab.ts";
+import { modelGate, selectVectorModel } from "./model-selection.ts";
 
-test("REAL optional local embeddings: semantic recall without shared query words", {
-  skip:
-    !process.env.LAB_VECTOR_URL || !process.env.LAB_VECTOR_MODEL
-      ? "Set LAB_VECTOR_URL and LAB_VECTOR_MODEL for an explicitly selected local embeddings server."
-      : false,
+test("REAL optional selected embeddings: semantic recall without shared query words", {
+  skip: modelGate("vector", process.env),
   timeout: 300000,
 }, async () => {
   const root = await mkdtemp(join(PROJECT, ".lab-test-"));
@@ -24,10 +22,7 @@ test("REAL optional local embeddings: semantic recall without shared query words
       0,
       "The keyword baseline must have no hits before optional embeddings are enabled.",
     );
-    await lab.configureVector(
-      process.env.LAB_VECTOR_URL ?? "",
-      process.env.LAB_VECTOR_MODEL ?? "",
-    );
+    await selectVectorModel(lab);
     const result = await lab.search("pedal-powered commuting");
     assert.equal(result.provider, "openai-compatible");
     assert.ok(result.results.some((hit) => hit.path === "memory/resident.md"));

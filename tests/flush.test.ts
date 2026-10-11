@@ -3,21 +3,16 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { join } from "node:path";
 import { test } from "node:test";
 import { Lab, PROJECT } from "../src/lab.ts";
+import { modelGate, selectTextModel } from "./model-selection.ts";
 
-test("REAL optional local model: agentic memory flush, compaction, reset capture and recall", {
-  skip:
-    !process.env.LAB_MODEL_URL || !process.env.LAB_MODEL_NAME
-      ? "Choose a running local tool-capable chat model via LAB_MODEL_URL / LAB_MODEL_NAME. No fake model is used."
-      : false,
+test("REAL optional selected model: agentic memory flush, compaction, reset capture and recall", {
+  skip: modelGate("text", process.env),
   timeout: 600000,
 }, async () => {
   const root = await mkdtemp(join(PROJECT, ".lab-test-"));
   const lab = await new Lab("flush", root).init();
   try {
-    await lab.configureTextModel(
-      process.env.LAB_MODEL_URL ?? "",
-      process.env.LAB_MODEL_NAME ?? "",
-    );
+    await selectTextModel(lab);
     await lab.configureIngestion(true);
     await lab.configureFlush("test");
     const syntheticContext = Array.from(

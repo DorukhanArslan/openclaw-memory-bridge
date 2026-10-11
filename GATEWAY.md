@@ -51,7 +51,7 @@ The default deadline is 40 seconds, configurable to 1–120,000 ms. It covers co
 
 Gateway bearer credentials grant trusted operator access to the whole Gateway. They are not per-user credentials. Keep them in the server's authorized secret flow, outside browser code, URLs, logs and Git. Authenticate users and authorize the selected agent/session before the call. Never accept connection configuration or route IDs directly from an untrusted request. Routing is not tenant security. Retrieved notes are untrusted data, not instructions or verified facts.
 
-The client retrieves native memory. Automatic extraction, chat flush and consolidation belong to OpenClaw's agent lifecycle. Model-dependent retrieval/consolidation acceptance remains pending genuine local model access. The managed lab retains explicit embedding/chat model test gates; no scripted model or fake embedding proves those capabilities.
+The client retrieves native memory. Automatic extraction, chat flush and consolidation belong to OpenClaw's agent lifecycle. Model-dependent retrieval/consolidation acceptance remains pending genuine model access. The Gateway owner uses native provider and secret setup; the managed lab has a bounded configuration handoff described in [PROVIDERS.md](PROVIDERS.md). Explicit embedding/chat test gates remain; no scripted model or fake embedding proves those capabilities.
 
 ## Checks
 

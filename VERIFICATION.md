@@ -1,5 +1,19 @@
 # Verification record — 2026-10-10
 
+## Native provider handoff (local preparation)
+
+OpenClaw 2026.9.9 already supplies OpenRouter and other provider plugins. The new managed commands hand off a native provider/model reference or compatible embedding configuration, an env SecretRef, and exact selected env names. OpenClaw owns auth resolution and provider HTTP. The ready Gateway client has no provider changes; its owner configures providers through native OpenClaw.
+
+The pinned CLI accepted the generated builtin-provider overlay and `memory.search.remote.apiKey` env SecretRef. Native schema validation decides supported overlays; a rejected overlay restores the previous lab config. No OpenRouter SDK, provider HTTP client or parallel provider registry was added. Config setup performs no index/Gateway startup. A loopback embedding request counter observed **zero requests** during setup.
+
+**Four configuration checks passed**: selected-name env forwarding, runtime-control rejection and output masking; native model references; explicit provider acceptance gating; and actual pinned CLI validation/rollback with no embedding requests. These are configuration/unit/mock checks, not real provider retrieval or consolidation acceptance.
+
+The isolated full package reported **49 tests: 44 passed, 1 failed, 4 skipped**, zero cancelled, in **264.74 seconds**. The sole failure was a lifecycle assertion still matching the old local-only missing-model message. Its expected message was updated for native provider selection. The **targeted real lifecycle rerun passed** (1 passed, 0 failed, in 55.94 seconds), including the remaining native configuration checks after that assertion. The full package was not repeated after this assertion-only repair; its other 44 passing checks remain the full-run evidence. No observed failure remains. TypeScript, Biome, install-script syntax, documented Bash-input syntax and diff whitespace checks passed afterward.
+
+The four genuine model checks remain skipped. Native provider checks now also require explicit model/endpoint/key-env selection and `LAB_ALLOW_MODEL_REQUESTS=1` after operator budget approval. No actual provider key was read, created, entered, stored or sent; no paid/model request ran. Existing secret files were not inspected. Prompt instructions were syntax-checked without executing key input. `.env`/`.env.*` ignore rules were verified; the bridge does not automatically load them. User entry and native runtime resolution remain operator actions; authentication/tool capability and genuine semantic retrieval/extraction/consolidation remain unverified.
+
+This preparation is local only. The earlier `feat/ready-gateway` commit b84951b passed its published GitHub CI; that result does not verify these unpushed changes. See [PROVIDERS.md](PROVIDERS.md) for the exact native handoff and local input flow.
+
 Runtime: **OpenClaw 2026.9.9 (`bcfc888`)**, project-local **Node 24.16.0**. It uses the real native runtime, not a replacement engine or mocked memory responses. Raw machine-specific test outputs and runtime state remain local under ignored directories; this portable record contains no local user paths or credentials.
 
 ## Ready-Gateway integration acceptance
