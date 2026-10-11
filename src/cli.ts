@@ -47,6 +47,7 @@ Lifecycle shell: ingestion on, session-fixture SESSION TEXT,
        model URL ID, native-model PROVIDER/MODEL KEY_ENV, native-vector URL MODEL KEY_ENV,
        validate-config, chat SESSION TEXT, flush-config normal|test|off, compact SESSION.
 This is a terminal interface: there is no browser UI or public/local UI URL.
+Credential-backed native operations remain blocked pending a verified spending boundary; see BUDGET.md.
 The shell starts OpenClaw on demand; index/status stop it before running its CLI.
 Notebooks are persisted in .lab/WS/workspace/memory. Notes are application writes;
 search, source reads, indexing and SQLite persistence are native OpenClaw.`;

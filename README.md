@@ -21,7 +21,7 @@ Keep the operator token on the server. Authenticate users and authorize their ro
 
 ## Select native providers
 
-OpenClaw supplies OpenRouter and other providers. The managed lab's `native-model` command passes a provider/model reference and an env SecretRef; `native-vector` configures embeddings separately. Both validate config without model requests. Enter a key yourself at the hidden local prompt in [PROVIDERS.md](PROVIDERS.md). Project `.env` files are not automatically loaded. Provider acceptance needs an approved model and budget.
+OpenClaw supplies OpenRouter and other providers. The managed lab's `native-model` command passes a provider/model reference and an env SecretRef; `native-vector` configures embeddings separately. Both validate config without model requests. Enter a key yourself at the hidden local prompt in [PROVIDERS.md](PROVIDERS.md). Project `.env` files are not automatically loaded. Paid execution remains blocked while the [native budget preflight](BUDGET.md) cannot verify a strict total spending boundary.
 
 ## Run the managed lab
 

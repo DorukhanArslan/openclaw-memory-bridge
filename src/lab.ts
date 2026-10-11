@@ -16,6 +16,10 @@ import { createServer } from "node:net";
 import { dirname, join, resolve } from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
 import { fileURLToPath } from "node:url";
+import {
+  assertGatewayAllowed,
+  assertNativeOperationAllowed,
+} from "./budget-preflight.ts";
 import { ReadyGateway } from "./gateway.ts";
 import {
   credentialEnv,
@@ -457,6 +461,7 @@ export class Lab {
   }
 
   private async native(args: string[], timeout = 120000): Promise<string> {
+    assertNativeOperationAllowed(this.credentialNames().length > 0, args);
     const child = spawn(process.execPath, [ENTRY, ...args], {
       env: this.env(),
       cwd: this.directory,
@@ -603,6 +608,25 @@ export class Lab {
     await this.stop();
     return JSON.parse(
       await this.native(["config", "validate", "--json"]),
+    ) as unknown;
+  }
+
+  /** Native metadata only, with no Gateway start or inference command. */
+  async providerUsage() {
+    await this.stop();
+    return JSON.parse(
+      await this.native(
+        [
+          "status",
+          "--usage",
+          "--json",
+          "--agent",
+          "main",
+          "--timeout",
+          "10000",
+        ],
+        25000,
+      ),
     ) as unknown;
   }
 
@@ -1025,6 +1049,7 @@ export class Lab {
   }
 
   async start() {
+    assertGatewayAllowed(this.credentialNames().length > 0);
     if (this.child) return;
     this.port = await freePort();
     this.token = randomBytes(32).toString("hex");

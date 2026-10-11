@@ -104,9 +104,9 @@ test("CONFIG: native acceptance remains skipped without an explicit request/budg
     LAB_NATIVE_KEY_ENV: "SYNTHETIC_PROVIDER_KEY",
   };
   assert.match(String(modelGate("text", env)), /budget approval/);
-  assert.equal(
-    modelGate("text", { ...env, LAB_ALLOW_MODEL_REQUESTS: "1" }),
-    false,
+  assert.match(
+    String(modelGate("text", { ...env, LAB_ALLOW_MODEL_REQUESTS: "1" })),
+    /strict spending reservation/,
   );
   assert.match(
     String(
@@ -159,10 +159,12 @@ test("NATIVE CONFIG: pinned CLI validates env SecretRefs; setup sends zero embed
       "SYNTHETIC_EMBEDDING_KEY",
     );
     assert.equal(selected.needsIndex, true);
+    await assert.rejects(lab.index(), /Paid native operations are blocked/);
+    await assert.rejects(lab.start(), /Paid Gateway startup is blocked/);
     assert.equal(
       requests,
       0,
-      "Configuration must not index or call an embedding model.",
+      "Configuration and denied operations must not call an embedding model.",
     );
     const path = join(root, "config", "openclaw.json");
     const config = JSON.parse(await readFile(path, "utf8"));

@@ -13,7 +13,7 @@ export function modelGate(
     const model = kind === "text" ? native : env.LAB_NATIVE_VECTOR_MODEL;
     if (!native || !model || !keyName || env.LAB_ALLOW_MODEL_REQUESTS !== "1")
       return "Native provider acceptance requires explicit model/endpoint/key-env selection and LAB_ALLOW_MODEL_REQUESTS=1 after budget approval.";
-    return false;
+    return "Paid native acceptance is blocked: strict spending reservation is unavailable; opt-in and quota estimates are not a hard cap.";
   }
   return kind === "text"
     ? env.LAB_MODEL_URL && env.LAB_MODEL_NAME

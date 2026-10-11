@@ -74,6 +74,6 @@ The four genuine model checks remain skipped without explicit selection:
 | Local embeddings | `LAB_VECTOR_URL`, `LAB_VECTOR_MODEL` |
 | Native compatible embeddings | `LAB_NATIVE_VECTOR_URL`, `LAB_NATIVE_VECTOR_MODEL`, `LAB_NATIVE_VECTOR_KEY_ENV` |
 
-Native provider acceptance also requires `LAB_ALLOW_MODEL_REQUESTS=1` after model and budget approval, with the named credential supplied through the operator's secret flow. This is a test opt-in, not a spending cap. Configuration tests use dummy values and a loopback HTTP counter; they do not prove semantic retrieval or consolidation. Chat/flush/dreaming requires a genuine tool-capable model; embedding tests require a genuine embedding model.
+Native paid acceptance is now blocked even with `LAB_ALLOW_MODEL_REQUESTS=1`: the pinned usage interface cannot establish a strict total spending boundary. Credential-backed native indexing and managed Gateway startup are also denied before dispatch. The approved model pair and smallest configuration/quota diagnostic are in [BUDGET.md](BUDGET.md). Configuration tests use dummy values and a loopback HTTP counter; they do not prove semantic retrieval or consolidation. Chat/flush/dreaming requires a genuine tool-capable model; embedding tests require a genuine embedding model.
 
 See [VERIFICATION.md](VERIFICATION.md) for results. Live documentation can change; the pinned native schema and CLI determine support for this project.
