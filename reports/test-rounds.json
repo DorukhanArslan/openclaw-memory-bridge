@@ -118,7 +118,7 @@
     "What this means for your app": "A valid continuation no longer fails only because midnight passed. The selected source keeps its recorded date.",
     "Status": "PASS",
     "Evidence": "src/consolidation-checkpoint.ts; tests/review-regression.test.ts; evidence/review-regression/green.log (local, ignored)",
-    "Commit": "d9c8220 baseline; working fix"
+    "Commit": "735f245"
   },
   {
     "Round": "10b. Ledger symlink review fix",
@@ -129,6 +129,17 @@
     "What this means for your app": "The recorder does not follow a ledger symlink when it reads or writes the final path component. This is a narrow file-access fix.",
     "Status": "PASS",
     "Evidence": "src/lifecycle-request-budget.ts; tests/review-regression.test.ts; evidence/review-regression/green.log (local, ignored)",
-    "Commit": "d9c8220 baseline; working fix"
+    "Commit": "735f245"
+  },
+  {
+    "Round": "11. Full regression after both narrow review fixes",
+    "Test goal": "Check existing bridge behavior after the date and ledger fixes.",
+    "What we did": "Run the full serial Node suite once at commit 735f245. Keep paid and optional model gates closed.",
+    "Expected result": "Applicable tests pass. The new review regressions pass. Optional checks stay explicitly skipped.",
+    "Actual result": "81 tests completed in 384.65 seconds. 77 passed, zero failed, four skipped, zero cancelled. Both review regressions passed. Eight targeted checks, TypeScript, Biome, and whitespace checks also passed.",
+    "What this means for your app": "The two fixes preserve tested bridge behavior. This follow-up made no paid model requests and does not claim new paid acceptance or SDK package validation.",
+    "Status": "PASS",
+    "Evidence": "tests/review-regression.test.ts; evidence/review-regression/full-regression.log (local, ignored)",
+    "Commit": "735f245"
   }
 ]

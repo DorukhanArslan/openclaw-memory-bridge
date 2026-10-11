@@ -8,6 +8,14 @@ The clean Python 3.12 venv installed the built wheel. A separate app ran with `-
 
 The sampled cumulative provider counter after the successful native test was about 0.22686 USD, below the approved 5 USD ceiling at measurement. No key was manually read or displayed. No credential or account setting changed. The utility output adapter only adds an explicit finite token ceiling; it does not alter native memory semantics. No push, merge, deployment, or package publication occurred for this branch.
 
+## Narrow review follow-up
+
+Both PR #1 findings apply to the local feature branch. The old checkpoint selector rejected a valid prior-day artifact just after UTC midnight. The old request recorder followed a ledger symlink and changed a temporary synthetic target. Both behaviors were reproduced before fixing them; no user file, secret, or network request was involved.
+
+Commit `735f245` selects exactly one verified dated note from the checkpoint itself and preserves its source date. It rejects invalid dates, ambiguous records, and failed evidence. Ledger reads and writes now open with `O_NOFOLLOW`, check the opened descriptor for a regular file, and truncate only after validation. All acceptance entry points and the native budget recorder use that reader. Admission and denial tests leave linked targets byte-identical. Regular-file counters remain intact.
+
+Eight targeted checks passed. TypeScript and Biome passed. The full serial regression ran once at this commit and passed in 384.65 seconds: **81 tests, 77 passed, 0 failed, 4 skipped, 0 cancelled**. Local raw evidence is `evidence/review-regression/full-regression.log`. No paid acceptance, SDK rebuild, push, or merge is part of this follow-up. Earlier genuine model results remain historical evidence; they are not claimed as rerun by these file-access tests. See the [round-by-round HTML report](reports/test-report.html) and `tests/review-regression.test.ts`.
+
 ## Historical verification records
 
 The records below describe earlier checkpoints. Their then-pending consolidation status is superseded by the current result above; their failures remain failures.
