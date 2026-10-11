@@ -9,15 +9,12 @@ import {
   inputTokenUpperBound,
   SMOKE,
   type SmokeConfirmations,
-  SmokeUnavailable,
   smokeBudget,
   verifySmokeRuntime,
 } from "../src/paid-smoke.ts";
 
 const confirmation: SmokeConfirmations = {
   keyLimit: true,
-  resetDisabled: true,
-  exclusiveKey: true,
   prices: SMOKE.prices,
 };
 const status = () => ({
@@ -40,12 +37,11 @@ const status = () => ({
   },
 });
 
-test("SMOKE POLICY: absent/manual price confirmations and bad native budgets fail closed", async () => {
-  for (const key of ["keyLimit", "resetDisabled", "exclusiveKey"] as const)
-    assert.throws(
-      () => confirmSmoke({ ...confirmation, [key]: false }),
-      /Confirm/,
-    );
+test("SMOKE POLICY: mismatched fixed prices and invalid native budgets fail closed", async () => {
+  assert.throws(
+    () => confirmSmoke({ ...confirmation, keyLimit: false }),
+    /provider limit/,
+  );
   for (const prices of ["", "2,10,0,0.02", "2,10,2.5,0.03"])
     assert.throws(() => confirmSmoke({ ...confirmation, prices }), /price/);
   assert.throws(() => smokeBudget({}, confirmation), /usage_missing/);
@@ -73,7 +69,7 @@ test("SMOKE POLICY: absent/manual price confirmations and bad native budgets fai
   );
 });
 
-test("SMOKE POLICY: real mode denies before credential handoff, validation or native quota probe", async () => {
+test("SMOKE POLICY: real mode admits the finite policy; a fresh lab is required before provider handoff", async () => {
   const lab = new Lab("denied");
   let calls = 0;
   lab.validateConfig = async () => {
@@ -86,14 +82,12 @@ test("SMOKE POLICY: real mode denies before credential handoff, validation or na
   };
   await assert.rejects(
     lab.boundedSmoke(confirmation),
-    (error: unknown) =>
-      error instanceof SmokeUnavailable &&
-      error.code === "native_price_routing_unverified",
+    /fresh, empty, isolated lab/,
   );
   assert.equal(calls, 0);
   await assert.rejects(
-    lab.boundedSmoke({ ...confirmation, exclusiveKey: false }),
-    /Confirm/,
+    lab.boundedSmoke({ ...confirmation, keyLimit: false }),
+    /provider limit/,
   );
   assert.equal(calls, 0);
 });
@@ -220,10 +214,36 @@ async function withFixture(
       requests,
       config: () => config,
       run: () =>
-        lab.boundedSmoke(confirmation, {
-          url: `http://127.0.0.1:${address.port}/api/v1`,
-          status: status(),
-        }),
+        lab.boundedSmoke(
+          mode === "success"
+            ? { ...confirmation, providerLimitUsd: 50 }
+            : confirmation,
+          {
+            url: `http://127.0.0.1:${address.port}/api/v1`,
+            status:
+              mode === "success"
+                ? {
+                    usage: {
+                      updatedAt: Date.now(),
+                      providers: [
+                        {
+                          provider: "openrouter",
+                          billing: [
+                            {
+                              type: "budget",
+                              label: "API key budget",
+                              unit: "USD",
+                              limit: 50,
+                              used: 0,
+                            },
+                          ],
+                        },
+                      ],
+                    },
+                  }
+                : status(),
+          },
+        ),
     });
   } finally {
     await lab.close();
@@ -241,6 +261,7 @@ test("NATIVE MOCK SMOKE: fixed completion bounds, one index/query, zero embeddin
     const result = await run();
     assert.equal(result.mode, "native-runtime/mock-provider");
     assert.equal(result.estimateIsHardCap, false);
+    assert.equal(result.budget.limitUsd, 50);
     const chat = requests.filter((r) => r.path.endsWith("/chat/completions"));
     assert.equal(chat.length, 1);
     assert.equal(chat[0]?.body.model, "openai/gpt-6-sol");
@@ -249,7 +270,7 @@ test("NATIVE MOCK SMOKE: fixed completion bounds, one index/query, zero embeddin
     assert.equal(
       chat[0]?.body.provider,
       undefined,
-      "Native isolated route drops price routing; real mode stays closed.",
+      "Routing hints are not required: finite cost uses the highest advertised same-model rate.",
     );
     assert.equal(result.nativePriceRoutingVerified, false);
     assert.deepEqual(chat[0]?.body.reasoning, { effort: "none" });

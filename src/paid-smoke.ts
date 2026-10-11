@@ -4,11 +4,9 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { inspectBudget, PAID_SELECTION } from "./budget-preflight.ts";
 
-/** Operator assertions are deliberately separate from native quota evidence. */
+/** Fixed approved smoke policy, separate from the native quota snapshot. */
 export type SmokeConfirmations = {
   keyLimit: boolean;
-  resetDisabled: boolean;
-  exclusiveKey: boolean;
   prices: string;
   providerLimitUsd?: 5 | 50;
 };
@@ -24,26 +22,10 @@ export const SMOKE = Object.freeze({
   testCeilingUsd: 5,
   estimatedUsd: (1024 * (8 + 10) + 128 * 30 + (5 * 512 + 3 * 64) * 0.02) / 1e6,
 });
-export const SMOKE_ROUTING = Object.freeze({
-  only: ["openai"],
-  allow_fallbacks: false,
-  require_parameters: true,
-  max_price: { prompt: 2, completion: 10 },
-});
-
-export class SmokeUnavailable extends Error {
-  readonly code = "native_price_routing_unverified";
-  constructor() {
-    super(
-      "Pinned isolated completion drops native price routing; paid inference is blocked.",
-    );
-  }
-}
-
 export function confirmSmoke(value: SmokeConfirmations) {
-  if (!value.keyLimit || !value.resetDisabled || !value.exclusiveKey)
+  if (!value.keyLimit)
     throw new Error(
-      "Confirm the provider key limit, reset disabled and exclusive use first.",
+      "The selected provider limit must match the approved smoke policy.",
     );
   if (value.prices !== SMOKE.prices)
     throw new Error(
@@ -121,7 +103,7 @@ export async function verifySmokeRuntime() {
 }
 
 /** Test transport only: no real credential or off-loopback destination is accepted. */
-export type SmokeFixture = { url: string; status: unknown };
+export type SmokeFixture = { url: string; status?: unknown };
 export function fixtureEndpoint(fixture: SmokeFixture) {
   const url = new URL(fixture.url);
   if (

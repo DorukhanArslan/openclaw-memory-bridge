@@ -1,3 +1,5 @@
+Current finite-smoke exception: `bash --noprofile --norc scripts/bounded-smoke.sh` executes the fixed native GPT-6 Sol + embedding smoke once using the user-reported 50 USD key cap and separate 5 USD test budget. The broader paid suites below remain blocked; see [SMOKE.md](SMOKE.md).
+
 # Use OpenClaw providers
 
 OpenClaw owns providers, model transport, authentication and SecretRef resolution. The bridge passes native model references and selected environment names. It contains no OpenRouter SDK, provider HTTP client or parallel model registry. This path is checked against OpenClaw **2026.9.9** and Node **24.16.0**.

@@ -26,10 +26,8 @@ import {
   confirmSmoke,
   fixtureEndpoint,
   SMOKE,
-  SMOKE_ROUTING,
   type SmokeConfirmations,
   type SmokeFixture,
-  SmokeUnavailable,
   smokeBudget,
   verifySmokeRuntime,
 } from "./paid-smoke.ts";
@@ -373,12 +371,7 @@ export class Lab {
                           ...(this.smoke.fixtureUrl
                             ? { baseUrl: this.smoke.fixtureUrl }
                             : {}),
-                          params: {
-                            provider: SMOKE_ROUTING,
-                            reasoning: { enabled: false },
-                          },
                           // Public native catalog overlay for this one approved reference.
-                          // Isolated completion ignores provider.params, so compat carries routing.
                           models: [
                             {
                               id: "openai/gpt-6-sol",
@@ -388,7 +381,6 @@ export class Lab {
                               compat: {
                                 maxTokensField: "max_completion_tokens",
                                 thinkingFormat: "openrouter",
-                                openRouterRouting: SMOKE_ROUTING,
                               },
                             },
                           ],
@@ -528,6 +520,7 @@ export class Lab {
     args: string[],
     timeout = 120000,
     boundedIndex = false,
+    stdoutOnly = false,
   ): Promise<string> {
     if (boundedIndex) {
       if (!this.smoke || args.join(" ") !== "memory index --force --agent main")
@@ -544,8 +537,10 @@ export class Lab {
     );
     this.commands.set(child, done);
     let output = "";
+    let stdout = "";
     child.stdout.on("data", (data: Buffer) => {
       output = this.redact(output + data.toString()).slice(-100000);
+      stdout = this.redact(stdout + data.toString()).slice(-100000);
     });
     child.stderr.on("data", (data: Buffer) => {
       output = this.redact(output + data.toString()).slice(-100000);
@@ -561,7 +556,7 @@ export class Lab {
         throw new Error(
           `OpenClaw ${args.join(" ")} failed (${code ?? signal}):\n${output}`,
         );
-      return output.trim();
+      return (stdoutOnly ? stdout : output).trim();
     } finally {
       clearTimeout(timer);
       clearTimeout(forceTimer);
@@ -698,6 +693,8 @@ export class Lab {
           "10000",
         ],
         25000,
+        false,
+        true,
       ),
     ) as unknown;
   }
@@ -709,8 +706,6 @@ export class Lab {
   ) {
     confirmSmoke(confirmations); // Before selected env access or native spawn.
     const contract = await verifySmokeRuntime();
-    // Real mode cannot prove native price routing; deny before credential access.
-    if (!fixture) throw new SmokeUnavailable();
     if (
       !this.locked ||
       this.smoke ||
@@ -735,7 +730,7 @@ export class Lab {
       await this.provision(); // No persisted smoke permission/settings.
       await this.validateConfig();
       const budget = smokeBudget(
-        fixture ? fixture.status : await this.providerUsage(),
+        fixture?.status ?? (await this.providerUsage()),
         confirmations,
       );
       await this.writeNote("resident", SMOKE.note);

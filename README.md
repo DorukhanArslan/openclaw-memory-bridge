@@ -21,9 +21,9 @@ Keep the operator token on the server. Authenticate users and authorize their ro
 
 ## Select native providers
 
-OpenClaw supplies OpenRouter and other providers. The managed lab's `native-model` command passes a provider/model reference and an env SecretRef; `native-vector` configures embeddings separately. Both validate config without model requests. Enter a key yourself at the hidden local prompt in [PROVIDERS.md](PROVIDERS.md). Project `.env` files are not automatically loaded. Paid execution remains blocked while the [native budget preflight](BUDGET.md) cannot verify a strict total spending boundary.
+OpenClaw supplies OpenRouter and other providers. The managed lab's `native-model` command passes a provider/model reference and an env SecretRef; `native-vector` configures embeddings separately. Both validate config without model requests. Enter a key yourself at the hidden local prompt in [PROVIDERS.md](PROVIDERS.md). Project `.env` files are not automatically loaded. General paid lab/lifecycle execution remains blocked by the [native budget guard](BUDGET.md); the separate fixed finite smoke is available below.
 
-The current [bounded smoke checkpoint](SMOKE.md) records native mock transport acceptance and the remaining real-call blocker. The reported 50 USD key cap is separate from the approved 5 USD test budget. Run `npm run test:smoke` for dummy provider tests; `bash --noprofile --norc scripts/bounded-smoke.sh` performs only the hidden-key native quota diagnostic.
+The [bounded native smoke](SMOKE.md) uses one chat completion, one synthetic note/index, one semantic query and a source read. The reported 50 USD key cap is separate from the approved 5 USD test budget. Run `npm run test:smoke` for dummy provider tests, or `bash --noprofile --norc scripts/bounded-smoke.sh` to enter your key privately and execute the fixed real smoke once.
 
 ## Run the managed lab
 
