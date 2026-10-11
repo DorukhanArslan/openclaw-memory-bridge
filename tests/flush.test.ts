@@ -29,6 +29,7 @@ test("REAL optional selected model: agentic memory flush, compaction, reset capt
       "conversation",
       "Confirm my standing indigo filter preference without changing it.",
     );
+    completed.state = await lab.waitForFlush("conversation");
     const state = JSON.stringify(completed.state);
     assert.match(state, /"memoryFlush"/);
     assert.match(state, /"kind":"succeeded"/);

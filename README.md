@@ -1,66 +1,61 @@
-# OpenClaw memory bridge
+# OpenClaw memory foundation
 
-This bridge connects server applications to the existing OpenClaw memory engine. You do not need to write a new memory engine.
+A small developer lab and server-side bridge to OpenClaw's existing TypeScript memory engine. It uses a private loopback Gateway, native `memory_search`/`memory_get` and the native index. Tested runtimes: **OpenClaw 2026.9.9**, **Node 24.16.0**. Use synthetic data only.
 
-Use the ready Gateway client to read memory from a running private Gateway. Use the managed lab to create and test synthetic notes. Both paths use the official OpenClaw API. Tested releases are OpenClaw **2026.9.9** and Node **24.16.0**.
+## Run locally without a key
 
-## Connect a running Gateway
-
-Clone this repository and install the client Node runtime:
+From this project directory, dependencies are already installed on the development computer:
 
 ```bash
-git clone https://github.com/DorukhanArslan/openclaw-memory-bridge.git
-cd openclaw-memory-bridge
-bash scripts/install.sh --client-only
-.bootstrap/node_modules/node/bin/node examples/ready_gateway.ts cobalt
+./node_modules/node/bin/node src/cli.ts shell
 ```
 
-Supply `BRIDGE_GATEWAY_URL` and `BRIDGE_GATEWAY_TOKEN` through your authorized server environment. Optional `BRIDGE_AGENT_ID` selects a configured agent. Use an agent with indexed synthetic notes. The client accepts loopback URLs only. It creates no Gateway and sends no restart or stop command.
+On a fresh copy, first run `bash scripts/install.sh` with npm available. The installer supplies the pinned project-local runtimes from the official registry; it does not replace system Node.
 
-Keep the operator token on the server. Authenticate users and authorize their routes before recall. Route selection provides no tenant security. See the [Gateway integration](GATEWAY.md) for the interface, limits and error codes.
-
-## Select native providers
-
-OpenClaw supplies OpenRouter and other providers. The managed lab's `native-model` command passes a provider/model reference and an env SecretRef; `native-vector` configures embeddings separately. Both validate config without model requests. Put the key once in this project's private `.env` using a local editor; see [PROVIDERS.md](PROVIDERS.md). Test and runtime commands load that exact file regardless of working directory. Existing process environment values take precedence, including empty ones. General paid lab/lifecycle execution remains blocked by the [native budget guard](BUDGET.md); the separate fixed finite smoke is available below.
-
-The [bounded native smoke](SMOKE.md) uses one chat completion, one synthetic note/index, one semantic query and a source read. The reported 50 USD key cap is separate from the approved 5 USD test budget. Run `npm run test:smoke` for dummy provider tests, or `bash --noprofile --norc scripts/bounded-smoke.sh` to execute the fixed real smoke once with the existing environment or project `.env` key. A missing key stops before native execution and directs you to the local file.
-
-## Run the managed lab
-
-Setup requires `npm` and access to the npm registry. The full installer supplies the pinned Node and OpenClaw runtimes. Keyword search requires no model or API key.
-
-```bash
-bash scripts/install.sh
-npm start
-```
-
-The terminal shows an `alpha>` prompt. Enter these commands:
+At the `alpha>` prompt:
 
 ```text
 note sample Synthetic Aurora uses cobalt telescopes.
 index
 search cobalt
 get memory/sample.md
+restart
+search cobalt
+use beta
+search cobalt
+use alpha
+note sample Synthetic Aurora now uses amber telescopes.
+index
+search amber
+delete sample
+index
+search amber
 exit
 ```
 
-Index notes after each write, update or deletion. The bridge writes and deletes Markdown. OpenClaw indexes it and provides native `memory_search` and `memory_get`. The lab owns its loopback child Gateway and stops it at exit. Data stays in `.lab/`. Enter `help` for more commands or run `npm run demo`.
+Reindex after writes, updates and deletion. `use` selects a separate lab workspace; it provides corpus separation, not enterprise tenant security. Markdown and native SQLite state persist under `.lab/`. The lab starts its own loopback Gateway on demand and stops it at exit. Run `./node_modules/node/bin/node src/cli.ts demo` for a repeatable write/recall/source/restart scenario, or `help` for commands.
 
-Python applications can use the managed lab's local JSONL process contract. Run `python3 examples/python_consumer.py` with Python 3.9 or later. See [PROTOCOL.md](PROTOCOL.md).
+## Native engine and adapters
 
-## Limits and checks
+OpenClaw owns indexing, keyword/vector retrieval, source reads, persistence, agent flush, compaction and dreaming. Application adapters write/delete synthetic Markdown, route workspaces, manage private child processes and present results. There is no standalone memory SDK or invented Gateway write endpoint. Source deletion plus reindex removes current hits; it does not erase other copies or backups.
 
-- Use synthetic data in this lab. Source deletion removes current indexed hits after reindex; it does not erase other copies or backups.
-- Vector search requires a genuine embedding model. The approved fixed real chat, embedding, semantic recall and source-read smoke passed; see [SMOKE.md](SMOKE.md). Model-generated dreaming, consolidation and chat flush require a genuine tool-capable text model and remain pending. Local servers and selected native providers are supported.
-- The promotion demo uses zero test thresholds. Session capture uses a labelled transcript fixture. These checks do not prove model-generated memory.
-- A first client request can pay connection and native initialization cost. Warm calls can reuse sockets. No zero-startup or latency guarantee applies.
+The [ready Gateway client](GATEWAY.md) connects a server application to an independently owned private Gateway through `POST /tools/invoke`. It never starts or stops that Gateway. Keep its operator token in the authorized server environment. Optional agent routing does not replace application authorization. A minimal client-only installation is available with `bash scripts/install.sh --client-only`. A [JSONL contract](PROTOCOL.md) and generic Python consumer are also included.
 
-With the full installation:
+## Model acceptance and limits
+
+- No-key keyword recall, source reads, updates, deletion, persistence and workspace separation pass against actual OpenClaw.
+- The fixed real GPT-6 Sol chat, `text-embedding-3-small` index, semantic recall and source read passed; see [SMOKE.md](SMOKE.md).
+- Genuine conversation → native successful flush → model-written daily note, compaction, reset capture and daily-source recall after Gateway replacement passed separately; see [LIFECYCLE.md](LIFECYCLE.md).
+- Model consolidation remains unverified: the native sweep found zero eligible deep candidates; `MEMORY.md` did not change. Dream Diary utility requests failed finite output admission and used native fallback prose. No fallback is counted as model success.
+
+Local embedding/text servers and native provider selection are optional; see [PROVIDERS.md](PROVIDERS.md). Put an authorized key once in the ignored owner-only project `.env` using a local editor. Runtime loading preserves inherited environment values and never logs the key. General paid execution remains blocked by the [budget guard](BUDGET.md); the completed fixed acceptances do not unlock arbitrary paid commands. Their 5 USD test budget is separate from the 50 USD key cap.
+
+## Checks
 
 ```bash
-npm run typecheck
-npm run lint
-npm test
+./node_modules/node/bin/node node_modules/typescript/bin/tsc --noEmit
+./node_modules/node/bin/node node_modules/@biomejs/biome/bin/biome check .
+./node_modules/node/bin/node --import ./src/load-env.ts --test --test-concurrency=1 tests/*.test.ts
 ```
 
-Transport fault tests use synthetic HTTP servers. Native tests use actual OpenClaw. Missing model tests are skipped. A local CI workflow is prepared; GitHub execution is unverified until publication and a completed run. See [VERIFICATION.md](VERIFICATION.md) for results and [THIRD_PARTY.md](THIRD_PARTY.md) for runtime attribution.
+Latest full run: **75 tests, 71 passed, 0 failed, 4 skipped**. Skipped broad model tests remain separate from the fixed genuine-provider evidence above. Transport fault fixtures and dummy-provider smoke are explicitly mocked; native memory tests use actual OpenClaw. See [VERIFICATION.md](VERIFICATION.md) for evidence and [THIRD_PARTY.md](THIRD_PARTY.md) for runtime attribution. Current work is local; no push or deployment was made.

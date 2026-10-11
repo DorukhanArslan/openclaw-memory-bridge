@@ -1,4 +1,4 @@
-Current finite-smoke exception: `bash --noprofile --norc scripts/bounded-smoke.sh` executes the fixed native GPT-6 Sol + embedding smoke once using the user-reported 50 USD key cap and separate 5 USD test budget. The broader paid suites below remain blocked; see [SMOKE.md](SMOKE.md).
+Current fixed acceptances used native GPT-6 Sol and embeddings under the separate 5 USD test budget and reported 50 USD key cap. The chat/embedding smoke passed; genuine lifecycle extraction/flush passed separately, while model consolidation remains unverified. Paid acceptance is now closed for this checkpoint; the broader paid suites below remain blocked. See [SMOKE.md](SMOKE.md) and [LIFECYCLE.md](LIFECYCLE.md).
 
 # Use OpenClaw providers
 
@@ -65,7 +65,7 @@ npm run lab -- validate-config WORKSPACE
 
 These commands validate configuration only and return `needsIndex: true`. Indexing is a separate explicit action that can incur charges. HTTPS remote embedding endpoints are accepted only in this selected path. Existing `model URL MODEL` and `vector URL MODEL` commands remain for local unauthenticated servers.
 
-OpenRouter chat configuration alone does not prove that a chosen embedding model/endpoint works. Genuine embedding acceptance remains pending endpoint/model selection and budget approval. The ready Gateway client uses its owner's native embedding providers without a bridge provider filter.
+OpenRouter chat configuration alone does not prove that a chosen embedding model/endpoint works. The fixed approved `openai/text-embedding-3-small` smoke passed genuine semantic recall; other embedding selections and the broader optional vector tests remain unaccepted. The ready Gateway client uses its owner's native embedding providers without a bridge provider filter.
 
 ## Acceptance gates
 

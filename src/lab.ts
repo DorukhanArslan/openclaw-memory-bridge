@@ -23,6 +23,7 @@ import {
   PAID_SELECTION,
 } from "./budget-preflight.ts";
 import { ReadyGateway } from "./gateway.ts";
+import { LIFECYCLE_LIMITS } from "./lifecycle-request-budget.ts";
 import {
   confirmSmoke,
   fixtureEndpoint,
@@ -166,6 +167,7 @@ export class Lab {
   private commands = new Map<ChildProcess, Promise<void>>();
   private compactionTest = false;
   private smoke?: { fixtureUrl?: string };
+  private lifecycleLedger?: string;
 
   constructor(name = "alpha", root = join(PROJECT, ".lab")) {
     this.root = resolve(root);
@@ -276,6 +278,9 @@ export class Lab {
       OPENCLAW_NO_RESPAWN: "1",
       OPENCLAW_SKIP_CHANNELS: "1",
       OPENCLAW_NO_AUTO_UPDATE: "1",
+      ...(this.lifecycleLedger
+        ? { OPENCLAW_LAB_LIFECYCLE_LEDGER: this.lifecycleLedger }
+        : {}),
       ...forwardCredentials(this.credentialNames(), process.env),
     };
   }
@@ -327,6 +332,14 @@ export class Lab {
               skipBootstrap: true,
               userTimezone: "UTC",
               heartbeat: { every: "0m" },
+              ...(this.lifecycleLedger
+                ? {
+                    params: { maxTokens: 1024 },
+                    thinkingDefault: "off",
+                    timeoutSeconds: 60,
+                    embeddedAgent: { cyberFailover: { mode: "off" } },
+                  }
+                : {}),
               compaction: {
                 postIndexSync: "await",
                 ...(this.compactionTest
@@ -365,34 +378,37 @@ export class Lab {
           },
           ...(this.settings.textModel
             ? {
-                models: this.smoke
-                  ? {
-                      catalogRefresh: { enabled: false },
-                      providers: {
-                        openrouter: {
-                          apiKey: secretRef(
-                            this.credentialNames()[0] as string,
-                          ),
-                          ...(this.smoke.fixtureUrl
-                            ? { baseUrl: this.smoke.fixtureUrl }
-                            : {}),
-                          // Public native catalog overlay for this one approved reference.
-                          models: [
-                            {
-                              id: "openai/gpt-6-sol",
-                              name: "GPT-6 Sol bounded smoke",
-                              reasoning: true,
-                              maxTokens: SMOKE.maxOutputTokens,
-                              compat: {
-                                maxTokensField: "max_completion_tokens",
-                                thinkingFormat: "openrouter",
+                models:
+                  this.smoke || this.lifecycleLedger
+                    ? {
+                        catalogRefresh: { enabled: false },
+                        providers: {
+                          openrouter: {
+                            apiKey: secretRef(
+                              this.credentialNames()[0] as string,
+                            ),
+                            ...(this.smoke?.fixtureUrl
+                              ? { baseUrl: this.smoke.fixtureUrl }
+                              : {}),
+                            // Public native catalog overlay for this one approved reference.
+                            models: [
+                              {
+                                id: "openai/gpt-6-sol",
+                                name: "GPT-6 Sol bounded smoke",
+                                reasoning: true,
+                                maxTokens: this.lifecycleLedger
+                                  ? 1024
+                                  : SMOKE.maxOutputTokens,
+                                compat: {
+                                  maxTokensField: "max_completion_tokens",
+                                  thinkingFormat: "openrouter",
+                                },
                               },
-                            },
-                          ],
+                            ],
+                          },
                         },
-                      },
-                    }
-                  : textModelConfig(this.settings.textModel),
+                      }
+                    : textModelConfig(this.settings.textModel),
               }
             : {}),
           plugins: {
@@ -419,6 +435,30 @@ export class Lab {
                     enabled: this.settings.dreaming ?? false,
                     frequency: "0 0 1 1 *",
                     timezone: "UTC",
+                    ...(this.lifecycleLedger
+                      ? {
+                          execution: {
+                            defaults: { model: PAID_SELECTION.chat },
+                          },
+                          phases: {
+                            light: {
+                              limit: 4,
+                              execution: { model: PAID_SELECTION.chat },
+                            },
+                            rem: {
+                              limit: 4,
+                              execution: { model: PAID_SELECTION.chat },
+                            },
+                            deep: {
+                              limit: 2,
+                              minScore: 0,
+                              minRecallCount: 1,
+                              minUniqueQueries: 1,
+                              execution: { model: PAID_SELECTION.chat },
+                            },
+                          },
+                        }
+                      : {}),
                   },
                 },
               },
@@ -439,7 +479,7 @@ export class Lab {
           memory: {
             search: {
               ...search,
-              rememberAcrossConversations: false,
+              rememberAcrossConversations: Boolean(this.lifecycleLedger),
               query: { minScore: 0 },
             },
           },
@@ -530,7 +570,7 @@ export class Lab {
     if (boundedIndex) {
       if (!this.smoke || args.join(" ") !== "memory index --force --agent main")
         throw new Error("Invalid bounded smoke index operation.");
-    } else
+    } else if (!this.lifecycleLedger)
       assertNativeOperationAllowed(this.credentialNames().length > 0, args);
     const child = spawn(
       process.execPath,
@@ -838,6 +878,183 @@ export class Lab {
     };
   }
 
+  /** Fixed synthetic acceptance; temporary permission never leaves this operation. */
+  async boundedLifecycle(ledgerPath: string) {
+    await verifySmokeRuntime();
+    requireEnvironment([PAID_SELECTION.keyEnv]);
+    if (
+      this.lifecycleLedger ||
+      this.smoke ||
+      this.settings.provider !== "none" ||
+      this.settings.textModel ||
+      (await this.listNotes()).length
+    )
+      throw new Error("Lifecycle acceptance needs a fresh keyword workspace.");
+    this.lifecycleLedger = resolve(ledgerPath);
+    this.settings = {
+      provider: "none",
+      textModel: nativeModel(PAID_SELECTION.chat, PAID_SELECTION.keyEnv),
+      sessionMemory: true,
+    };
+    const result: Record<string, unknown> = {
+      mode: "real-provider/native-lifecycle",
+      limits: LIFECYCLE_LIMITS,
+      stages: {},
+      testThresholds: { minScore: 0, minRecallCount: 1, minUniqueQueries: 1 },
+      automaticEveryConversationExtraction:
+        "unsupported: this builtin path uses triggered flush and lifecycle hooks",
+    };
+    const stages = result.stages as Record<string, unknown>;
+    const snapshot = async () => {
+      const files: Record<string, string> = {};
+      for (const name of await this.listNotes())
+        files[`memory/${name}`] = await readFile(
+          join(this.notes, name),
+          "utf8",
+        );
+      for (const name of ["MEMORY.md", "DREAMS.md"]) {
+        try {
+          files[name] = await readFile(
+            join(this.directory, "workspace", name),
+            "utf8",
+          );
+        } catch (error) {
+          if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+        }
+      }
+      return files;
+    };
+    try {
+      await this.provision();
+      await this.validateConfig();
+      const beforeBudget = smokeBudget(await this.providerUsage(), {
+        keyLimit: true,
+        prices: SMOKE.prices,
+        providerLimitUsd: 50,
+      });
+      result.beforeBudget = beforeBudget;
+      if (beforeBudget.usedUsd + LIFECYCLE_LIMITS.estimatedUsd > 5)
+        throw new Error(
+          "Finite lifecycle estimate exceeds remaining approved total budget.",
+        );
+      result.beforeConversation = await snapshot();
+      const context = Array.from(
+        { length: 18 },
+        (_, i) =>
+          `Synthetic context ${i + 1}: Project Borealis is an imaginary observatory rehearsal used only in this lab.`,
+      ).join("\n");
+      result.firstConversation = await this.chat(
+        "conversation",
+        `My durable standing preference for synthetic Project Borealis is to use indigo filters every Thursday. Acknowledge briefly.\n${context}`,
+      );
+      result.afterFirstConversation = await snapshot();
+      stages.chat = "pass";
+      await this.configureFlush("test");
+      result.secondConversation = await this.chat(
+        "conversation",
+        "Confirm the standing filter preference we discussed in one short sentence.",
+      );
+      const observedFlush = await this.waitForFlush("conversation");
+      (result.secondConversation as { state: unknown }).state = observedFlush;
+      result.afterFlush = await snapshot();
+      const second = result.secondConversation as {
+        state: unknown;
+        history: unknown;
+      };
+      stages.flush =
+        /"memoryFlush"/.test(JSON.stringify(second.state)) &&
+        /"kind":"succeeded"/.test(JSON.stringify(second.state))
+          ? "pass"
+          : "fail: native successful flush marker absent";
+      const day = new Date().toISOString().slice(0, 10);
+      const daily =
+        (result.afterFlush as Record<string, string>)[`memory/${day}.md`] ?? "";
+      stages.extraction = /indigo/i.test(daily)
+        ? "pass"
+        : "fail: daily Markdown does not contain the conversational preference";
+      result.dailySource = await this.get(`memory/${day}.md`, 1, 200);
+      result.compaction = await this.compactSession("conversation", true);
+      stages.compaction = /"compacted":true/.test(
+        JSON.stringify(result.compaction),
+      )
+        ? "pass"
+        : "fail: native compaction did not commit";
+      result.resetCapture = await this.resetSession("conversation");
+      await this.index();
+      result.recallBeforeDreaming = [];
+      for (const query of ["indigo", "indigo filters", "Borealis Thursday"])
+        (result.recallBeforeDreaming as unknown[]).push(
+          await this.search(query),
+        );
+      result.nativeRemStage = await this.remStage();
+      result.beforeConsolidation = await snapshot();
+      result.sweep = await this.dreamRun();
+      result.dreamStatus = await this.dreamStatus();
+      result.diary = await this.dreamDiary();
+      result.afterConsolidation = await snapshot();
+      const after = result.afterConsolidation as Record<string, string>;
+      const prior = result.beforeConsolidation as Record<string, string>;
+      stages.durablePromotion =
+        after["MEMORY.md"] !== prior["MEMORY.md"] &&
+        /indigo/i.test(after["MEMORY.md"] ?? "") &&
+        /source=memory\//.test(after["MEMORY.md"] ?? "")
+          ? "pass"
+          : "fail: no sourced durable preference change";
+      stages.modelConsolidation =
+        /- Added: \d+\n- Merged: \d+\n- Superseded: \d+/.test(
+          after["DREAMS.md"] ?? "",
+        )
+          ? "pass"
+          : "unverified: native accepted rewrite summary absent";
+      await this.index();
+      await this.restart();
+      result.recallAfterRestart = await this.search("indigo", "later-session");
+      stages.persistenceRecall = (
+        result.recallAfterRestart as SearchResult
+      ).results.some((hit) => /indigo/i.test(hit.snippet))
+        ? "pass"
+        : "fail: preference not recalled after restart";
+      if (stages.durablePromotion === "pass")
+        result.promotionExplanation = await this.explain("indigo");
+    } catch (error) {
+      result.error = this.redact((error as Error).message);
+    } finally {
+      await this.stop();
+      try {
+        result.afterBudget = smokeBudget(await this.providerUsage(), {
+          keyLimit: true,
+          prices: SMOKE.prices,
+          providerLimitUsd: 50,
+        });
+      } catch {
+        result.costMeasurement = "unavailable";
+      }
+      try {
+        const log = this.redact(
+          await readFile(join(this.directory, "openclaw.log"), "utf8"),
+        );
+        result.nativeConsolidationLog = log
+          .split("\n")
+          .filter((line) =>
+            /consolidat|promotion|rewrite|fallback|degraded|Finite lifecycle|memory.flush/i.test(
+              line,
+            ),
+          )
+          .slice(-50);
+      } catch {
+        result.nativeConsolidationLog = [];
+      }
+      result.finalMarkdown = await snapshot();
+      result.requestLedger = JSON.parse(
+        await readFile(this.lifecycleLedger, "utf8"),
+      );
+      this.lifecycleLedger = undefined;
+      this.settings = { provider: "none" };
+      await this.provision();
+    }
+    return result;
+  }
+
   async configureFlush(mode: "normal" | "test" | "off") {
     if (mode !== "off" && !this.settings.textModel)
       throw new Error(
@@ -857,6 +1074,137 @@ export class Lab {
       requirement:
         "Native successful memoryFlush state AND actual durable note content; configuration alone is not acceptance.",
     };
+  }
+
+  /** Continue only consolidation from a previously verified model-produced note. */
+  async boundedConsolidation(ledgerPath: string) {
+    await verifySmokeRuntime();
+    requireEnvironment([PAID_SELECTION.keyEnv]);
+    if (
+      this.lifecycleLedger ||
+      this.smoke ||
+      this.settings.textModel ||
+      (await this.listNotes()).length
+    )
+      throw new Error("Consolidation acceptance needs a fresh workspace.");
+    const checkpoint = JSON.parse(
+      await readFile(
+        join(PROJECT, "evidence/lifecycle-acceptance/acceptance.json"),
+        "utf8",
+      ),
+    );
+    const day = new Date().toISOString().slice(0, 10);
+    const note = checkpoint.afterFlush?.[`memory/${day}.md`];
+    if (
+      checkpoint.stages?.flush !== "pass" ||
+      checkpoint.stages?.extraction !== "pass" ||
+      typeof note !== "string" ||
+      Buffer.byteLength(note) > 1000 ||
+      !/indigo filters every Thursday/i.test(note) ||
+      !/synthetic Project Borealis/i.test(note)
+    )
+      throw new Error("Verified synthetic model-note checkpoint is required.");
+    this.lifecycleLedger = resolve(ledgerPath);
+    this.settings = {
+      provider: "none",
+      textModel: nativeModel(PAID_SELECTION.chat, PAID_SELECTION.keyEnv),
+    };
+    const result: Record<string, unknown> = {
+      mode: "real-provider/native-consolidation",
+      importedVerifiedModelNote: true,
+      adapter:
+        "Copy the verified model-produced daily note into a separate synthetic workspace; this is not automatic ingestion or preserved source-session provenance.",
+      stages: {},
+      limits: LIFECYCLE_LIMITS,
+      testThresholds: { minScore: 0, minRecallCount: 1, minUniqueQueries: 1 },
+    };
+    const stages = result.stages as Record<string, unknown>;
+    try {
+      await this.provision();
+      await this.validateConfig();
+      const budget = smokeBudget(await this.providerUsage(), {
+        keyLimit: true,
+        prices: SMOKE.prices,
+        providerLimitUsd: 50,
+      });
+      result.beforeBudget = budget;
+      if (budget.usedUsd + LIFECYCLE_LIMITS.estimatedUsd > 5)
+        throw new Error(
+          "Consolidation estimate exceeds remaining approved total budget.",
+        );
+      result.before = {
+        memory: await this.get("MEMORY.md"),
+        diary: await this.dreamDiary(),
+      };
+      await this.writeDaily(day, note);
+      await this.index();
+      result.staged = await this.remStage();
+      result.nativeRecallTurn = await this.chat(
+        "recall",
+        "Use memory_search to recall the standing filter preference for synthetic Project Borealis from this workspace, then answer in one short sentence.",
+      );
+      for (const query of ["indigo", "indigo filters", "Borealis Thursday"])
+        await this.search(query);
+      result.sweep = await this.dreamRun();
+      result.dreamStatus = await this.dreamStatus();
+      result.diary = await this.dreamDiary();
+      result.memory = await this.get("MEMORY.md", 1, 200);
+      const memory = result.memory as { text?: string };
+      const diary = result.diary as { content?: string };
+      stages.durablePromotion =
+        /indigo/i.test(memory.text ?? "") &&
+        /source=memory\//.test(memory.text ?? "")
+          ? "pass"
+          : "fail: no sourced durable preference";
+      stages.modelConsolidation =
+        /- Added: \d+\s+- Merged: \d+\s+- Superseded: \d+/.test(
+          diary.content ?? "",
+        )
+          ? "pass"
+          : "unverified: accepted native rewrite summary absent";
+      await this.index();
+      await this.restart();
+      result.recallAfterRestart = await this.search("indigo", "later-session");
+      stages.persistenceRecall = (
+        result.recallAfterRestart as SearchResult
+      ).results.some((hit) => hit.path === "MEMORY.md")
+        ? "pass"
+        : "fail: durable source not recalled after restart";
+    } catch (error) {
+      result.error = this.redact((error as Error).message);
+    } finally {
+      await this.stop();
+      try {
+        result.afterBudget = smokeBudget(await this.providerUsage(), {
+          keyLimit: true,
+          prices: SMOKE.prices,
+          providerLimitUsd: 50,
+        });
+      } catch {
+        result.costMeasurement = "unavailable";
+      }
+      result.requestLedger = JSON.parse(
+        await readFile(this.lifecycleLedger, "utf8"),
+      );
+      try {
+        result.nativeDiagnostics = this.redact(
+          await readFile(join(this.directory, "openclaw.log"), "utf8"),
+        )
+          .split("\n")
+          .filter((line) =>
+            /consolidat|promotion|rewrite|fallback|degraded|Finite lifecycle/i.test(
+              line,
+            ),
+          )
+          .slice(-40);
+      } catch {
+        result.nativeDiagnostics = [];
+      }
+      this.lifecycleLedger = undefined;
+      this.settings = { provider: "none" };
+      await this.provision();
+    }
+    return result;
   }
 
   private sessionKey(session: string) {
@@ -1068,34 +1416,63 @@ export class Lab {
     }
   }
 
+  /** Observe asynchronous native maintenance; never starts a flush itself. */
+  async waitForFlush(session: string, timeoutMs = 60000) {
+    const deadline = Date.now() + timeoutMs;
+    let state = await this.sessionState(session);
+    while (Date.now() < deadline) {
+      const flush = state.nativeMaintenance.memoryFlush as {
+        kind?: string;
+      } | null;
+      if (
+        flush?.kind &&
+        ["succeeded", "failed", "exhausted"].includes(flush.kind)
+      )
+        return state;
+      await delay(1000);
+      state = await this.sessionState(session);
+    }
+    return state; // Missing metadata is a failed acceptance, not inferred success.
+  }
+
   async remPreview() {
     await this.stop();
     return JSON.parse(
-      await this.native([
-        "memory",
-        "rem-harness",
-        "--agent",
-        "main",
-        "--path",
-        this.notes,
-        "--grounded",
-        "--json",
-      ]),
+      await this.native(
+        [
+          "memory",
+          "rem-harness",
+          "--agent",
+          "main",
+          "--path",
+          this.notes,
+          "--grounded",
+          "--json",
+        ],
+        120000,
+        false,
+        true,
+      ),
     ) as unknown;
   }
   async remStage() {
     await this.stop();
     return JSON.parse(
-      await this.native([
-        "memory",
-        "rem-backfill",
-        "--agent",
-        "main",
-        "--path",
-        this.notes,
-        "--stage-short-term",
-        "--json",
-      ]),
+      await this.native(
+        [
+          "memory",
+          "rem-backfill",
+          "--agent",
+          "main",
+          "--path",
+          this.notes,
+          "--stage-short-term",
+          "--json",
+        ],
+        120000,
+        false,
+        true,
+      ),
     ) as unknown;
   }
   async promote(apply = false, testThresholds = false) {
@@ -1126,15 +1503,20 @@ export class Lab {
       throw new Error("Supply a candidate text or source selector.");
     await this.stop();
     return JSON.parse(
-      await this.native([
-        "memory",
-        "promote-explain",
-        selector,
-        "--agent",
-        "main",
-        "--include-promoted",
-        "--json",
-      ]),
+      await this.native(
+        [
+          "memory",
+          "promote-explain",
+          selector,
+          "--agent",
+          "main",
+          "--include-promoted",
+          "--json",
+        ],
+        120000,
+        false,
+        true,
+      ),
     ) as unknown;
   }
 
@@ -1250,7 +1632,8 @@ export class Lab {
   private async startGateway(boundedSmoke = false) {
     if (boundedSmoke) {
       if (!this.smoke) throw new Error("Invalid bounded Gateway startup.");
-    } else assertGatewayAllowed(this.credentialNames().length > 0);
+    } else if (!this.lifecycleLedger)
+      assertGatewayAllowed(this.credentialNames().length > 0);
     if (this.child) return;
     this.port = await freePort();
     this.token = randomBytes(32).toString("hex");

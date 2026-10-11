@@ -1,17 +1,51 @@
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
 import { once } from "node:events";
+import { mkdtemp, rm } from "node:fs/promises";
 import { createServer } from "node:http";
 import { createRequire } from "node:module";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
+import { createLifecycleLedger } from "../src/lifecycle-request-budget.ts";
 
 const project = fileURLToPath(new URL("../", import.meta.url));
 const nativeRequire = createRequire(import.meta.resolve("openclaw"));
 const { Agent } = nativeRequire("undici/index.js");
 const run = promisify(execFile);
+
+test("Finite lifecycle preload guards the actual native prepared Undici dispatch path before network", async () => {
+  const root = await mkdtemp(join(tmpdir(), "native-ledger-"));
+  const ledger = join(root, "ledger.json");
+  createLifecycleLedger(ledger);
+  const transport = new URL(
+    "../node_modules/openclaw/dist/runtime-fetch-BCy08QFk.mjs",
+    import.meta.url,
+  ).href;
+  try {
+    await run(
+      process.execPath,
+      [
+        "--import",
+        join(project, "src/native-bootstrap.ts"),
+        "--input-type=module",
+        "-e",
+        `
+      import assert from 'node:assert/strict';
+      import {n as nativeFetch} from ${JSON.stringify(transport)};
+      await assert.rejects(nativeFetch('https://openrouter.ai/api/v1/chat/completions', {method:'post',body:new TextEncoder().encode(JSON.stringify({model:'denied',max_completion_tokens:1024}))}), /Finite lifecycle model/);
+    `,
+      ],
+      {
+        env: { PATH: process.env.PATH, OPENCLAW_LAB_LIFECYCLE_LEDGER: ledger },
+      },
+    );
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
 
 test("NATIVE HTTP: reproduce Node/bundled dispatcher mismatch; private preload preserves guarded fetch", async () => {
   let requests = 0;

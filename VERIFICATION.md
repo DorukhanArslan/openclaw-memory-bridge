@@ -1,4 +1,34 @@
-# Verification record — 2026-10-10
+# Verification record
+
+## Current closed checkpoint — 2026-10-11
+
+The independent foundation uses pinned OpenClaw 2026.9.9 and Node 24.16.0. This checkpoint is local only. It uses synthetic notes/conversations; the existing private Python memory project was not read or changed. Earlier sections below preserve their results at the time they ran; their pending/blocked statements do not supersede this current checkpoint.
+
+The final full regression completed with exit 0 in **347.37 seconds: 75 tests, 71 passed, 0 failed, 4 explicitly skipped, 0 cancelled**. Native no-key memory/write/index/source/update/delete/restart/workspace, lifecycle fixtures, ready-Gateway and consumer tests passed. Synthetic HTTP fault, dummy budget and dummy-provider tests are separate preparation checks. The four skipped broad genuine-model checks are semantic retrieval, ready-client semantic retrieval, Dream Diary narrative and general chat/flush/compaction; their skips are not converted to passes by the fixed provider acceptances.
+
+The targeted finite-budget/native-prepared-fetch/configuration checks passed **8/8**. TypeScript and Biome passed. The final full run includes the core native CLI stdout/JSON repair. The later scenario-only addition of one consolidation recall turn was exercised by the separate actual continuation; it did not receive another full-suite rerun. The fixed lifecycle wrapper also now exits nonzero for an unverified stage, matching the continuation wrapper; that small reporting correction received static checks, without another paid run. No paid acceptance command was added to the default tests.
+
+### Actual provider evidence
+
+The earlier fixed GPT-6 Sol + `text-embedding-3-small` smoke passed native chat, index, semantic search and source retrieval, as recorded below and in [SMOKE.md](SMOKE.md). The later fixed lifecycle accepted genuine conversation, native successful flush, model-produced daily Markdown, native summarizing compaction, genuine reset capture and daily-source recall after actual Gateway replacement/reindex. The initial Markdown snapshots were empty; the application did not prewrite the conversational preference. Native maintenance recorded `memoryFlush.kind: succeeded` and subsequent `compactionCount: 1`.
+
+That lifecycle command still exited 2: after those accepted stages, REM JSON parsing failed because native stderr warning text was mixed with stdout. The adapter now reads stdout separately; the subsequent actual consolidation continuation parsed it successfully. This partial run is not counted as an overall success.
+
+The continuation **copied** the verified model-produced note into a separate synthetic workspace through the application adapter. Original source-session provenance was not preserved. Native REM backfill reported `groundedFiles: 1`, `writtenEntries: 1`, `stagedShortTermEntries: 0`. The subsequent native agent recall turn made four admitted GPT-6 Sol dispatches. A genuine native dreaming cron completed, but reported **zero eligible candidates and zero applied promotions**. Status showed zero recall/grounded signals. `MEMORY.md` remained absent, so durable-promotion and durable-source-recall acceptance failed. Daily-source recall after restart still worked.
+
+Model-assisted consolidation additions/merges/supersessions remain **unverified**, not unsupported upstream. Native light/REM narrative requests were denied before dispatch by the finite model/output contract, and logs explicitly showed fallback narrative generation. Neither those fallbacks, selected-model metadata nor successful cron status is counted as real narrative/model-rewrite acceptance. The fixture's candidate eligibility cause was not isolated. See [LIFECYCLE.md](LIFECYCLE.md) for exact evidence and limits.
+
+### Failed attempts, spending and retained evidence
+
+Earlier actual attempts are preserved separately, not counted as passes: shutting down before asynchronous flush finished; a global-only fetch wrapper that missed the prepared native Undici path; lower-case-method and byte-body admission mismatches rejected before dispatch; and an input-exhausted partial extraction run without a successful observed flush marker. The wrapper now covers the real prepared fetch path, accepts native byte bodies/method case and records counters across native children. The credential-free native-prepared-fetch test verifies rejection before network dispatch.
+
+The finite supervision limits are **16 dispatches, 245,000 serialized input bytes, 14,000 aggregate requested output tokens, 4,096 output tokens per request**, with a conditional **4.83 USD** advertised-rate envelope and no general paid admission. Native retries use the same owner-only ledger. The accepted lifecycle recorded 11 dispatches / 244,404 input bytes / 10,752 requested output tokens; the consolidation continuation recorded 4 / 74,825 / 4,096. Historical attempts used their own retained ledgers; these latest counters are not all-run totals.
+
+The last read-only native quota snapshot reported **50 USD limit and 49.83476954 USD remaining**. The key-counter change from the initial 50 USD snapshot was **0.16523046 USD**, below the approved total 5 USD test budget at measurement. The lifecycle window after the earlier smoke changed by **0.16502010 USD**. Concurrent key use and delayed billing were not isolated; this is not per-generation billing or a guarantee of settled cost. In particular, unchanged immediate continuation counters do not mean its four model requests were free. The final diagnostic made zero model requests and retained `modelRequestsAllowed: false` (exit 3 by design).
+
+Safe evidence remains ignored under `evidence/lifecycle-acceptance/`: `acceptance.json`, `consolidation.json`, `model-produced-daily.md`, `final-budget.txt`, `full-regression.txt`, retained failed-attempt JSON/logs and a compact `result.json`. The project-local key is resolved only through the authorized application loader/native SecretRef path; its value was not manually read, copied or emitted. No persistent credential, provider account setting or Gateway security setting was changed. Private synthetic native children and temporary workspaces were cleaned up; nothing was exposed publicly, pushed or deployed.
+
+Paid work is closed. The remaining decision is whether a later, explicitly scoped consolidation acceptance should preserve native session provenance, establish eligible recall signals and admit a verified bounded utility-output shape. No further model retries are running.
 
 ## Native budget preflight — 2026-10-11
 
