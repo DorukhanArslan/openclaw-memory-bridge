@@ -23,6 +23,8 @@ Keep the operator token on the server. Authenticate users and authorize their ro
 
 OpenClaw supplies OpenRouter and other providers. The managed lab's `native-model` command passes a provider/model reference and an env SecretRef; `native-vector` configures embeddings separately. Both validate config without model requests. Enter a key yourself at the hidden local prompt in [PROVIDERS.md](PROVIDERS.md). Project `.env` files are not automatically loaded. Paid execution remains blocked while the [native budget preflight](BUDGET.md) cannot verify a strict total spending boundary.
 
+The current [bounded smoke checkpoint](SMOKE.md) records native mock transport acceptance and the remaining real-call blocker. The reported 50 USD key cap is separate from the approved 5 USD test budget. Run `npm run test:smoke` for dummy provider tests; `bash --noprofile --norc scripts/bounded-smoke.sh` performs only the hidden-key native quota diagnostic.
+
 ## Run the managed lab
 
 Setup requires `npm` and access to the npm registry. The full installer supplies the pinned Node and OpenClaw runtimes. Keyword search requires no model or API key.

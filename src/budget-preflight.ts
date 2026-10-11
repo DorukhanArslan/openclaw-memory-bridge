@@ -25,7 +25,11 @@ const deny = (code: string): Preflight => ({
   code,
 });
 
-export function inspectBudget(status: unknown, now = Date.now()): Preflight {
+export function inspectBudget(
+  status: unknown,
+  now = Date.now(),
+  expectedLimitUsd: number = PAID_SELECTION.ceilingUsd,
+): Preflight {
   if (!record(status) || !record(status.usage)) return deny("usage_missing");
   const { usage } = status;
   if (
@@ -56,7 +60,7 @@ export function inspectBudget(status: unknown, now = Date.now()): Preflight {
     typeof budget.used !== "number" ||
     !Number.isFinite(budget.limit) ||
     !Number.isFinite(budget.used) ||
-    budget.limit !== PAID_SELECTION.ceilingUsd ||
+    budget.limit !== expectedLimitUsd ||
     budget.used < 0
   )
     return deny("invalid_or_wrong_key_limit");
@@ -80,10 +84,15 @@ export async function probeBudget(
   confirmed: boolean,
   nativeStatus: () => Promise<unknown>,
   now?: number,
+  expectedLimitUsd = PAID_SELECTION.ceilingUsd as number,
 ): Promise<Preflight> {
   if (!confirmed) return deny("operator_key_limit_confirmation_required");
   try {
-    return inspectBudget(await nativeStatus(), now ?? Date.now());
+    return inspectBudget(
+      await nativeStatus(),
+      now ?? Date.now(),
+      expectedLimitUsd,
+    );
   } catch {
     return deny("native_usage_unavailable");
   }

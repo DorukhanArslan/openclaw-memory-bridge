@@ -19,8 +19,20 @@ import { fileURLToPath } from "node:url";
 import {
   assertGatewayAllowed,
   assertNativeOperationAllowed,
+  PAID_SELECTION,
 } from "./budget-preflight.ts";
 import { ReadyGateway } from "./gateway.ts";
+import {
+  confirmSmoke,
+  fixtureEndpoint,
+  SMOKE,
+  SMOKE_ROUTING,
+  type SmokeConfirmations,
+  type SmokeFixture,
+  SmokeUnavailable,
+  smokeBudget,
+  verifySmokeRuntime,
+} from "./paid-smoke.ts";
 import {
   credentialEnv,
   forwardCredentials,
@@ -150,6 +162,7 @@ export class Lab {
   private closing?: Promise<void>;
   private commands = new Map<ChildProcess, Promise<void>>();
   private compactionTest = false;
+  private smoke?: { fixtureUrl?: string };
 
   constructor(name = "alpha", root = join(PROJECT, ".lab")) {
     this.root = resolve(root);
@@ -349,11 +362,60 @@ export class Lab {
           },
           ...(this.settings.textModel
             ? {
-                models: textModelConfig(this.settings.textModel),
+                models: this.smoke
+                  ? {
+                      catalogRefresh: { enabled: false },
+                      providers: {
+                        openrouter: {
+                          apiKey: secretRef(
+                            this.credentialNames()[0] as string,
+                          ),
+                          ...(this.smoke.fixtureUrl
+                            ? { baseUrl: this.smoke.fixtureUrl }
+                            : {}),
+                          params: {
+                            provider: SMOKE_ROUTING,
+                            reasoning: { enabled: false },
+                          },
+                          // Public native catalog overlay for this one approved reference.
+                          // Isolated completion ignores provider.params, so compat carries routing.
+                          models: [
+                            {
+                              id: "openai/gpt-6-sol",
+                              name: "GPT-6 Sol bounded smoke",
+                              reasoning: true,
+                              maxTokens: SMOKE.maxOutputTokens,
+                              compat: {
+                                maxTokensField: "max_completion_tokens",
+                                thinkingFormat: "openrouter",
+                                openRouterRouting: SMOKE_ROUTING,
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    }
+                  : textModelConfig(this.settings.textModel),
               }
             : {}),
           plugins: {
             entries: {
+              ...(this.smoke
+                ? {
+                    "llm-task": {
+                      enabled: true,
+                      llm: {
+                        allowedCompletionModels: [PAID_SELECTION.chat],
+                        allowModelOverride: false,
+                        allowAuthProfileOverride: false,
+                      },
+                      config: {
+                        maxTokens: SMOKE.maxOutputTokens,
+                        timeoutMs: SMOKE.timeoutMs,
+                      },
+                    },
+                  }
+                : {}),
               "memory-core": {
                 config: {
                   dreaming: {
@@ -389,10 +451,12 @@ export class Lab {
             allow: [
               "memory_search",
               "memory_get",
+              ...(this.smoke ? ["llm-task"] : []),
               ...(this.settings.flush ? ["read", "write", "edit"] : []),
             ],
           },
           browser: { enabled: false },
+          ...(this.smoke ? { cron: { enabled: false } } : {}),
           update: { checkOnStart: false, auto: { enabled: false } },
           telemetry: { enabled: false },
           logging: {
@@ -460,8 +524,16 @@ export class Lab {
       .sort();
   }
 
-  private async native(args: string[], timeout = 120000): Promise<string> {
-    assertNativeOperationAllowed(this.credentialNames().length > 0, args);
+  private async native(
+    args: string[],
+    timeout = 120000,
+    boundedIndex = false,
+  ): Promise<string> {
+    if (boundedIndex) {
+      if (!this.smoke || args.join(" ") !== "memory index --force --agent main")
+        throw new Error("Invalid bounded smoke index operation.");
+    } else
+      assertNativeOperationAllowed(this.credentialNames().length > 0, args);
     const child = spawn(process.execPath, [ENTRY, ...args], {
       env: this.env(),
       cwd: this.directory,
@@ -628,6 +700,124 @@ export class Lab {
         25000,
       ),
     ) as unknown;
+  }
+
+  /** Dedicated, one-shot adapter. It does not authorize any general lab operation. */
+  async boundedSmoke(
+    confirmations: SmokeConfirmations,
+    fixture?: SmokeFixture,
+  ) {
+    confirmSmoke(confirmations); // Before selected env access or native spawn.
+    const contract = await verifySmokeRuntime();
+    // Real mode cannot prove native price routing; deny before credential access.
+    if (!fixture) throw new SmokeUnavailable();
+    if (
+      !this.locked ||
+      this.smoke ||
+      this.settings.provider !== "none" ||
+      this.settings.textModel ||
+      (await this.listNotes()).length
+    )
+      throw new Error("Bounded smoke requires a fresh, empty, isolated lab.");
+    const fixtureUrl = fixture ? fixtureEndpoint(fixture) : undefined;
+    const keyEnv = fixture ? "SYNTHETIC_SMOKE_KEY" : PAID_SELECTION.keyEnv;
+    this.smoke = { fixtureUrl };
+    this.settings = {
+      provider: "openai-compatible",
+      model: PAID_SELECTION.embedding,
+      baseUrl: fixtureUrl ?? PAID_SELECTION.embeddingUrl,
+      keyEnv,
+      textModel: nativeModel(PAID_SELECTION.chat, keyEnv),
+      dreaming: false,
+      sessionMemory: false,
+    };
+    try {
+      await this.provision(); // No persisted smoke permission/settings.
+      await this.validateConfig();
+      const budget = smokeBudget(
+        fixture ? fixture.status : await this.providerUsage(),
+        confirmations,
+      );
+      await this.writeNote("resident", SMOKE.note);
+      const assertCorpus = async () => {
+        if (
+          (await this.listNotes()).join() !== "resident.md" ||
+          (await readFile(join(this.notes, "resident.md"), "utf8")) !==
+            SMOKE.note
+        )
+          throw new Error("Bounded smoke corpus changed; stopping.");
+      };
+      await assertCorpus();
+      await this.native(
+        ["memory", "index", "--force", "--agent", "main"],
+        30000,
+        true,
+      );
+      await this.startGateway(true);
+      await assertCorpus();
+      const completion = (await this.invoke("llm-task", {
+        prompt: SMOKE.prompt,
+        thinking: "off",
+        maxTokens: SMOKE.maxOutputTokens,
+        timeoutMs: SMOKE.timeoutMs,
+        schema: {
+          type: "object",
+          properties: { ok: { const: true } },
+          required: ["ok"],
+          additionalProperties: false,
+        },
+      })) as { json?: { ok?: boolean }; provider?: string; model?: string };
+      if (
+        !completion.json?.ok ||
+        completion.provider !== "openrouter" ||
+        completion.model !== "openai/gpt-6-sol"
+      )
+        throw new Error(
+          "Native completion did not return the approved model and JSON result.",
+        );
+      await assertCorpus();
+      const recall = (await this.invoke("memory_search", {
+        query: SMOKE.query,
+        maxResults: 1,
+        minScore: 0,
+      })) as SearchResult;
+      if (
+        recall.disabled ||
+        recall.unavailable ||
+        recall.error ||
+        recall.provider !== "openai-compatible" ||
+        !recall.results?.some((hit) => hit.path === SMOKE.path)
+      )
+        throw new Error(
+          "Native semantic smoke did not retrieve the synthetic source.",
+        );
+      const source = (await this.invoke("memory_get", {
+        path: SMOKE.path,
+        from: 1,
+        lines: 10,
+      })) as { text?: string };
+      if (!source.text?.includes("Zephyr travels to the office by bicycle."))
+        throw new Error("Native source read failed.");
+      return {
+        mode: fixture ? "native-runtime/mock-provider" : "real-provider",
+        budget,
+        completion: completion.json,
+        recall: { path: SMOKE.path, hits: recall.results.length },
+        inputUpperBound: contract.inputUpperBound,
+        outputLimit: SMOKE.maxOutputTokens,
+        wrapperRetries: 0,
+        nativePriceRoutingVerified: false,
+        lifecycleExtraction: "pending",
+        estimatedUsd: SMOKE.estimatedUsd,
+        testCeilingUsd: SMOKE.testCeilingUsd,
+        estimateIsHardCap: false,
+      };
+    } finally {
+      await this.stop();
+      this.smoke = undefined;
+      this.settings = { provider: "none" };
+      await this.provision();
+    }
   }
 
   async configureIngestion(enabled: boolean) {
@@ -1008,7 +1198,7 @@ export class Lab {
   }
 
   private async invoke(
-    tool: "memory_search" | "memory_get",
+    tool: "memory_search" | "memory_get" | "llm-task",
     args: Record<string, unknown>,
     session = "main",
   ) {
@@ -1049,7 +1239,13 @@ export class Lab {
   }
 
   async start() {
-    assertGatewayAllowed(this.credentialNames().length > 0);
+    return this.startGateway();
+  }
+
+  private async startGateway(boundedSmoke = false) {
+    if (boundedSmoke) {
+      if (!this.smoke) throw new Error("Invalid bounded Gateway startup.");
+    } else assertGatewayAllowed(this.credentialNames().length > 0);
     if (this.child) return;
     this.port = await freePort();
     this.token = randomBytes(32).toString("hex");
@@ -1087,6 +1283,16 @@ export class Lab {
             `Gateway exited (${child.exitCode ?? child.signalCode}): ${this.logTail}`,
           );
         try {
+          if (boundedSmoke) {
+            const source = (await this.invoke("memory_get", {
+              path: SMOKE.path,
+              from: 1,
+              lines: 10,
+            })) as { text?: string };
+            if (!source.text?.includes("Zephyr travels"))
+              throw new Error("Source not ready.");
+            return;
+          }
           const result = (await this.invoke("memory_search", {
             query: "foundationreadinessprobe",
             maxResults: 1,

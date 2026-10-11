@@ -1,5 +1,7 @@
 # Native budget preflight
 
+Latest checkpoint: the user reported a **50 USD provider cap**, while the test budget remains **5 USD**. Use `--provider-limit=50` only for that exact native diagnostic; the default remains 5 USD. The separate bounded smoke and its native transport blocker are documented in [SMOKE.md](SMOKE.md). Its conservative advertised-rate estimate is not a hard spending cap. The shortest hidden-key command now checks 50 USD and still admits zero inference requests: `bash --noprofile --norc scripts/bounded-smoke.sh`. Earlier 5 USD instructions below describe the original preflight configuration.
+
 The approved synthetic pair is `openrouter/openai/gpt-6-sol` for chat and `openai/text-embedding-3-small` at `https://openrouter.ai/api/v1` for embeddings, with a total **5 USD** limit. No automatic model routing is selected. Paid execution is currently **blocked**, including native indexing and managed Gateway startup when a credential-backed provider is selected.
 
 ## What the pinned runtime exposes
