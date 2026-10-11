@@ -2,6 +2,8 @@
 
 This addition reuses OpenClaw 2026.9.9's bundled `llm-task`, native Markdown indexing, `memory_search` and `memory_get`. No provider SDK, model client, secret registry or memory engine was implemented. The wrapper writes one fixed synthetic note and supervises native processes. The broad paid model/lifecycle suite remains blocked.
 
+The private native child preloads `src/native-bootstrap.ts` so its fetch implementation and dispatchers both come from OpenClaw's bundled Undici 8.10.2. Node 24.16.0's built-in fetch rejects that dispatcher contract with `UND_ERR_INVALID_ARG`; this was reproduced without credentials against loopback. The preload checks all three pinned versions, preserves native SSRF controls, and changes no provider, secret or account setting.
+
 ## Current acceptance
 
 `npm run test:smoke` runs actual private native CLI/Gateway processes against dummy loopback provider responses. It is **mock provider acceptance**, not real chat output, real embedding quality or consolidation acceptance. The completion sends the fixed `openai/gpt-6-sol` model, two fixed messages, no tools, `max_completion_tokens: 128`, and `reasoning.effort: none`. Fixed ASCII bytes plus 128 tokens of framing allowance bound input below 1024 tokens. Native completion timeout is 15 seconds. HTTP 429/503 and stalled-stream fixtures check one completion request and no wrapper retry.

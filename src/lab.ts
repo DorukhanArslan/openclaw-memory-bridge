@@ -46,6 +46,9 @@ import {
 } from "./provider-handoff.ts";
 
 export const PROJECT = fileURLToPath(new URL("../", import.meta.url));
+const NATIVE_PRELOAD = fileURLToPath(
+  new URL("./native-bootstrap.ts", import.meta.url),
+);
 const ENTRY = resolve(
   dirname(fileURLToPath(import.meta.resolve("openclaw"))),
   "../openclaw.mjs",
@@ -529,11 +532,15 @@ export class Lab {
         throw new Error("Invalid bounded smoke index operation.");
     } else
       assertNativeOperationAllowed(this.credentialNames().length > 0, args);
-    const child = spawn(process.execPath, [ENTRY, ...args], {
-      env: this.env(),
-      cwd: this.directory,
-      stdio: ["ignore", "pipe", "pipe"],
-    });
+    const child = spawn(
+      process.execPath,
+      ["--import", NATIVE_PRELOAD, ENTRY, ...args],
+      {
+        env: this.env(),
+        cwd: this.directory,
+        stdio: ["ignore", "pipe", "pipe"],
+      },
+    );
     const done = new Promise<void>((finish) =>
       child.once("close", () => finish()),
     );
@@ -1251,7 +1258,16 @@ export class Lab {
     this.logTail = "";
     const child = spawn(
       process.execPath,
-      [ENTRY, "gateway", "--port", String(this.port), "--bind", "loopback"],
+      [
+        "--import",
+        NATIVE_PRELOAD,
+        ENTRY,
+        "gateway",
+        "--port",
+        String(this.port),
+        "--bind",
+        "loopback",
+      ],
       {
         env: this.env(),
         cwd: this.directory,
