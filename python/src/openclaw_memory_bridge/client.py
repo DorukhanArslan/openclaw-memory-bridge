@@ -92,12 +92,15 @@ class FoundationClient:
             self.poisoned = True
             raise FoundationError("Foundation response timed out; close this client before retry.", "timeout") from error
         if line is None:
+            self.poisoned = True
             raise FoundationError(f"Foundation exited before a response (code {self.process.poll()}).")
         try:
             response = json.loads(line)
         except json.JSONDecodeError as error:
+            self.poisoned = True
             raise FoundationError("Foundation emitted non-JSON protocol output.") from error
         if not isinstance(response, dict):
+            self.poisoned = True
             raise FoundationError("Foundation emitted a non-object protocol response.")
         return response
 
@@ -116,14 +119,21 @@ class FoundationClient:
         payload = json.dumps({"v": 1, "id": request_id, "op": op, "workspace": workspace, "args": args}) + "\n"
         if len(payload.encode()) > 128000:
             raise FoundationError("Request exceeds 128 KB.", "invalid_request")
-        self.process.stdin.write(payload)
-        self.process.stdin.flush()
+        try:
+            self.process.stdin.write(payload)
+            self.process.stdin.flush()
+        except (BrokenPipeError, OSError) as error:
+            self.poisoned = True
+            raise FoundationError("Foundation input stream failed.", "transport_failed") from error
         response = self._receive()
         if response.get("v") != 1 or response.get("id") != request_id:
             self.poisoned = True
             raise FoundationError("Foundation response did not match this request.", "protocol_error")
         if response.get("ok") is not True:
             error = response.get("error", {})
+            if not isinstance(error, dict):
+                self.poisoned = True
+                raise FoundationError("Foundation emitted a malformed error.", "protocol_error")
             raise FoundationError(str(error.get("message", "Unknown foundation error")), str(error.get("code", "engine_error")))
         return response["result"]
 

@@ -30,6 +30,28 @@
     "What this means for your app": "Your app can supply its scope and notes through the installed client. Index after each file change. Installing the wheel alone creates no memory notes. Automatic consolidation is not guaranteed.",
     "Status": "PASS",
     "Evidence": "examples/sdk_app.py; evidence/sdk-acceptance/result.json (local, ignored); python/dist/openclaw_memory_bridge-0.1.0-py3-none-any.whl (local build)",
-    "Commit": "1ce744d baseline; SDK working changes"
+    "Commit": "35b1e1a"
+  },
+  {
+    "Round": "4. Native owner source with explicit local agent CLI",
+    "Test goal": "Use a genuine owner source without changing security or stored provenance.",
+    "What we did": "Run the official agent --local command. Keep its session and daily note. Run native recall and dreaming.",
+    "Expected result": "A trusted native source can enter consolidation and model diary generation.",
+    "Actual result": "The native owner source was admitted. Daily write, source reference, and durable recall after restart passed. Utility model requests omitted an output-token limit. The guard rejected them before dispatch. Native append-only fallback occurred. It was not accepted as consolidation or a model diary.",
+    "What this means for your app": "The source path matters. An append-only fallback is not a model update. A finite budget adapter must bound native utility requests in this pinned release.",
+    "Status": "FAIL",
+    "Evidence": "evidence/provenance-owner-acceptance/acceptance.json (local, ignored)",
+    "Commit": "727e655"
+  },
+  {
+    "Round": "5. Utility output bound and Python transport errors",
+    "Test goal": "Bound utility requests before dispatch and handle uncertain client outcomes.",
+    "What we did": "Run four finite-request tests. Run three Python transport tests with a labelled protocol fixture.",
+    "Expected result": "Only the approved model receives an added output ceiling. Messages and memory semantics stay intact. A client timeout prevents automatic retry.",
+    "Actual result": "All seven checks passed. Missing native utility limits receive an explicit 2048-token ceiling. Existing limits and other requests stay unchanged. Malformed replies and timeouts require client closure.",
+    "What this means for your app": "This is a transport budget adapter. It does not implement memory or prove real model consolidation. Protocol fixtures verify errors only.",
+    "Status": "PASS",
+    "Evidence": "tests/lifecycle-budget.test.ts; python/tests/test_client.py",
+    "Commit": "727e655 baseline; working changes"
   }
 ]

@@ -133,3 +133,60 @@ test("Consolidation profile accepts native bounded max_tokens and rejects ambigu
     await rm(root, { recursive: true, force: true });
   }
 });
+
+test("Consolidation utility adapter adds only the finite output bound; ordinary calls stay unchanged", async () => {
+  const { boundConsolidationUtilityRequest } = await import(
+    "../src/lifecycle-request-budget.ts"
+  );
+  const root = await mkdtemp(join(tmpdir(), "utility-bound-"));
+  const path = join(root, "ledger.json");
+  createLifecycleLedger(path, "consolidation");
+  const endpoint = "https://openrouter.ai/api/v1/chat/completions";
+  const body = {
+    model: "openai/gpt-6-sol",
+    messages: [{ role: "user", content: "Synthetic memory fragments" }],
+    temperature: 0.3,
+  };
+  const init = { method: "POST", body: JSON.stringify(body) };
+  try {
+    const bounded = boundConsolidationUtilityRequest(path, endpoint, init);
+    assert.deepEqual(JSON.parse(bounded?.body as string), {
+      ...body,
+      max_completion_tokens: 2048,
+    });
+    admitLifecycleRequest(path, endpoint, bounded);
+    assert.equal(JSON.parse(await readFile(path, "utf8")).outputTokens, 2048);
+    const explicit = {
+      method: "POST",
+      body: JSON.stringify({ ...body, max_tokens: 1024 }),
+    };
+    assert.equal(
+      boundConsolidationUtilityRequest(path, endpoint, explicit),
+      explicit,
+    );
+    assert.equal(
+      boundConsolidationUtilityRequest(path, "https://other.example/api", init),
+      init,
+    );
+    const other = {
+      method: "POST",
+      body: JSON.stringify({ ...body, model: "other" }),
+    };
+    assert.equal(
+      boundConsolidationUtilityRequest(path, endpoint, other),
+      other,
+    );
+    const ordinary = join(root, "ordinary.json");
+    createLifecycleLedger(ordinary);
+    assert.equal(
+      boundConsolidationUtilityRequest(ordinary, endpoint, init),
+      init,
+    );
+    assert.throws(
+      () => admitLifecycleRequest(ordinary, endpoint, init),
+      /model\/output/,
+    );
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});

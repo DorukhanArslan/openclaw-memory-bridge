@@ -1230,6 +1230,8 @@ export class Lab {
     };
     const result: Record<string, unknown> = {
       mode: "real-provider/native-provenance-consolidation",
+      outputAdapter:
+        "For native utility calls that omit an output-token limit, the test transport adds max_completion_tokens=2048. It preserves model, prompt, tools, and memory semantics. This is an application budget adapter, not a native dreaming capability.",
       stages: {},
       limits: CONSOLIDATION_LIMITS,
       testThresholds: { minScore: 0, minRecallCount: 1, minUniqueQueries: 1 },

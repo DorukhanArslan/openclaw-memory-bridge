@@ -160,3 +160,47 @@ export function admitLifecycleRequest(
     unlinkSync(lock);
   }
 }
+
+/** Transport adapter only: bound a native utility call that omits output tokens.
+ * Preserve its model, messages, tools and all memory/provenance semantics.
+ */
+export function boundConsolidationUtilityRequest(
+  path: string,
+  input: string | URL | Request,
+  init?: RequestInit,
+): RequestInit | undefined {
+  const ledger = JSON.parse(readFileSync(path, "utf8")) as Ledger;
+  if (ledger.profile !== "consolidation") return init;
+  const url = new URL(
+    typeof input === "string"
+      ? input
+      : input instanceof URL
+        ? input.href
+        : input.url,
+  );
+  if (
+    url.href !== "https://openrouter.ai/api/v1/chat/completions" ||
+    (init?.method ?? "GET").toUpperCase() !== "POST" ||
+    !(typeof init?.body === "string" || init?.body instanceof Uint8Array)
+  )
+    return init;
+  const text =
+    typeof init.body === "string"
+      ? init.body
+      : new TextDecoder("utf-8", { fatal: true }).decode(
+          init.body as Uint8Array,
+        );
+  const body = JSON.parse(text);
+  if (
+    body.model !== "openai/gpt-6-sol" ||
+    body.max_completion_tokens !== undefined ||
+    body.max_tokens !== undefined
+  )
+    return init;
+  // The pinned native utility path omits this bound. This adapter does not
+  // infer a native limit from catalog metadata or dispatch an unbounded call.
+  body.max_completion_tokens = 2048;
+  const headers = new Headers(init.headers);
+  headers.delete("content-length");
+  return { ...init, headers, body: JSON.stringify(body) };
+}
