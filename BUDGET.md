@@ -1,6 +1,6 @@
 # Native budget preflight
 
-Latest delivery correction: the reported provider cap is **50 USD**, while the approved test budget remains **5 USD**. The fixed [bounded native smoke](SMOKE.md) may run after native quota validation because its conservative finite estimate is 0.02232704 USD at the highest current same-model advertised rates. Missing price-routing hints are not a financial blocker for that tiny scope. Run `bash --noprofile --norc scripts/bounded-smoke.sh` to enter the key privately and execute it once. General paid lab/lifecycle commands remain blocked. The earlier 5 USD instructions below describe the broad preflight diagnostic, which grants no general paid admission.
+Latest delivery correction: the reported provider cap is **50 USD**, while the approved test budget remains **5 USD**. The fixed [bounded native smoke](SMOKE.md) may run after native quota validation because its conservative finite estimate is 0.02232704 USD at the highest current same-model advertised rates. Missing price-routing hints are not a financial blocker for that tiny scope. Run `bash --noprofile --norc scripts/bounded-smoke.sh` to use the existing environment or project-root private `.env` key and execute it once. General paid lab/lifecycle commands remain blocked. The earlier 5 USD instructions below describe the broad preflight diagnostic, which grants no general paid admission. Project `.env` loading is described in [PROVIDERS.md](PROVIDERS.md); it does not grant paid-run admission.
 
 The approved synthetic pair is `openrouter/openai/gpt-6-sol` for chat and `openai/text-embedding-3-small` at `https://openrouter.ai/api/v1` for embeddings, with a total **5 USD** limit. No automatic model routing is selected. Paid execution is currently **blocked**, including native indexing and managed Gateway startup when a credential-backed provider is selected.
 
@@ -14,23 +14,16 @@ The small application guard rejects missing, ambiguous, stale, non-USD, unlimite
 
 ## Smallest operator-run check
 
-First, the operator verifies in their provider account that a dedicated test key has a **5 USD limit with reset disabled**. This program neither changes nor verifies account settings by itself. Do not pass the confirmation flag until that manual check is complete.
+The confirmation flag asserts the exact provider key cap selected by the operator. The current reported cap is **50 USD**; the preflight's default is still 5 USD when the explicit option is omitted. This program neither changes nor independently verifies account settings. Do not pass the confirmation flag until the cap is known.
 
-From the full installation, enter the key in a private local Bash session, run the configuration/quota diagnostic in the same shell, and clear it afterward:
+From the full installation, use the project `.env` or existing authorized environment and run the configuration/quota diagnostic:
 
 ```bash
-bash --noprofile --norc
-set +x
-IFS= read -r -s -p 'OpenRouter test key (5 USD, reset disabled): ' OPENROUTER_API_KEY
-printf '\n'
-export OPENROUTER_API_KEY
-npm run budget:preflight -- --key-limit-confirmed
+npm run budget:preflight -- --key-limit-confirmed --provider-limit=50
 npm run test:budget
-unset OPENROUTER_API_KEY
-exit
 ```
 
-Paste only at the hidden prompt. The key stays in that temporary shell environment and the selected native child; it is not a command argument or browser value. Use no tracing or terminal recording. The preflight creates a fresh synthetic temporary lab, validates the explicit native chat configuration, runs the native metadata command, prints only fixed labels and budget numbers, then removes its temporary lab. No chat, embedding, extraction, consolidation, indexing or Gateway-start command is admitted. The test command uses dummy quota fixtures only.
+Use the private project `.env` prepared as described in [PROVIDERS.md](PROVIDERS.md), or an existing authorized environment value. The explicit 50 USD option selects the reported provider cap; omitting it checks exactly 5 USD. The preflight checks required setting presence before creating a fresh synthetic temporary lab, validates the explicit native chat configuration, runs the native metadata command, prints only fixed labels and budget numbers, then removes its temporary lab. No chat, embedding, extraction, consolidation, indexing or Gateway-start command is admitted. The test command uses dummy quota fixtures only.
 
 Exit **2** means confirmation was absent and no native quota probe ran. Exit **3** means paid execution is denied, including when `snapshotEligible: true`. A missing key, unavailable metadata or native failure is denied without exposing the raw status or error. No success exit means paid authorization. The native quota probe has a 10-second native timeout and a 25-second child termination deadline, with forced termination after a further 10 seconds if needed. The wrapper does not retry it. These are process bounds, not spending bounds. Inference calls/tokens/retries/background jobs dispatched by this preflight are all **zero**.
 

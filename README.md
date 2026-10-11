@@ -21,9 +21,9 @@ Keep the operator token on the server. Authenticate users and authorize their ro
 
 ## Select native providers
 
-OpenClaw supplies OpenRouter and other providers. The managed lab's `native-model` command passes a provider/model reference and an env SecretRef; `native-vector` configures embeddings separately. Both validate config without model requests. Enter a key yourself at the hidden local prompt in [PROVIDERS.md](PROVIDERS.md). Project `.env` files are not automatically loaded. General paid lab/lifecycle execution remains blocked by the [native budget guard](BUDGET.md); the separate fixed finite smoke is available below.
+OpenClaw supplies OpenRouter and other providers. The managed lab's `native-model` command passes a provider/model reference and an env SecretRef; `native-vector` configures embeddings separately. Both validate config without model requests. Put the key once in this project's private `.env` using a local editor; see [PROVIDERS.md](PROVIDERS.md). Test and runtime commands load that exact file regardless of working directory. Existing process environment values take precedence, including empty ones. General paid lab/lifecycle execution remains blocked by the [native budget guard](BUDGET.md); the separate fixed finite smoke is available below.
 
-The [bounded native smoke](SMOKE.md) uses one chat completion, one synthetic note/index, one semantic query and a source read. The reported 50 USD key cap is separate from the approved 5 USD test budget. Run `npm run test:smoke` for dummy provider tests, or `bash --noprofile --norc scripts/bounded-smoke.sh` to enter your key privately and execute the fixed real smoke once.
+The [bounded native smoke](SMOKE.md) uses one chat completion, one synthetic note/index, one semantic query and a source read. The reported 50 USD key cap is separate from the approved 5 USD test budget. Run `npm run test:smoke` for dummy provider tests, or `bash --noprofile --norc scripts/bounded-smoke.sh` to execute the fixed real smoke once with the existing environment or project `.env` key. A missing key stops before native execution and directs you to the local file.
 
 ## Run the managed lab
 

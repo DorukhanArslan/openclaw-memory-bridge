@@ -2,6 +2,10 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { join } from "node:path";
 import { PAID_SELECTION, probeBudget } from "../src/budget-preflight.ts";
 import { Lab, PROJECT } from "../src/lab.ts";
+import {
+  MissingEnvironmentError,
+  requireEnvironment,
+} from "../src/project-env.ts";
 
 const args = process.argv.slice(2);
 const expectedLimit = args.includes("--provider-limit=50") ? 50 : 5;
@@ -20,6 +24,7 @@ if (
   let root: string | undefined;
   let lab: Lab | undefined;
   try {
+    requireEnvironment([PAID_SELECTION.keyEnv]);
     root = await mkdtemp(join(PROJECT, ".lab-test-"));
     lab = await new Lab("budget", root).init();
     await lab.configureNativeModel(PAID_SELECTION.chat, PAID_SELECTION.keyEnv);
@@ -52,7 +57,8 @@ if (
       ),
     );
     process.exitCode = 3; // Eligible snapshot still grants no paid-run admission.
-  } catch {
+  } catch (error) {
+    if (error instanceof MissingEnvironmentError) console.error(error.message);
     console.error(
       "Native budget preflight unavailable; paid execution denied.",
     );

@@ -6,22 +6,24 @@ OpenClaw owns providers, model transport, authentication and SecretRef resolutio
 
 For an existing Gateway, its operator uses native [provider setup](https://docs.openclaw.ai/providers/openrouter), [authentication](https://docs.openclaw.ai/gateway/authentication) and [secrets tools](https://docs.openclaw.ai/gateway/secrets). The ready client receives only the Gateway token. It receives no provider key and changes no provider settings. Native OAuth, file/exec/store secret readers and providers requiring extra endpoint/account configuration remain with the Gateway operator.
 
-## Enter a key locally
+## Configure the project environment locally
 
-Use the full installation. From this repository, open a private Bash session and enter the key at the hidden prompt:
+Use the full installation. A keyless `.env` was prepared locally with owner-only permissions. It is ignored by Git. Edit it locally and place your key after `OPENROUTER_API_KEY=`. Never paste a credential into chat or a command argument. For a fresh clone with no `.env`, create the private file once without replacing an existing file:
 
 ```bash
-bash --noprofile --norc
-set +x
-IFS= read -r -s -p 'OpenRouter API key: ' OPENROUTER_API_KEY
-printf '\n'
-export OPENROUTER_API_KEY
-npm run lab -- native-model alpha openrouter/auto OPENROUTER_API_KEY
-unset OPENROUTER_API_KEY
-exit
+(umask 077; set -C; cat .env.example > .env)
+nano .env
 ```
 
-Paste the key only at the prompt, never into chat, a command argument or a committed file. The prompt suppresses terminal echo; the value is not a shell-history command. This temporary process environment is the native secret source. No provider credential file is written. Close the private shell if input is cancelled. Avoid screen sharing, shell tracing and terminal recording during input.
+The bridge's application adapter loads only the repository-root `.env`; it never discovers `.env.local`, your home credentials or a file in the current working directory. It uses the pinned Node runtime's dotenv parser without shell evaluation or variable expansion. Existing environment settings, including empty ones, are preserved. Supported settings are the existing `LAB_MODEL_*`, `LAB_VECTOR_*`, native model/vector selectors, `LAB_ALLOW_MODEL_REQUESTS`, and `BRIDGE_GATEWAY_URL`, `BRIDGE_GATEWAY_TOKEN`, `BRIDGE_AGENT_ID`, plus explicit provider credential names ending in `_KEY`, `_TOKEN` or `_SECRET`. Runtime controls such as `NODE_OPTIONS`, `HOME`, proxies and `OPENCLAW_*` are rejected with a sanitized error. The file must be regular, at most 64 KiB, and cannot be a symlink. This `.env` loading is an application adapter, not a native OpenClaw memory feature.
+
+`npm start`, `npm run lab`, `npm run serve`, all `npm test`/`test:*` commands, the TypeScript examples and the bounded-smoke script use the same project file. The ready-Gateway example also loads its URL/token from it. Keyword mode and dummy-provider tests need no key. A selected real operation checks required setting names before native execution; missing or empty settings report names only. Configuration-only native model/vector handoff may still store references without a credential value.
+
+To prepare a native model reference without a provider request:
+
+```bash
+npm run lab -- native-model alpha openrouter/auto OPENROUTER_API_KEY
+```
 
 The command stores a model reference and env SecretRef, then runs native `config validate`. It does not start a Gateway, index notes or send a provider request. `openrouter/auto` is the native setup selector in this example; select an explicit tool-capable model and approve a budget before genuine model acceptance. Configuration does not prove successful authentication, tool support, extraction or consolidation.
 
@@ -50,7 +52,7 @@ The bundled provider supplies its endpoint and catalog. Other bundled API-key pr
 
 The bridge forwards only selected credential names to its isolated children. Its HOME, state, config, PATH and loopback binding remain under lab ownership; proxies and runtime controls are not forwarded. Settings/config persist references, not key values. Command/tool/log output masks exact selected credential values as an additional safeguard. This is not a secret vault or tenant security boundary.
 
-Project `.env` and `.env.*` files are ignored by Git but are not loaded by the bridge. OpenClaw also blocks provider credentials from workspace dotenv files. Use the trusted process environment or the existing Gateway owner's authorized native secret management. The bridge does not discover other user credential files. After `unset`, later model operations need the selected value supplied again in their authorized process environment.
+Project `.env` and `.env.*` files are ignored by Git; only the keyless `.env.example` is tracked. OpenClaw blocks provider credentials from its own workspace dotenv files. The bridge loads the trusted project file into its process, then forwards only the explicitly selected credential name into the private native child process. OpenClaw still owns provider transport and SecretRef resolution. Existing Gateway credentials remain under its operator's native secret management. Loading `.env` does not grant paid-run admission or change provider/account settings. Remove an empty exported key if you intend to use the file value; the loader deliberately does not override it.
 
 ## Embeddings are separate
 

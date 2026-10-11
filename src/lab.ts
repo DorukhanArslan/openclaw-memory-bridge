@@ -1,3 +1,4 @@
+import "./load-env.ts";
 import { type ChildProcess, spawn } from "node:child_process";
 import { randomBytes } from "node:crypto";
 import { once } from "node:events";
@@ -31,6 +32,7 @@ import {
   smokeBudget,
   verifySmokeRuntime,
 } from "./paid-smoke.ts";
+import { requireEnvironment } from "./project-env.ts";
 import {
   credentialEnv,
   forwardCredentials,
@@ -716,6 +718,7 @@ export class Lab {
       throw new Error("Bounded smoke requires a fresh, empty, isolated lab.");
     const fixtureUrl = fixture ? fixtureEndpoint(fixture) : undefined;
     const keyEnv = fixture ? "SYNTHETIC_SMOKE_KEY" : PAID_SELECTION.keyEnv;
+    requireEnvironment([keyEnv]);
     this.smoke = { fixtureUrl };
     this.settings = {
       provider: "openai-compatible",

@@ -1,13 +1,16 @@
+import "../src/load-env.ts";
 import { GatewayError, ReadyGateway } from "../src/gateway.ts";
+import { requireEnvironment } from "../src/project-env.ts";
 
 const url = process.env.BRIDGE_GATEWAY_URL;
 const token = process.env.BRIDGE_GATEWAY_TOKEN;
-if (!url || !token) {
-  process.stderr.write(
-    "Supply BRIDGE_GATEWAY_URL and BRIDGE_GATEWAY_TOKEN through the authorized server environment.\n",
-  );
+try {
+  requireEnvironment(["BRIDGE_GATEWAY_URL", "BRIDGE_GATEWAY_TOKEN"]);
+} catch (error) {
+  process.stderr.write(`${(error as Error).message}\n`);
   process.exitCode = 2;
-} else {
+}
+if (url && token && !process.exitCode) {
   let client: ReadyGateway | undefined;
   try {
     client = new ReadyGateway({

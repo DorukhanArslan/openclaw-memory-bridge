@@ -6,6 +6,10 @@ import {
   SMOKE,
   type SmokeConfirmations,
 } from "../src/paid-smoke.ts";
+import {
+  MissingEnvironmentError,
+  requireEnvironment,
+} from "../src/project-env.ts";
 
 // The user approved a 5 USD test budget and reported this exact 50 USD key cap.
 // No reset/exclusive-use claim is needed for the finite run estimate.
@@ -22,10 +26,12 @@ try {
       "This smoke has no configurable model or execution arguments.",
     );
   confirmSmoke(policy);
+  requireEnvironment(["OPENROUTER_API_KEY"]);
   root = await mkdtemp(join(PROJECT, ".lab-test-smoke-"));
   lab = await new Lab("smoke", root).init();
   console.log(JSON.stringify(await lab.boundedSmoke(policy), null, 2));
-} catch {
+} catch (error) {
+  if (error instanceof MissingEnvironmentError) console.error(error.message);
   // No raw provider status, native error, account labels or credentials are printed.
   console.error(
     JSON.stringify({
