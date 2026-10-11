@@ -51,7 +51,7 @@ Python applications can use the managed lab's local JSONL process contract. Run 
 ## Limits and checks
 
 - Use synthetic data in this lab. Source deletion removes current indexed hits after reindex; it does not erase other copies or backups.
-- Vector search requires a genuine embedding model. Model-generated dreaming, consolidation and chat flush require a genuine tool-capable text model. Local servers and selected native providers are supported; model acceptance remains pending.
+- Vector search requires a genuine embedding model. The approved fixed real chat, embedding, semantic recall and source-read smoke passed; see [SMOKE.md](SMOKE.md). Model-generated dreaming, consolidation and chat flush require a genuine tool-capable text model and remain pending. Local servers and selected native providers are supported.
 - The promotion demo uses zero test thresholds. Session capture uses a labelled transcript fixture. These checks do not prove model-generated memory.
 - A first client request can pay connection and native initialization cost. Warm calls can reuse sockets. No zero-startup or latency guarantee applies.
 

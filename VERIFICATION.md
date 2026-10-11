@@ -141,3 +141,20 @@ Targeted validation: **13 tests, 13 passed, 0 failed**, 101.14 seconds. These in
 Post-fix native metadata succeeded: exact **50 USD** key limit, **0 USD** used, **50 USD** remaining at the check. This was a read-only authenticated `/credits`/`/key` probe; model requests were zero. No key value, account label or raw status was emitted, and the application did not modify the operator's `.env`. Metadata authentication does not establish model access or semantic/model-assisted memory acceptance.
 
 Automatic approval review rejected a duplicate pre-fix metadata variant; it was not executed. After the credential-free reproduction and tested fix, the first post-fix native quota check was approved and passed. Review then rejected the concrete paid smoke because the visible user messages did not explicitly authorize its chat/embedding spending. That paid command was not executed. One fixed smoke, estimated at 0.02232704 USD under the documented price assumptions and separate 5 USD test budget, awaits explicit operator approval. Real chat/embedding and consolidation remain unaccepted. Safe checkpoint details are in `evidence/live-smoke/`.
+
+## Approved finite real-provider acceptance — 2026-10-11
+
+The earlier approval blocker is resolved. With the existing human approval verified, the same fixed command was retried once and completed with exit 0 on implementation commit `68a6a6d`. No additional paid run followed it. No provider configuration, credential file or account setting was changed, and no push occurred.
+
+Actual private OpenClaw 2026.9.9 CLI/Gateway acceptance passed:
+
+- Native `llm-task` used `openrouter/openai/gpt-6-sol` and returned `{"ok":true}`.
+- Native indexing used `openai/text-embedding-3-small` for one fixed synthetic note.
+- Native `memory_search` returned one hit at `memory/resident.md` for `pedal-powered commuting`.
+- Native `memory_get` returned the checked source text, `Zephyr travels to the office by bicycle.`
+
+The initial native key snapshot reported a 50 USD limit, 0 USD used and 50 USD remaining. One subsequent read-only native cost probe reported 49.99978964 USD remaining. The measured key-counter difference is **0.00021036 USD**, below the separate approved **5 USD** test budget. This is a test-window counter delta; concurrent key use was not excluded and separate per-generation billing was not obtained. The conservative pre-run estimate was 0.02232704 USD and was not a hard spending cap. The cost probe exited 3 by design because general paid-suite admission remains denied despite an eligible quota snapshot; the metadata read itself succeeded and made zero model requests.
+
+There were zero wrapper retries. Native provider price-routing hints remain unverified. Agent lifecycle, model-assisted consolidation, extraction and flush were not exercised by this finite smoke and remain pending. This real acceptance is separate from the 13/13 targeted compatibility/mock-provider checks and the earlier 71-test aggregate; it does not convert their four skipped broader model checks into passes. Type checking and lint passed for the implementation checkpoint, with no executable changes during this documentation update.
+
+Safe output, the cost snapshot and the structured result are under ignored `evidence/live-smoke/real-smoke.txt`, `cost-after.txt` and `acceptance.json`. The project key was consumed through the approved application loader/native provider path; its value was never manually read or emitted. The temporary synthetic smoke workspace and native processes were cleaned up.
