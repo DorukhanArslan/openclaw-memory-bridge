@@ -1,0 +1,13 @@
+[
+  {
+    "Round": "1. Native contract and budget supervision",
+    "Test goal": "Find why the previous consolidation test had no eligible recall signal.",
+    "What we did": "Read the pinned native recall and dreaming code. Run the native transport and request budget tests.",
+    "Expected result": "Recall recording requires dreaming to be on. All paid requests have a finite output and total limit.",
+    "Actual result": "Three budget tests passed. Two native HTTP tests passed. Type checks passed. The native code records recall only while dreaming is on. The new finite profile admits at most 16 requests, 180000 input bytes, and 40000 output tokens.",
+    "What this means for your app": "Turn dreaming on before recall. Keep the source session in the same native workspace.",
+    "Status": "PASS",
+    "Evidence": "tests/lifecycle-budget.test.ts; tests/native-bootstrap.test.ts",
+    "Commit": "548da33 (baseline; working changes)"
+  }
+]

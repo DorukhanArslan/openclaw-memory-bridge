@@ -14,13 +14,30 @@ export const LIFECYCLE_LIMITS = Object.freeze({
   outputTokens: 14000,
   estimatedUsd: (245000 * 18 + 14000 * 30) / 1e6,
 });
-type Ledger = { requests: number; inputBytes: number; outputTokens: number };
-export function createLifecycleLedger(path: string) {
+export const CONSOLIDATION_LIMITS = Object.freeze({
+  requests: 16,
+  inputBytes: 180000,
+  outputPerRequest: 8192,
+  outputTokens: 40000,
+  estimatedUsd: (180000 * 18 + 40000 * 30) / 1e6,
+});
+type Ledger = {
+  requests: number;
+  inputBytes: number;
+  outputTokens: number;
+  profile?: "consolidation";
+};
+export function createLifecycleLedger(path: string, profile?: "consolidation") {
   const fd = openSync(path, "wx", 0o600);
   try {
     writeFileSync(
       fd,
-      JSON.stringify({ requests: 0, inputBytes: 0, outputTokens: 0 }),
+      JSON.stringify({
+        requests: 0,
+        inputBytes: 0,
+        outputTokens: 0,
+        ...(profile ? { profile } : {}),
+      }),
     );
   } finally {
     closeSync(fd);
@@ -61,19 +78,46 @@ export function admitLifecycleRequest(
       : new TextDecoder("utf-8", { fatal: true }).decode(
           init.body as Uint8Array,
         );
+  const ledgerProfile = JSON.parse(readFileSync(path, "utf8")) as Ledger;
+  if (
+    ledgerProfile.profile !== undefined &&
+    ledgerProfile.profile !== "consolidation"
+  )
+    throw new Error("Invalid finite lifecycle profile.");
+  const limits =
+    ledgerProfile.profile === "consolidation"
+      ? CONSOLIDATION_LIMITS
+      : LIFECYCLE_LIMITS;
   const body = JSON.parse(text) as {
     model?: string;
     max_completion_tokens?: number;
+    max_tokens?: number;
   };
-  const output = body.max_completion_tokens;
+  const output = body.max_completion_tokens ?? body.max_tokens;
+  if (body.max_completion_tokens !== undefined && body.max_tokens !== undefined)
+    throw new Error("Ambiguous native output bound denied.");
   if (
     body.model !== "openai/gpt-6-sol" ||
     !Number.isInteger(output) ||
     !output ||
     output < 1 ||
-    output > LIFECYCLE_LIMITS.outputPerRequest
-  )
+    output > limits.outputPerRequest
+  ) {
+    writeFileSync(
+      path,
+      JSON.stringify({
+        ...ledgerProfile,
+        lastDenial: {
+          reason: "model_output",
+          modelMatches: body.model === "openai/gpt-6-sol",
+          completionTokens: body.max_completion_tokens ?? null,
+          maxTokens: body.max_tokens ?? null,
+        },
+      }),
+      { mode: 0o600 },
+    );
     throw new Error("Finite lifecycle model/output bound denied.");
+  }
   const lock = `${path}.lock`;
   const fd = openSync(lock, "wx", 0o600);
   try {
@@ -85,23 +129,24 @@ export function admitLifecycleRequest(
     )
       throw new Error("Invalid finite lifecycle ledger.");
     const next = {
+      ...(ledger.profile ? { profile: ledger.profile } : {}),
       requests: ledger.requests + 1,
       inputBytes: ledger.inputBytes + Buffer.byteLength(text),
       outputTokens: ledger.outputTokens + output,
     };
     if (
-      next.requests > LIFECYCLE_LIMITS.requests ||
-      next.inputBytes > LIFECYCLE_LIMITS.inputBytes ||
-      next.outputTokens > LIFECYCLE_LIMITS.outputTokens
+      next.requests > limits.requests ||
+      next.inputBytes > limits.inputBytes ||
+      next.outputTokens > limits.outputTokens
     ) {
       writeFileSync(
         path,
         JSON.stringify({
           ...ledger,
           lastDenial:
-            next.inputBytes > LIFECYCLE_LIMITS.inputBytes
+            next.inputBytes > limits.inputBytes
               ? "input_bytes"
-              : next.outputTokens > LIFECYCLE_LIMITS.outputTokens
+              : next.outputTokens > limits.outputTokens
                 ? "output_tokens"
                 : "request_count",
         }),

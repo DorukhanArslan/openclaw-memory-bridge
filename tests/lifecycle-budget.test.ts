@@ -107,3 +107,29 @@ test("Finite lifecycle supervision: input and aggregate output exhaustion reject
     await rm(root, { recursive: true, force: true });
   }
 });
+
+test("Consolidation profile accepts native bounded max_tokens and rejects ambiguous bounds", async () => {
+  const root = await mkdtemp(join(tmpdir(), "consolidation-budget-"));
+  const path = join(root, "ledger.json");
+  createLifecycleLedger(path, "consolidation");
+  const endpoint = "https://openrouter.ai/api/v1/chat/completions";
+  const invoke = (extra: object) =>
+    admitLifecycleRequest(path, endpoint, {
+      method: "POST",
+      body: JSON.stringify({ model: "openai/gpt-6-sol", ...extra }),
+    });
+  try {
+    invoke({ max_tokens: 8192 });
+    assert.throws(() => invoke({ max_tokens: 8193 }), /bound denied/);
+    assert.throws(
+      () => invoke({ max_tokens: 1024, max_completion_tokens: 1024 }),
+      /Ambiguous/,
+    );
+    const ledger = JSON.parse(await readFile(path, "utf8"));
+    assert.equal(ledger.profile, "consolidation");
+    assert.equal(ledger.requests, 1);
+    assert.equal(ledger.outputTokens, 8192);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
