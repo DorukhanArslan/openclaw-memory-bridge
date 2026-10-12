@@ -1,0 +1,527 @@
+[
+  {
+    "caseId": "SDK-00",
+    "promise": "Local wheel and managed connection; no automatic memory notes",
+    "access": "BridgeConfig; MemoryClient",
+    "tier": "fresh real SDK process",
+    "setupInput": "Installed wheel; empty temporary root.",
+    "expectedAssertions": "Engine handshake/version and no Markdown files.",
+    "failureCoverage": "Missing runtime covered by existing SDK/protocol checks; not a model-readiness test.",
+    "existingTests": [
+      "python/tests/test_client.py"
+    ],
+    "runner": "FOUNDATION_ROOT=\"$PWD\" .bootstrap/readme-venv/bin/python -I -m unittest discover -s python/tests -p test_readme_cases.py -k SDK_00 -v",
+    "modelRequiredForCapability": false,
+    "currentStatus": "PASS",
+    "cleanup": "Client close plus temporary-root removal in tearDown.",
+    "prerequisites": [
+      "Pinned Node 24.16.0 and OpenClaw 2026.9.9 foundation runtime.",
+      "Python >=3.10; installed local wheel.",
+      "FOUNDATION_ROOT set to this repository.",
+      "Synthetic local fixtures only. No model/provider key needed."
+    ]
+  },
+  {
+    "caseId": "SDK-01",
+    "promise": "App-owned write, native index, keyword recall, explicit agent prompt",
+    "access": "write; index; search",
+    "tier": "fresh real SDK + engine",
+    "setupInput": "One cobalt/Tuesday synthetic note. Calls examples/readme_quickstart.py function.",
+    "expectedAssertions": "Physical file, native provider none, cited path, prompt includes fact and source.",
+    "failureCoverage": "Unrecorded query returns [] without an error.",
+    "existingTests": [
+      "tests/engine.test.ts",
+      "tests/protocol.test.ts",
+      "examples/sdk_app.py"
+    ],
+    "runner": "FOUNDATION_ROOT=\"$PWD\" .bootstrap/readme-venv/bin/python -I -m unittest discover -s python/tests -p test_readme_cases.py -k SDK_01 -v",
+    "modelRequiredForCapability": false,
+    "currentStatus": "PASS",
+    "cleanup": "Client close plus temporary-root removal in tearDown.",
+    "prerequisites": [
+      "Pinned Node 24.16.0 and OpenClaw 2026.9.9 foundation runtime.",
+      "Python >=3.10; installed local wheel.",
+      "FOUNDATION_ROOT set to this repository.",
+      "Synthetic local fixtures only. No model/provider key needed."
+    ]
+  },
+  {
+    "caseId": "SDK-02",
+    "promise": "Native source and line range inspection",
+    "access": "get; search",
+    "tier": "fresh real SDK + engine",
+    "setupInput": "Seed one indexed note; read the returned hit range.",
+    "expectedAssertions": "Positive line range; status ok; source text contains cobalt.",
+    "failureCoverage": "Invalid path and line range raise FoundationError. Missing-source ReadyGateway behavior stays in NATIVE-01 and EDGE-02.",
+    "existingTests": [
+      "tests/engine.test.ts",
+      "tests/gateway.test.ts"
+    ],
+    "runner": "FOUNDATION_ROOT=\"$PWD\" .bootstrap/readme-venv/bin/python -I -m unittest discover -s python/tests -p test_readme_cases.py -k SDK_02 -v",
+    "modelRequiredForCapability": false,
+    "currentStatus": "PASS",
+    "cleanup": "Client close plus temporary-root removal in tearDown.",
+    "prerequisites": [
+      "Pinned Node 24.16.0 and OpenClaw 2026.9.9 foundation runtime.",
+      "Python >=3.10; installed local wheel.",
+      "FOUNDATION_ROOT set to this repository.",
+      "Synthetic local fixtures only. No model/provider key needed."
+    ]
+  },
+  {
+    "caseId": "SDK-03",
+    "promise": "Source overwrite plus index removes stale keywords",
+    "access": "write; index; search; get",
+    "tier": "fresh real SDK + engine",
+    "setupInput": "Change cobalt/Tuesday to amber/Friday in the same note.",
+    "expectedAssertions": "Same source file now contains amber; amber recalled; cobalt absent.",
+    "failureCoverage": "Native changed-fact supersession is not covered.",
+    "existingTests": [
+      "tests/engine.test.ts"
+    ],
+    "runner": "FOUNDATION_ROOT=\"$PWD\" .bootstrap/readme-venv/bin/python -I -m unittest discover -s python/tests -p test_readme_cases.py -k SDK_03 -v",
+    "modelRequiredForCapability": false,
+    "currentStatus": "PASS",
+    "cleanup": "Client close plus temporary-root removal in tearDown.",
+    "prerequisites": [
+      "Pinned Node 24.16.0 and OpenClaw 2026.9.9 foundation runtime.",
+      "Python >=3.10; installed local wheel.",
+      "FOUNDATION_ROOT set to this repository.",
+      "Synthetic local fixtures only. No model/provider key needed."
+    ]
+  },
+  {
+    "caseId": "SDK-04",
+    "promise": "Current source deletion plus index",
+    "access": "delete; index; search",
+    "tier": "fresh real SDK + engine",
+    "setupInput": "One cobalt source, then delete it.",
+    "expectedAssertions": "File absent and no current cobalt hits in the fresh single-source corpus.",
+    "failureCoverage": "Second delete reports engine_error; backup/captured-copy erasure is not covered.",
+    "existingTests": [
+      "tests/engine.test.ts",
+      "tests/protocol.test.ts"
+    ],
+    "runner": "FOUNDATION_ROOT=\"$PWD\" .bootstrap/readme-venv/bin/python -I -m unittest discover -s python/tests -p test_readme_cases.py -k SDK_04 -v",
+    "modelRequiredForCapability": false,
+    "currentStatus": "PASS",
+    "cleanup": "Client close plus temporary-root removal in tearDown.",
+    "prerequisites": [
+      "Pinned Node 24.16.0 and OpenClaw 2026.9.9 foundation runtime.",
+      "Python >=3.10; installed local wheel.",
+      "FOUNDATION_ROOT set to this repository.",
+      "Synthetic local fixtures only. No model/provider key needed."
+    ]
+  },
+  {
+    "caseId": "SDK-05",
+    "promise": "Same-root persistence across real Gateway/host restart and later session",
+    "access": "MemoryScope; restart; search; MemoryClient",
+    "tier": "fresh real SDK + engine",
+    "setupInput": "Store a fact, restart Gateway, close/reconnect client with same root.",
+    "expectedAssertions": "New session shares route; both real restarts retain recall; source bytes unchanged.",
+    "failureCoverage": "Deleted/lost-root recovery is not promised. Connection loss remains EDGE-02.",
+    "existingTests": [
+      "tests/engine.test.ts",
+      "tests/protocol.test.ts"
+    ],
+    "runner": "FOUNDATION_ROOT=\"$PWD\" .bootstrap/readme-venv/bin/python -I -m unittest discover -s python/tests -p test_readme_cases.py -k SDK_05 -v",
+    "modelRequiredForCapability": false,
+    "currentStatus": "PASS",
+    "cleanup": "Client close plus temporary-root removal in tearDown.",
+    "prerequisites": [
+      "Pinned Node 24.16.0 and OpenClaw 2026.9.9 foundation runtime.",
+      "Python >=3.10; installed local wheel.",
+      "FOUNDATION_ROOT set to this repository.",
+      "Synthetic local fixtures only. No model/provider key needed."
+    ]
+  },
+  {
+    "caseId": "SDK-06",
+    "promise": "Workspace/user routing and same-note-ID conflict separation",
+    "access": "MemoryScope; write; index; search",
+    "tier": "fresh real SDK + engine",
+    "setupInput": "Alex stores cobalt. Other user/workspace stores saffron under the same note ID.",
+    "expectedAssertions": "Different routes, each file has its own text, positive own recall, bidirectional negative cross-recall, original recall retained.",
+    "failureCoverage": "Invalid scope rejected. Authentication and enterprise isolation are not covered.",
+    "existingTests": [
+      "tests/engine.test.ts",
+      "python/tests/test_client.py"
+    ],
+    "runner": "FOUNDATION_ROOT=\"$PWD\" .bootstrap/readme-venv/bin/python -I -m unittest discover -s python/tests -p test_readme_cases.py -k SDK_06 -v",
+    "modelRequiredForCapability": false,
+    "currentStatus": "PASS (full suite plus strengthened symmetric case)",
+    "cleanup": "Client close plus temporary-root removal in tearDown.",
+    "prerequisites": [
+      "Pinned Node 24.16.0 and OpenClaw 2026.9.9 foundation runtime.",
+      "Python >=3.10; installed local wheel.",
+      "FOUNDATION_ROOT set to this repository.",
+      "Synthetic local fixtures only. No model/provider key needed."
+    ]
+  },
+  {
+    "caseId": "SDK-07",
+    "promise": "Explicit transcript fixture, history/state, native capture hook",
+    "access": "configure; inject_fixture; session_history; session_state; reset_session; get; search",
+    "tier": "fresh real SDK + native hook",
+    "setupInput": "Enable ingestion and inject labelled copper-paper fixture.",
+    "expectedAssertions": "modelExecuted false; original session identity in dated file; readable source; subsequent recall; route stays valid.",
+    "failureCoverage": "Reset before enabling ingestion fails. New logical UUID is not promised.",
+    "existingTests": [
+      "tests/lifecycle.test.ts",
+      "examples/sdk_app.py"
+    ],
+    "runner": "FOUNDATION_ROOT=\"$PWD\" .bootstrap/readme-venv/bin/python -I -m unittest discover -s python/tests -p test_readme_cases.py -k SDK_07 -v",
+    "modelRequiredForCapability": false,
+    "currentStatus": "PASS",
+    "cleanup": "Client close plus temporary-root removal in tearDown.",
+    "prerequisites": [
+      "Pinned Node 24.16.0 and OpenClaw 2026.9.9 foundation runtime.",
+      "Python >=3.10; installed local wheel.",
+      "FOUNDATION_ROOT set to this repository.",
+      "Synthetic local fixtures only. No model/provider key needed."
+    ]
+  },
+  {
+    "caseId": "SDK-08",
+    "promise": "Native status and diary inspection; no generation side effect",
+    "access": "status; dream_status; dream_diary; configure",
+    "tier": "fresh real SDK + engine",
+    "setupInput": "No-model workspace; ingestion disabled.",
+    "expectedAssertions": "Provider none; dreaming off; empty diary; no Markdown notes produced.",
+    "failureCoverage": "Reading model-generated diary in the same SDK-paid scope is not newly verified.",
+    "existingTests": [
+      "tests/lifecycle.test.ts",
+      "examples/sdk_app.py"
+    ],
+    "runner": "FOUNDATION_ROOT=\"$PWD\" .bootstrap/readme-venv/bin/python -I -m unittest discover -s python/tests -p test_readme_cases.py -k SDK_08 -v",
+    "modelRequiredForCapability": false,
+    "currentStatus": "PASS",
+    "cleanup": "Client close plus temporary-root removal in tearDown.",
+    "prerequisites": [
+      "Pinned Node 24.16.0 and OpenClaw 2026.9.9 foundation runtime.",
+      "Python >=3.10; installed local wheel.",
+      "FOUNDATION_ROOT set to this repository.",
+      "Synthetic local fixtures only. No model/provider key needed."
+    ]
+  },
+  {
+    "caseId": "SDK-09",
+    "promise": "Errors do not become successful empty recall",
+    "access": "FoundationError.code; call; write; search",
+    "tier": "fresh real SDK + engine",
+    "setupInput": "Valid indexed note, then unsupported operation/invalid IDs/empty query.",
+    "expectedAssertions": "Errors observed; valid note bytes and recall remain intact.",
+    "failureCoverage": "Invalid operation code invalid_request; invalid engine inputs rejected.",
+    "existingTests": [
+      "tests/gateway.test.ts",
+      "python/tests/test_client.py"
+    ],
+    "runner": "FOUNDATION_ROOT=\"$PWD\" .bootstrap/readme-venv/bin/python -I -m unittest discover -s python/tests -p test_readme_cases.py -k SDK_09 -v",
+    "modelRequiredForCapability": false,
+    "currentStatus": "PASS",
+    "cleanup": "Client close plus temporary-root removal in tearDown.",
+    "prerequisites": [
+      "Pinned Node 24.16.0 and OpenClaw 2026.9.9 foundation runtime.",
+      "Python >=3.10; installed local wheel.",
+      "FOUNDATION_ROOT set to this repository.",
+      "Synthetic local fixtures only. No model/provider key needed."
+    ]
+  },
+  {
+    "caseId": "NATIVE-01",
+    "promise": "Borrow an already-ready Gateway; Python SDK does not expose this mode",
+    "access": "TypeScript ReadyGateway; not Python SDK",
+    "tier": "real engine in current CI 961cb42",
+    "setupInput": "Fixture owner starts Gateway and indexes a cobalt source.",
+    "expectedAssertions": "Warm recall/source; closing borrower leaves owner alive; owner restart restores availability.",
+    "failureCoverage": "Missing source maps to not_found; loss maps to connection_failed.",
+    "existingTests": [
+      "tests/ready-gateway.test.ts"
+    ],
+    "runner": "./node_modules/node/bin/node --import ./src/load-env.ts --test tests/ready-gateway.test.ts",
+    "modelRequiredForCapability": false,
+    "currentStatus": "PASS",
+    "cleanup": "Existing test finally closes borrower/owner and removes successful temporary fixture.",
+    "prerequisites": [
+      "Pinned Node 24.16.0 and OpenClaw 2026.9.9 foundation runtime.",
+      "Synthetic local fixtures only. No model/provider key needed."
+    ],
+    "ciEvidence": "https://github.com/DorukhanArslan/openclaw-memory-bridge/actions/runs/38198940078"
+  },
+  {
+    "caseId": "NATIVE-02",
+    "promise": "No-model native REM/phase maintenance and sourced promotion",
+    "access": "Bridge CLI/native operations; not SDK generation",
+    "tier": "real engine in current CI 961cb42",
+    "setupInput": "Synthetic dated cobalt notes and native staging.",
+    "expectedAssertions": "Grounded stage, completed sweep, phase signals, sourced promotion, durable recall after restart.",
+    "failureCoverage": "No model narrative or validated model rewrite is inferred.",
+    "existingTests": [
+      "tests/dreaming.test.ts"
+    ],
+    "runner": "./node_modules/node/bin/node --import ./src/load-env.ts --test tests/dreaming.test.ts",
+    "modelRequiredForCapability": false,
+    "currentStatus": "PASS",
+    "cleanup": "Existing test removes its temporary synthetic root.",
+    "prerequisites": [
+      "Pinned Node 24.16.0 and OpenClaw 2026.9.9 foundation runtime.",
+      "Synthetic local fixtures only. No model/provider key needed."
+    ],
+    "ciEvidence": "https://github.com/DorukhanArslan/openclaw-memory-bridge/actions/runs/38198940078"
+  },
+  {
+    "caseId": "NATIVE-03",
+    "promise": "Selected configuration, native schema, environment handling",
+    "access": "Bridge CLI config; project loader; not SDK model selector",
+    "tier": "deterministic config plus native validation in current CI 961cb42",
+    "setupInput": "Dummy selected env names/values and local counter server.",
+    "expectedAssertions": "Only selected values forwarded; SecretRefs validated; configuration sends zero embedding requests; rollback retained.",
+    "failureCoverage": "Malformed config, missing values, secret redaction and symlinks remain tested. Auth and paid admission are not proven by config.",
+    "existingTests": [
+      "tests/provider-handoff.test.ts",
+      "tests/project-env.test.ts"
+    ],
+    "runner": "./node_modules/node/bin/node --import ./src/load-env.ts --test tests/provider-handoff.test.ts tests/project-env.test.ts",
+    "modelRequiredForCapability": false,
+    "currentStatus": "PASS",
+    "cleanup": "Existing tests restore dummy environment and remove temporary fixtures.",
+    "prerequisites": [
+      "Pinned Node 24.16.0 and OpenClaw 2026.9.9 foundation runtime.",
+      "Synthetic local fixtures only. No model/provider key needed."
+    ],
+    "ciEvidence": "https://github.com/DorukhanArslan/openclaw-memory-bridge/actions/runs/38198940078"
+  },
+  {
+    "caseId": "MODEL-01",
+    "promise": "semantic recall",
+    "access": "native embedding config/search",
+    "tier": "historical genuine-provider evidence audit; no fresh execution",
+    "setupInput": "Retained text-embedding-3-small record.",
+    "expectedAssertions": "Nonmatching-word query recalls resident source and source read verifies bicycle.",
+    "failureCoverage": "Missing record => SKIP. Prior failed attempts remain failures. No SDK generation claim.",
+    "existingTests": [
+      "tests/vector.test.ts",
+      "tests/ready-vector.test.ts",
+      "examples/bounded_smoke.ts"
+    ],
+    "runner": "FOUNDATION_ROOT=\"$PWD\" .bootstrap/readme-venv/bin/python -I -m unittest discover -s python/tests -p test_readme_model_evidence.py -k MODEL_01 -v",
+    "modelRequiredForCapability": true,
+    "currentStatus": "EVIDENCE AUDIT PASS; FRESH MODEL NOT RUN",
+    "cleanup": "Read-only audit; creates no runtime, files, or model requests.",
+    "prerequisites": [
+      "Pinned Node 24.16.0 and OpenClaw 2026.9.9 foundation runtime.",
+      "Python >=3.10; installed local wheel.",
+      "FOUNDATION_ROOT set to this repository.",
+      "Historical genuine-provider record: evidence/live-smoke/acceptance.json. Missing record yields SKIP.",
+      "No fresh provider call; capability originally required a selected approved model."
+    ]
+  },
+  {
+    "caseId": "MODEL-02",
+    "promise": "native model extraction",
+    "access": "native agent lifecycle",
+    "tier": "historical genuine-provider evidence audit; no fresh execution",
+    "setupInput": "Retained genuine Borealis conversation with empty starting Markdown.",
+    "expectedAssertions": "Model completion plus new daily preference source, no app-prewritten note.",
+    "failureCoverage": "Missing record => SKIP. Prior failed attempts remain failures. No SDK generation claim.",
+    "existingTests": [
+      "tests/flush.test.ts",
+      "examples/lifecycle_acceptance.ts"
+    ],
+    "runner": "FOUNDATION_ROOT=\"$PWD\" .bootstrap/readme-venv/bin/python -I -m unittest discover -s python/tests -p test_readme_model_evidence.py -k MODEL_02 -v",
+    "modelRequiredForCapability": true,
+    "currentStatus": "EVIDENCE AUDIT PASS; FRESH MODEL NOT RUN",
+    "cleanup": "Read-only audit; creates no runtime, files, or model requests.",
+    "prerequisites": [
+      "Pinned Node 24.16.0 and OpenClaw 2026.9.9 foundation runtime.",
+      "Python >=3.10; installed local wheel.",
+      "FOUNDATION_ROOT set to this repository.",
+      "Historical genuine-provider record: evidence/lifecycle-acceptance/acceptance.json. Missing record yields SKIP.",
+      "No fresh provider call; capability originally required a selected approved model."
+    ]
+  },
+  {
+    "caseId": "MODEL-03",
+    "promise": "native successful flush",
+    "access": "native config/agent lifecycle",
+    "tier": "historical genuine-provider evidence audit; no fresh execution",
+    "setupInput": "Retained configured native flush record.",
+    "expectedAssertions": "Succeeded marker AND daily file AND recall, not a flag alone.",
+    "failureCoverage": "Missing record => SKIP. Prior failed attempts remain failures. No SDK generation claim.",
+    "existingTests": [
+      "tests/flush.test.ts",
+      "examples/lifecycle_acceptance.ts"
+    ],
+    "runner": "FOUNDATION_ROOT=\"$PWD\" .bootstrap/readme-venv/bin/python -I -m unittest discover -s python/tests -p test_readme_model_evidence.py -k MODEL_03 -v",
+    "modelRequiredForCapability": true,
+    "currentStatus": "EVIDENCE AUDIT PASS; FRESH MODEL NOT RUN",
+    "cleanup": "Read-only audit; creates no runtime, files, or model requests.",
+    "prerequisites": [
+      "Pinned Node 24.16.0 and OpenClaw 2026.9.9 foundation runtime.",
+      "Python >=3.10; installed local wheel.",
+      "FOUNDATION_ROOT set to this repository.",
+      "Historical genuine-provider record: evidence/lifecycle-acceptance/acceptance.json. Missing record yields SKIP.",
+      "No fresh provider call; capability originally required a selected approved model."
+    ]
+  },
+  {
+    "caseId": "MODEL-04",
+    "promise": "native summarizing compaction",
+    "access": "native model operation",
+    "tier": "historical genuine-provider evidence audit; no fresh execution",
+    "setupInput": "Retained summarizing operation.",
+    "expectedAssertions": "compacted true, nonempty summary, persisted count >=1.",
+    "failureCoverage": "Missing record => SKIP. Prior failed attempts remain failures. No SDK generation claim.",
+    "existingTests": [
+      "tests/flush.test.ts",
+      "examples/lifecycle_acceptance.ts"
+    ],
+    "runner": "FOUNDATION_ROOT=\"$PWD\" .bootstrap/readme-venv/bin/python -I -m unittest discover -s python/tests -p test_readme_model_evidence.py -k MODEL_04 -v",
+    "modelRequiredForCapability": true,
+    "currentStatus": "EVIDENCE AUDIT PASS; FRESH MODEL NOT RUN",
+    "cleanup": "Read-only audit; creates no runtime, files, or model requests.",
+    "prerequisites": [
+      "Pinned Node 24.16.0 and OpenClaw 2026.9.9 foundation runtime.",
+      "Python >=3.10; installed local wheel.",
+      "FOUNDATION_ROOT set to this repository.",
+      "Historical genuine-provider record: evidence/lifecycle-acceptance/acceptance.json. Missing record yields SKIP.",
+      "No fresh provider call; capability originally required a selected approved model."
+    ]
+  },
+  {
+    "caseId": "MODEL-05",
+    "promise": "native duplicate merge",
+    "access": "native owner/model dreaming",
+    "tier": "historical genuine-provider evidence audit; no fresh execution",
+    "setupInput": "Retained matching-project duplicate and actual owner session.",
+    "expectedAssertions": "Added 0/Merged 1/Superseded 0, one sourced fact, four unrelated facts, preserved session and durable restart recall.",
+    "failureCoverage": "Missing record => SKIP. Prior failed attempts remain failures. No SDK generation claim.",
+    "existingTests": [
+      "examples/provenance_acceptance.ts"
+    ],
+    "runner": "FOUNDATION_ROOT=\"$PWD\" .bootstrap/readme-venv/bin/python -I -m unittest discover -s python/tests -p test_readme_model_evidence.py -k MODEL_05 -v",
+    "modelRequiredForCapability": true,
+    "currentStatus": "EVIDENCE AUDIT PASS; FRESH MODEL NOT RUN",
+    "cleanup": "Read-only audit; creates no runtime, files, or model requests.",
+    "prerequisites": [
+      "Pinned Node 24.16.0 and OpenClaw 2026.9.9 foundation runtime.",
+      "Python >=3.10; installed local wheel.",
+      "FOUNDATION_ROOT set to this repository.",
+      "Historical genuine-provider record: evidence/provenance-merge-acceptance/acceptance.json. Missing record yields SKIP.",
+      "No fresh provider call; capability originally required a selected approved model."
+    ]
+  },
+  {
+    "caseId": "MODEL-06",
+    "promise": "native model Dream Diary",
+    "access": "native model dreaming; SDK inspection only",
+    "tier": "historical genuine-provider evidence audit; no fresh execution",
+    "setupInput": "Retained light/REM/deep publications.",
+    "expectedAssertions": "All three finished, nonempty native diary, no fallback, finite request totals.",
+    "failureCoverage": "Missing record => SKIP. Prior failed attempts remain failures. No SDK generation claim.",
+    "existingTests": [
+      "tests/model.test.ts",
+      "examples/provenance_acceptance.ts"
+    ],
+    "runner": "FOUNDATION_ROOT=\"$PWD\" .bootstrap/readme-venv/bin/python -I -m unittest discover -s python/tests -p test_readme_model_evidence.py -k MODEL_06 -v",
+    "modelRequiredForCapability": true,
+    "currentStatus": "EVIDENCE AUDIT PASS; FRESH MODEL NOT RUN",
+    "cleanup": "Read-only audit; creates no runtime, files, or model requests.",
+    "prerequisites": [
+      "Pinned Node 24.16.0 and OpenClaw 2026.9.9 foundation runtime.",
+      "Python >=3.10; installed local wheel.",
+      "FOUNDATION_ROOT set to this repository.",
+      "Historical genuine-provider record: evidence/provenance-merge-acceptance/acceptance.json. Missing record yields SKIP.",
+      "No fresh provider call; capability originally required a selected approved model."
+    ]
+  },
+  {
+    "caseId": "MODEL-07",
+    "promise": "Changed-fact supersession",
+    "access": "no verified SDK trigger or accepted native case",
+    "tier": "explicit coverage gap",
+    "setupInput": "Requires matching native lineage and a separately bounded accepted run.",
+    "expectedAssertions": "No observed success is claimed.",
+    "failureCoverage": "Always SKIP; app note overwrite is not a substitute.",
+    "existingTests": [],
+    "runner": "FOUNDATION_ROOT=\"$PWD\" .bootstrap/readme-venv/bin/python -I -m unittest discover -s python/tests -p test_readme_model_evidence.py -k MODEL_07 -v",
+    "modelRequiredForCapability": true,
+    "currentStatus": "NOT TESTED",
+    "cleanup": "No side effects.",
+    "prerequisites": [
+      "Pinned Node 24.16.0 and OpenClaw 2026.9.9 foundation runtime.",
+      "Python >=3.10; installed local wheel.",
+      "FOUNDATION_ROOT set to this repository.",
+      "Matching native lineage and a separately bounded accepted run are not available in this case."
+    ]
+  },
+  {
+    "caseId": "EDGE-01",
+    "promise": "SDK correlation, oversized request, timeout and malformed-reply handling",
+    "access": "Installed SDK transport; fixture only",
+    "tier": "protocol fixtures; three current checks passed",
+    "setupInput": "Labelled local protocol process.",
+    "expectedAssertions": "Valid stream survives structured input error; uncertain transport poisons client.",
+    "failureCoverage": "Timeout, malformed JSON, mismatched ID, malformed error, size bound, route-pair collision.",
+    "existingTests": [
+      "python/tests/test_client.py"
+    ],
+    "runner": "FOUNDATION_ROOT=\"$PWD\" .bootstrap/readme-venv/bin/python -I -m unittest discover -s python/tests -p test_client.py -v",
+    "modelRequiredForCapability": false,
+    "currentStatus": "PASS",
+    "cleanup": "Fixture process and temporary root close in tearDown.",
+    "prerequisites": [
+      "Pinned Node 24.16.0 and OpenClaw 2026.9.9 foundation runtime.",
+      "Python >=3.10; installed local wheel.",
+      "FOUNDATION_ROOT set to this repository.",
+      "Synthetic local fixtures only. No model/provider key needed."
+    ]
+  },
+  {
+    "caseId": "EDGE-02",
+    "promise": "HTTP auth/policy, cancellation, UTF-8, byte limits and connection errors",
+    "access": "ReadyGateway transport; not Python SDK generation",
+    "tier": "HTTP fixtures retained; current CI passed",
+    "setupInput": "Dummy local HTTP servers and bounded requests.",
+    "expectedAssertions": "Exact error classes; pooled socket; preserved caller ownership.",
+    "failureCoverage": "401/403/429/5xx, redirects, partial bodies, cancellation, malformed UTF-8, size caps, outstanding cap.",
+    "existingTests": [
+      "tests/gateway.test.ts"
+    ],
+    "runner": "./node_modules/node/bin/node --import ./src/load-env.ts --test tests/gateway.test.ts",
+    "modelRequiredForCapability": false,
+    "currentStatus": "PASS",
+    "cleanup": "Existing tests close fixture HTTP servers and client sockets.",
+    "prerequisites": [
+      "Pinned Node 24.16.0 and OpenClaw 2026.9.9 foundation runtime.",
+      "Synthetic local fixtures only. No model/provider key needed."
+    ],
+    "ciEvidence": "https://github.com/DorukhanArslan/openclaw-memory-bridge/actions/runs/38198940078"
+  },
+  {
+    "caseId": "EDGE-03",
+    "promise": "Paid boundaries, native fetch, checkpoint date and safe ledger files",
+    "access": "Bridge guards; not a memory algorithm",
+    "tier": "deterministic/fixture checks retained; current CI passed",
+    "setupInput": "Dummy quotas, prepared native fetch and temporary filesystem fixtures.",
+    "expectedAssertions": "Blocked requests stop before dispatch; prior-day checkpoint works; ledger targets remain byte-identical.",
+    "failureCoverage": "Unbounded/wrong/stale quotas, missing token bounds, retries, unsafe destination, symlink/nonregular ledger.",
+    "existingTests": [
+      "tests/budget-preflight.test.ts",
+      "tests/lifecycle-budget.test.ts",
+      "tests/native-bootstrap.test.ts",
+      "tests/review-regression.test.ts",
+      "tests/paid-smoke.test.ts"
+    ],
+    "runner": "./node_modules/node/bin/node --import ./src/load-env.ts --test tests/budget-preflight.test.ts tests/lifecycle-budget.test.ts tests/native-bootstrap.test.ts tests/review-regression.test.ts tests/paid-smoke.test.ts",
+    "modelRequiredForCapability": false,
+    "currentStatus": "PASS",
+    "cleanup": "Existing tests close fake servers and remove temporary fixtures; no provider calls.",
+    "prerequisites": [
+      "Pinned Node 24.16.0 and OpenClaw 2026.9.9 foundation runtime.",
+      "Synthetic local fixtures only. No model/provider key needed."
+    ],
+    "ciEvidence": "https://github.com/DorukhanArslan/openclaw-memory-bridge/actions/runs/38198940078"
+  }
+]

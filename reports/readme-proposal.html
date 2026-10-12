@@ -1,0 +1,471 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Review draft: OpenClaw Python memory SDK</title><style>body{font:17px/1.65 system-ui,sans-serif;background:#f4f6fa;color:#172331;margin:0}main{max-width:1000px;margin:auto;padding:32px 24px;background:white}h1,h2,h3{line-height:1.25}h2{margin-top:2em;border-top:1px solid #dce3eb;padding-top:1em}pre{background:#142331;color:#eaf0f7;padding:18px;border-radius:8px;overflow:auto;font-size:14px}code{font-family:ui-monospace,monospace;font-size:.9em;overflow-wrap:anywhere}p,li{overflow-wrap:anywhere}table{border-collapse:collapse;display:block;overflow:auto;width:100%;font-size:15px}th,td{border:1px solid #dce3eb;padding:12px;text-align:left;vertical-align:top;min-width:170px}th{background:#eaf0f7}a{color:#0759a0}summary{cursor:pointer;padding:16px;background:#eaf0f7}dt{margin-top:12px}dd{margin-left:0}article{padding:14px 18px;background:#f4f6fa;border-radius:8px;margin:16px 0}@media(max-width:600px){main{padding:20px 14px}body{font-size:16px}h1{font-size:1.7em}pre{padding:12px}}</style><main><h1>OpenClaw memory bridge for Python agents</h1>
+<p><strong>Review draft. Do not replace or publish README yet.</strong> The new examples and scenario tests are local proposal files. The SDK branch is published at <code>961cb42</code>. This draft uses basic STE writing principles. It does not claim formal ASD-STE100 certification.</p>
+<h2>What your agent gains</h2>
+<p>Your app can save a fact, recall it later, and inspect its source. It can put that fact into an agent prompt. The fact can survive a process restart. Your app can also update or remove its own notes.</p>
+<p>The Python package is a client for the existing TypeScript bridge. OpenClaw does the indexing, search, and source reads. The bridge writes application notes and runs a private local Gateway. A Gateway is the OpenClaw process that serves native tools.</p>
+<p>The SDK does not run your language model. It does not save every chat message or extract facts from your external agent by itself. Your app supplies the memory content and decides when to recall it.</p>
+<h2>Start without a model key — SDK-00 and SDK-01</h2>
+<p>Use Python 3.10 or newer. The commands below use Python 3.12. The runtime is pinned to Node 24.16.0 and OpenClaw 2026.9.9. A fresh foundation install needs npm. Run these commands from the foundation repository:</p>
+<pre><code class="language-sh">bash scripts/install.sh
+python3.12 -m venv .bootstrap/readme-venv
+.bootstrap/readme-venv/bin/python -m pip install build
+.bootstrap/readme-venv/bin/python -m build python
+.bootstrap/readme-venv/bin/python -m pip install python/dist/openclaw_memory_bridge-0.1.0-py3-none-any.whl
+.bootstrap/readme-venv/bin/python examples/readme_quickstart.py \
+  --foundation &quot;$PWD&quot; --root &quot;$PWD/.lab-test-readme-example&quot;
+</code></pre>
+<p>The package is not on PyPI. Install the local wheel. Installing or importing it creates no memory Markdown files. The executable example writes one synthetic note on purpose.</p>
+<p>Here is the complete Python flow used by <strong>SDK-01</strong>:</p>
+<pre><code class="language-python">from pathlib import Path
+from openclaw_memory_bridge import BridgeConfig, MemoryClient, MemoryScope
+
+foundation = Path.cwd()  # This repository, with its runtime installed.
+data_root = foundation / &quot;.lab-test-readme-example&quot;
+scope = MemoryScope(&quot;observatory&quot;, &quot;alex&quot;, &quot;first&quot;)
+
+with MemoryClient(BridgeConfig(foundation, data_root)) as memory:
+    memory.write(scope, &quot;filters&quot;, &quot;Synthetic Vega uses cobalt filters on Tuesday.&quot;)
+    memory.index(scope)
+    hits = memory.search(scope, &quot;cobalt&quot;)[&quot;results&quot;]
+    context = &quot;\n&quot;.join(hit[&quot;snippet&quot;] for hit in hits)
+    agent_prompt = f&quot;Use these recalled sources:\n{context}\nWhich filter does Vega use?&quot;
+    print(agent_prompt)
+    # Your app sends agent_prompt to its own model.
+</code></pre>
+<p><strong>Observable result:</strong> the note exists as <code>memory/filters.md</code>. Native keyword search returns that source. The built prompt contains <code>cobalt</code> and the source reference. The test does not call a model or measure answer quality. It does not claim that an agent replied.</p>
+<p><code>examples/readme_quickstart.py</code> is the executable example. <strong>SDK-01</strong> calls its prompt-building function with the real installed SDK. The inline code shows the same API flow.</p>
+<h2>Direct SDK features and real cases</h2>
+<p>The fragments below assume an open client named <code>memory</code> and a matching <code>scope</code>. Put them inside the quickstart <code>with</code> block. Each scenario starts from its stated input; the fragments are not one combined script.</p>
+<p>All SDK cases use synthetic data, the installed wheel, and the actual no-key engine. Each case closes its client and removes its temporary root. Example result descriptions state checked facts, not invented scores or model answers.</p>
+<h3>Save, index, and recall — SDK-01</h3>
+<p><strong>Benefit:</strong> an agent can use a fact after the app has stored it.</p>
+<p>Input: <code>Synthetic Vega uses cobalt filters on Tuesday.</code> The bridge writes <code>memory/filters.md</code>. <code>index</code> asks OpenClaw to rebuild the native index. <code>search(&quot;cobalt&quot;)</code> recalls the source. The app inserts the returned snippet into its prompt.</p>
+<p>Use <code>write(scope, note_id, text)</code>, <code>index(scope)</code>, and <code>search(scope, query)</code>. Reindex after a note change. The no-key path is keyword search. It does not promise synonym recall.</p>
+<h3>Inspect the recalled source — SDK-02</h3>
+<p><strong>Benefit:</strong> your app can show why an agent recalled a fact.</p>
+<p>A search hit has <code>path</code>, <code>startLine</code>, <code>endLine</code>, and <code>snippet</code>. Read the source with the native <code>memory_get</code> tool through the SDK:</p>
+<pre><code class="language-python">hit = memory.search(scope, &quot;cobalt&quot;)[&quot;results&quot;][0]
+source = memory.get(scope, hit[&quot;path&quot;], start=hit[&quot;startLine&quot;],
+                    lines=min(200, hit[&quot;endLine&quot;] - hit[&quot;startLine&quot;] + 1))
+</code></pre>
+<p>The test checks the physical note, the cited range, and the returned <code>cobalt</code> text. It also rejects invalid ranges and paths outside the supported memory paths. The app must keep source references with its answers if it needs citations.</p>
+<h3>Update a note — SDK-03</h3>
+<p><strong>Benefit:</strong> your agent can recall the app&#39;s revised fact.</p>
+<pre><code class="language-python">memory.write(scope, &quot;filters&quot;, &quot;Synthetic Vega uses amber filters on Friday.&quot;)
+memory.index(scope)
+new_hits = memory.search(scope, &quot;amber&quot;)[&quot;results&quot;]
+old_hits = memory.search(scope, &quot;cobalt&quot;)[&quot;results&quot;]
+</code></pre>
+<p>The same source file now contains <code>amber</code>. The test finds the new fact and no longer finds <code>cobalt</code>. This is an application Markdown update followed by native reindexing. It is not native lineage-based supersession of a consolidated memory.</p>
+<h3>Delete a note — SDK-04</h3>
+<p><strong>Benefit:</strong> your app can remove a source from current recall.</p>
+<pre><code class="language-python">memory.delete(scope, &quot;filters&quot;)
+memory.index(scope)
+hits = memory.search(scope, &quot;cobalt&quot;)[&quot;results&quot;]
+</code></pre>
+<p>The test checks that the file is gone and recall is empty. A second delete reports an error. This operation does not erase other copies, backups, or captured transcripts. Your app must decide which sources it owns.</p>
+<h3>Recall across sessions and restarts — SDK-05</h3>
+<p><strong>Benefit:</strong> an agent can reuse stored facts in a later conversation.</p>
+<pre><code class="language-python">later = MemoryScope(&quot;observatory&quot;, &quot;alex&quot;, &quot;later&quot;)
+memory.restart(scope)
+hits = memory.search(later, &quot;cobalt&quot;)[&quot;results&quot;]
+</code></pre>
+<p>The test replaces the real Gateway, then closes and reconnects the Python client. The same root and scope still recall the note. Its file bytes stay unchanged. A session selects a native session key; it does not create a separate memory corpus. The app must keep the data root and scope IDs stable.</p>
+<h3>Route users and workspaces — SDK-06</h3>
+<p><strong>Benefit:</strong> your app can keep separate test corpora.</p>
+<pre><code class="language-python">other_user = MemoryScope(&quot;observatory&quot;, &quot;sam&quot;, &quot;first&quot;)
+other_workspace = MemoryScope(&quot;separate&quot;, &quot;alex&quot;, &quot;first&quot;)
+</code></pre>
+<p>The SDK derives a stable native workspace route from the workspace/user pair. Different pairs use different routes. The test first checks empty recall and absent source files in the other corpora. It then writes a saffron fact under the same note ID. Each corpus recalls its own fact and not the other fact. The original corpus still recalls cobalt.</p>
+<p>This is routing, not authentication or enterprise isolation. Your app must authenticate users and control who can choose their IDs. IDs use 1–48 lowercase letters, digits, or hyphens, with a letter first. A different session for the same pair uses the same corpus.</p>
+<h3>Inspect a session and capture it on reset — SDK-07</h3>
+<p><strong>Benefit:</strong> a developer can inspect native session state and test the capture hook.</p>
+<pre><code class="language-python">memory.configure(scope, ingestion=True)
+memory.inject_fixture(scope, &quot;Synthetic fixture: Vega records charts on copper paper.&quot;)
+history = memory.session_history(scope)
+state = memory.session_state(scope)
+capture = memory.reset_session(scope)
+</code></pre>
+<p><code>inject_fixture</code> creates a labelled synthetic transcript fixture. Its result says <code>modelExecuted: False</code>. It is not a genuine model reply or automatic extraction.</p>
+<p>The native session-memory hook creates a dated Markdown capture on reset. The test checks its original session ID, session key, file content, and subsequent <code>copper</code> recall. Reset without ingestion enabled reports an error. Reset does not promise a new logical session UUID. Your app must use this fixture method only for deliberate test input.</p>
+<h3>Inspect status and the diary — SDK-08</h3>
+<p><strong>Benefit:</strong> your app can inspect native memory and dreaming state.</p>
+<pre><code class="language-python">memory_status = memory.status(scope)
+dream_status = memory.dream_status(scope)
+diary_text = memory.dream_diary(scope).get(&quot;content&quot;, &quot;&quot;)
+</code></pre>
+<p>The no-key test sees dreaming disabled and an empty diary. These methods do not create model diary text. An operator must first generate a diary in that native workspace. A nonempty diary alone does not prove model generation; native fallback text is possible.</p>
+<h3>Handle errors — SDK-09 and EDGE-01</h3>
+<p><strong>Benefit:</strong> your app can distinguish an error from successful empty recall.</p>
+<pre><code class="language-python">from openclaw_memory_bridge import FoundationError
+
+try:
+    hits = memory.search(scope, &quot;cobalt&quot;)[&quot;results&quot;]
+except FoundationError as error:
+    print(error.code)
+</code></pre>
+<p><strong>SDK-09</strong> uses the actual bridge to reject invalid operations, IDs, and empty queries. It checks that the valid note and recall remain intact. <strong>EDGE-01</strong> uses labelled protocol fixtures to check timeouts, malformed replies, and request correlation. A timeout leaves completion uncertain. Close that client before deciding whether to retry. A happy-path acceptance does not replace these edge tests.</p>
+<h2>Native capabilities that are not SDK triggers</h2>
+<p>The following examples come from real native acceptance records unless marked otherwise. The new <code>MODEL-*</code> tests audit those records. They do not make fresh model requests and are not direct SDK generation cases. Missing records cause a skip. A skip is not a pass.</p>
+<table>
+<thead>
+<tr>
+<th>Case</th>
+<th>Concrete input → native action → checked result</th>
+<th>Access and requirement</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>MODEL-01: semantic recall</td>
+<td><code>Zephyr travels to the office by bicycle.</code> → native embedding index → <code>pedal-powered commuting</code> recalled <code>memory/resident.md</code>; source read confirmed <code>bicycle</code></td>
+<td>Bridge embedding configuration, then native search. Recorded <code>text-embedding-3-small</code> acceptance. No SDK embedding selector. Fresh model run: not tested in this draft.</td>
+</tr>
+<tr>
+<td>MODEL-02: extraction</td>
+<td>A genuine conversation states the indigo/Thursday preference for synthetic Borealis → the native model later writes a daily note → the source contains that preference</td>
+<td>Native agent lifecycle. The app did not prewrite this note. No SDK extraction method.</td>
+</tr>
+<tr>
+<td>MODEL-03: flush</td>
+<td>The conversation crosses the configured test trigger → native flush reports <code>kind: succeeded</code> → the physical daily note and recall confirm the fact</td>
+<td>Native model plus flush configuration and continued agent execution. Enabling config alone is not success. No SDK flush trigger.</td>
+</tr>
+<tr>
+<td>MODEL-04: compaction</td>
+<td>The native conversation is summarized → native compaction commits → stored <code>compactionCount</code> becomes 1</td>
+<td>Native model operation. Compaction does not force flush. The SDK can inspect session state but cannot compact your external agent history.</td>
+</tr>
+<tr>
+<td>MODEL-05: duplicate merge</td>
+<td>A prior durable Vega fact and a model-written daily duplicate share project scope → native validated consolidation → Added 0, Merged 1, Superseded 0; one sourced durable fact remains</td>
+<td>Official local operator agent path and native dreaming. Four unrelated facts and source-session identity remain. No SDK consolidation trigger.</td>
+</tr>
+<tr>
+<td>MODEL-06: model Dream Diary</td>
+<td>Native memory fragments enter dreaming → light, REM, and deep model publishers finish → diary text is written without fallback</td>
+<td>Native model workflow. The bounded transport supplies missing output-token limits. SDK exposes diary inspection only.</td>
+</tr>
+<tr>
+<td>MODEL-07: changed-fact supersession</td>
+<td>A new fact would replace an old consolidated fact → matching native lineage is required → no accepted result exists</td>
+<td><strong>Not verified.</strong> Do not substitute SDK note overwrite for this capability.</td>
+</tr>
+</tbody></table>
+<p>The recorded text-model tests used GPT-6 Sol. The merge baseline was an explicit synthetic application fixture. Its new daily duplicate was genuinely written by the native model. The test preserved the native source session. It did not import or relabel trust metadata.</p>
+<p>The fixed operator tests use a cumulative 5 USD test ceiling and finite request ledgers. The utility transport adapter adds a token ceiling; it does not implement consolidation or change model prompts. Do not turn these tests into unrestricted paid execution. No fresh paid test is part of this draft.</p>
+<h3>Deterministic native maintenance — NATIVE-02</h3>
+<p>A daily synthetic cobalt note → native REM staging and dreaming → a sourced durable promotion → recall after restart. The existing real-engine test checks phase signals, source references, and persistence. This no-model maintenance case does not prove model consolidation or a model diary.</p>
+<h2>Configuration and process ownership</h2>
+<p><strong>NATIVE-03</strong> checks provider configuration with the actual pinned native schema and dummy credentials. Configuration sends zero embedding requests in that test. It does not prove provider authentication or authorize model use.</p>
+<p><code>BridgeConfig(foundation, root, timeout=180)</code> points to the foundation runtime and your data root. The bridge creates its private workspace/config/state under that root when the scope is used. <code>configure(scope, ingestion=False)</code> only controls the capture hook. It does not select embeddings or a text model.</p>
+<p>No key is required for keyword cases. Optional approved provider keys belong in the foundation&#39;s ignored <code>.env</code>, not in Python source or browser code. The bridge uses its existing project loader and selected native SecretRefs. The Python client does not forward arbitrary provider credentials from the app environment. Provider/model setup is a separate operator action.</p>
+<p>CLI configuration uses the foundation&#39;s <code>.lab</code> root. For CLI/SDK interoperation, use that same root and the SDK&#39;s <code>scope.routing_workspace</code> as the CLI workspace ID. Close the client before operator configuration. Native configuration commands include:</p>
+<pre><code class="language-text">./node_modules/node/bin/node src/cli.ts native-model WS PROVIDER/MODEL KEY_ENV
+./node_modules/node/bin/node src/cli.ts native-vector WS URL MODEL KEY_ENV
+./node_modules/node/bin/node src/cli.ts validate-config WS
+</code></pre>
+<p>These are command shapes, not measured outputs or a paid-execution recipe. General credential-backed execution remains guarded. Local embeddings are optional and require an installed, running compatible server. The same <code>search(scope, query)</code> method uses native results after that separate configuration and indexing. Fresh SDK semantic integration is not tested in this draft.</p>
+<p><strong>Cold start:</strong> <code>MemoryClient</code> starts its owned JSONL bridge. The first native tool request starts a private Gateway. Repeated requests can reuse it. Indexing, status checks, restarts, or workspace changes can stop or replace that process. Closing the client closes its owned processes.</p>
+<p><strong>Ready Gateway — NATIVE-01:</strong> the separate TypeScript <code>ReadyGateway</code> client borrows an already-running Gateway. It can search and get sources without owning server lifetime. Its real-engine case checks warm recall, source reads, connection loss, and that client close leaves the owner&#39;s Gateway alive. Python <code>MemoryClient</code> has no ready-Gateway constructor option. Keep the operator token server-side.</p>
+<h2>Run the scenario cases</h2>
+<p>After installing the wheel, run the direct SDK cases:</p>
+<pre><code class="language-sh">FOUNDATION_ROOT=&quot;$PWD&quot; .bootstrap/readme-venv/bin/python -I -m unittest discover \
+  -s python/tests -p test_readme_cases.py -v
+</code></pre>
+<p>Audit available historical genuine-model records:</p>
+<pre><code class="language-sh">FOUNDATION_ROOT=&quot;$PWD&quot; .bootstrap/readme-venv/bin/python -I -m unittest discover \
+  -s python/tests -p test_readme_model_evidence.py -v
+</code></pre>
+<p>The second command is an evidence audit, not a fresh model run. The coverage matrix gives each case&#39;s setup, assertions, cleanup, prerequisites, and existing-test mapping. Existing transport, secret, path, budget, and timeout tests remain. No test is removed by this proposal.</p>
+<h2>Limits you should keep in your app design</h2>
+<p>Store facts deliberately. Index after source changes. Supply recalled context to your model. Keep stable scope IDs and a persistent data root. Use native agent execution if you need native extraction/flush/compaction; external app chats do not enter that lifecycle automatically.</p>
+<p>No MD creation, background schedule, or consolidation is guaranteed after <code>pip install</code> or every conversation. Model generation plus SDK inspection in the same paid scope is not newly verified here. Changed-fact supersession remains unverified. Scope routing is not a security boundary.</p>
+<h2>Exact installed public API</h2>
+<p>These signatures were inspected from the installed wheel. <code>scope</code> is a MemoryScope. <code>start</code> and <code>lines</code> in <code>get</code>, and <code>ingestion</code> in <code>configure</code>, are keyword-only. The lower-level <code>call</code> uses a native workspace route, not a MemoryScope. Most apps should use the named methods.</p>
+<pre><code class="language-text">BridgeConfig(foundation: &#39;Path | str&#39;, root: &#39;Path | str&#39;, timeout: &#39;float&#39; = 180) -&gt; None
+MemoryScope(workspace: &#39;str&#39;, user: &#39;str&#39;, session: &#39;str&#39;) -&gt; None
+MemoryClient(config: &#39;BridgeConfig&#39;)
+MemoryClient.configure(self, scope: &#39;MemoryScope&#39;, *, ingestion: &#39;bool&#39; = False)
+MemoryClient.write(self, scope: &#39;MemoryScope&#39;, note_id: &#39;str&#39;, text: &#39;str&#39;)
+MemoryClient.delete(self, scope: &#39;MemoryScope&#39;, note_id: &#39;str&#39;)
+MemoryClient.index(self, scope: &#39;MemoryScope&#39;)
+MemoryClient.search(self, scope: &#39;MemoryScope&#39;, query: &#39;str&#39;)
+MemoryClient.get(self, scope: &#39;MemoryScope&#39;, path: &#39;str&#39;, *, start: &#39;int&#39; = 1, lines: &#39;int&#39; = 40)
+MemoryClient.restart(self, scope: &#39;MemoryScope&#39;)
+MemoryClient.status(self, scope: &#39;MemoryScope&#39;)
+MemoryClient.session_history(self, scope: &#39;MemoryScope&#39;)
+MemoryClient.session_state(self, scope: &#39;MemoryScope&#39;)
+MemoryClient.inject_fixture(self, scope: &#39;MemoryScope&#39;, text: &#39;str&#39;)
+MemoryClient.reset_session(self, scope: &#39;MemoryScope&#39;)
+MemoryClient.dream_status(self, scope: &#39;MemoryScope&#39;)
+MemoryClient.dream_diary(self, scope: &#39;MemoryScope&#39;)
+MemoryClient.call(self, op: &#39;str&#39;, workspace: &#39;str&#39; = &#39;alpha&#39;, **args: &#39;Any&#39;) -&gt; &#39;Any&#39;
+MemoryClient.close(self) -&gt; &#39;None&#39;
+</code></pre>
+<h2 id="test-rounds">Current test rounds</h2><article><h3>README SDK examples: initial test round</h3><dl><dt><strong>Goal</strong></dt><dd>Check each direct SDK promise with the actual no-key engine.</dd><dt><strong>Action</strong></dt><dd>Run ten installed-client cases in temporary roots.</dd><dt><strong>Expected</strong></dt><dd>Files, recall, sources, state, and errors match the proposed README.</dd><dt><strong>Actual</strong></dt><dd>Nine cases passed. One new reset test failed because it assumed the logical UUID must change. That assumption was not a SDK guarantee.</dd><dt><strong>App meaning</strong></dt><dd>Document the native capture/routing contract. Do not promise a new UUID.</dd><dt><strong>Status</strong></dt><dd>FAIL before test-contract correction</dd></dl></article><article><h3>README SDK examples: final real-engine round</h3><dl><dt><strong>Goal</strong></dt><dd>Verify the executable quickstart and all direct SDK scenarios.</dd><dt><strong>Action</strong></dt><dd>Run the ten-case suite. Rerun the strengthened symmetric routing case.</dd><dt><strong>Expected</strong></dt><dd>Each named case has observable native/source/file assertions.</dd><dt><strong>Actual</strong></dt><dd>All ten passed. The quickstart function is executed by SDK-01. Reset capture and same-note-ID corpus separation passed.</dd><dt><strong>App meaning</strong></dt><dd>The SDK can store and recall your chosen notes. It does not create agent replies or automatic model lifecycle work.</dd><dt><strong>Status</strong></dt><dd>PASS — fresh real engine</dd></dl></article><article><h3>Native model capabilities: historical record audit</h3><dl><dt><strong>Goal</strong></dt><dd>Check the evidence behind semantic recall and native model lifecycle examples.</dd><dt><strong>Action</strong></dt><dd>Read retained genuine-provider records; verify source/state/publication assertions.</dd><dt><strong>Expected</strong></dt><dd>Each native claim has its specific accepted evidence.</dd><dt><strong>Actual</strong></dt><dd>Six audits passed. Changed-fact supersession is skipped. No model request was sent.</dd><dt><strong>App meaning</strong></dt><dd>Native capabilities are real historical results. They are not new SDK generation tests.</dd><dt><strong>Status</strong></dt><dd>EVIDENCE AUDIT PASS; FRESH MODEL NOT TESTED</dd></dl></article><article><h3>Transport failures and native CI mapping</h3><dl><dt><strong>Goal</strong></dt><dd>Keep lower-level error coverage separate from happy-path acceptance.</dd><dt><strong>Action</strong></dt><dd>Run three SDK protocol fixture tests. Map native/config cases to the successful exact-commit CI logs.</dd><dt><strong>Expected</strong></dt><dd>Failure handling remains covered, and existing cases are retained.</dd><dt><strong>Actual</strong></dt><dd>Three fixture tests passed. Native borrowed ownership, deterministic maintenance, config validation, and 81-test CI remain separate evidence. No old tests were removed.</dd><dt><strong>App meaning</strong></dt><dd>Do not remove most tests after a scenario pass. Different entry points and failure modes still need their own checks.</dd><dt><strong>Status</strong></dt><dd>PASS — fixture checks and verified CI mapping</dd></dl></article><details id="case-coverage"><summary><strong>Open the behavior coverage matrix and removal proposal</strong></summary><h1>README promise and behavior coverage matrix</h1>
+<p>Review proposal. No test removal is approved or performed. This matrix maps behavior, not a percentage of executed lines.</p>
+<h2>Test tiers</h2>
+<ul>
+<li><strong>Fresh SDK/engine:</strong> installed Python client plus actual no-key OpenClaw, with temporary files and real process restarts.</li>
+<li><strong>Current native CI:</strong> real native/CLI checks at published <code>961cb42</code>, in <a href="https://github.com/DorukhanArslan/openclaw-memory-bridge/actions/runs/38198940078">CI run</a>. These cases reuse existing executable tests.</li>
+<li><strong>Protocol/HTTP/config fixture:</strong> tests controlled failures. It does not prove a model capability.</li>
+<li><strong>Historical model audit:</strong> assertions over retained genuine provider records. Fresh model execution is NOT RUN. Missing records are SKIP.</li>
+<li><strong>Coverage gap:</strong> NOT TESTED. Never convert a skip, fixture, config flag, or fallback into success.</li>
+</ul>
+<p>The full details and exact runner command are in <code>docs/readme-case-matrix.json</code>. All fresh SDK cases require Python &gt;=3.10, an installed wheel, and the pinned foundation runtime. The current checks used Python 3.12. No provider key is needed for those cases. Historical model audits require the corresponding local ignored record. A fresh model run needs the existing finite approved flow and the cumulative 5 USD ceiling.</p>
+<table>
+<thead>
+<tr>
+<th>Case</th>
+<th>Promise / access</th>
+<th>Success evidence</th>
+<th>Failure coverage / limits</th>
+<th>Existing tests</th>
+<th>Tier / status</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SDK-00</td>
+<td>Local wheel and managed connection; no automatic memory notes — BridgeConfig; MemoryClient</td>
+<td>Engine handshake/version and no Markdown files.</td>
+<td>Missing runtime covered by existing SDK/protocol checks; not a model-readiness test.</td>
+<td>python/tests/test_client.py</td>
+<td>fresh real SDK process — PASS</td>
+</tr>
+<tr>
+<td>SDK-01</td>
+<td>App-owned write, native index, keyword recall, explicit agent prompt — write; index; search</td>
+<td>Physical file, native provider none, cited path, prompt includes fact and source.</td>
+<td>Unrecorded query returns [] without an error.</td>
+<td>tests/engine.test.ts, tests/protocol.test.ts, examples/sdk_app.py</td>
+<td>fresh real SDK + engine — PASS</td>
+</tr>
+<tr>
+<td>SDK-02</td>
+<td>Native source and line range inspection — get; search</td>
+<td>Positive line range; status ok; source text contains cobalt.</td>
+<td>Invalid path and line range raise FoundationError. Missing-source ReadyGateway behavior stays in NATIVE-01 and EDGE-02.</td>
+<td>tests/engine.test.ts, tests/gateway.test.ts</td>
+<td>fresh real SDK + engine — PASS</td>
+</tr>
+<tr>
+<td>SDK-03</td>
+<td>Source overwrite plus index removes stale keywords — write; index; search; get</td>
+<td>Same source file now contains amber; amber recalled; cobalt absent.</td>
+<td>Native changed-fact supersession is not covered.</td>
+<td>tests/engine.test.ts</td>
+<td>fresh real SDK + engine — PASS</td>
+</tr>
+<tr>
+<td>SDK-04</td>
+<td>Current source deletion plus index — delete; index; search</td>
+<td>File absent and no current cobalt hits in the fresh single-source corpus.</td>
+<td>Second delete reports engine_error; backup/captured-copy erasure is not covered.</td>
+<td>tests/engine.test.ts, tests/protocol.test.ts</td>
+<td>fresh real SDK + engine — PASS</td>
+</tr>
+<tr>
+<td>SDK-05</td>
+<td>Same-root persistence across real Gateway/host restart and later session — MemoryScope; restart; search; MemoryClient</td>
+<td>New session shares route; both real restarts retain recall; source bytes unchanged.</td>
+<td>Deleted/lost-root recovery is not promised. Connection loss remains EDGE-02.</td>
+<td>tests/engine.test.ts, tests/protocol.test.ts</td>
+<td>fresh real SDK + engine — PASS</td>
+</tr>
+<tr>
+<td>SDK-06</td>
+<td>Workspace/user routing and same-note-ID conflict separation — MemoryScope; write; index; search</td>
+<td>Different routes, each file has its own text, positive own recall, bidirectional negative cross-recall, original recall retained.</td>
+<td>Invalid scope rejected. Authentication and enterprise isolation are not covered.</td>
+<td>tests/engine.test.ts, python/tests/test_client.py</td>
+<td>fresh real SDK + engine — PASS (full suite plus strengthened symmetric case)</td>
+</tr>
+<tr>
+<td>SDK-07</td>
+<td>Explicit transcript fixture, history/state, native capture hook — configure; inject_fixture; session_history; session_state; reset_session; get; search</td>
+<td>modelExecuted false; original session identity in dated file; readable source; subsequent recall; route stays valid.</td>
+<td>Reset before enabling ingestion fails. New logical UUID is not promised.</td>
+<td>tests/lifecycle.test.ts, examples/sdk_app.py</td>
+<td>fresh real SDK + native hook — PASS</td>
+</tr>
+<tr>
+<td>SDK-08</td>
+<td>Native status and diary inspection; no generation side effect — status; dream_status; dream_diary; configure</td>
+<td>Provider none; dreaming off; empty diary; no Markdown notes produced.</td>
+<td>Reading model-generated diary in the same SDK-paid scope is not newly verified.</td>
+<td>tests/lifecycle.test.ts, examples/sdk_app.py</td>
+<td>fresh real SDK + engine — PASS</td>
+</tr>
+<tr>
+<td>SDK-09</td>
+<td>Errors do not become successful empty recall — FoundationError.code; call; write; search</td>
+<td>Errors observed; valid note bytes and recall remain intact.</td>
+<td>Invalid operation code invalid_request; invalid engine inputs rejected.</td>
+<td>tests/gateway.test.ts, python/tests/test_client.py</td>
+<td>fresh real SDK + engine — PASS</td>
+</tr>
+<tr>
+<td>NATIVE-01</td>
+<td>Borrow an already-ready Gateway; Python SDK does not expose this mode — TypeScript ReadyGateway; not Python SDK</td>
+<td>Warm recall/source; closing borrower leaves owner alive; owner restart restores availability.</td>
+<td>Missing source maps to not_found; loss maps to connection_failed.</td>
+<td>tests/ready-gateway.test.ts</td>
+<td>real engine in current CI 961cb42 — PASS</td>
+</tr>
+<tr>
+<td>NATIVE-02</td>
+<td>No-model native REM/phase maintenance and sourced promotion — Bridge CLI/native operations; not SDK generation</td>
+<td>Grounded stage, completed sweep, phase signals, sourced promotion, durable recall after restart.</td>
+<td>No model narrative or validated model rewrite is inferred.</td>
+<td>tests/dreaming.test.ts</td>
+<td>real engine in current CI 961cb42 — PASS</td>
+</tr>
+<tr>
+<td>NATIVE-03</td>
+<td>Selected configuration, native schema, environment handling — Bridge CLI config; project loader; not SDK model selector</td>
+<td>Only selected values forwarded; SecretRefs validated; configuration sends zero embedding requests; rollback retained.</td>
+<td>Malformed config, missing values, secret redaction and symlinks remain tested. Auth and paid admission are not proven by config.</td>
+<td>tests/provider-handoff.test.ts, tests/project-env.test.ts</td>
+<td>deterministic config plus native validation in current CI 961cb42 — PASS</td>
+</tr>
+<tr>
+<td>MODEL-01</td>
+<td>semantic recall — native embedding config/search</td>
+<td>Nonmatching-word query recalls resident source and source read verifies bicycle.</td>
+<td>Missing record =&gt; SKIP. Prior failed attempts remain failures. No SDK generation claim.</td>
+<td>tests/vector.test.ts, tests/ready-vector.test.ts, examples/bounded_smoke.ts</td>
+<td>historical genuine-provider evidence audit; no fresh execution — EVIDENCE AUDIT PASS; FRESH MODEL NOT RUN</td>
+</tr>
+<tr>
+<td>MODEL-02</td>
+<td>native model extraction — native agent lifecycle</td>
+<td>Model completion plus new daily preference source, no app-prewritten note.</td>
+<td>Missing record =&gt; SKIP. Prior failed attempts remain failures. No SDK generation claim.</td>
+<td>tests/flush.test.ts, examples/lifecycle_acceptance.ts</td>
+<td>historical genuine-provider evidence audit; no fresh execution — EVIDENCE AUDIT PASS; FRESH MODEL NOT RUN</td>
+</tr>
+<tr>
+<td>MODEL-03</td>
+<td>native successful flush — native config/agent lifecycle</td>
+<td>Succeeded marker AND daily file AND recall, not a flag alone.</td>
+<td>Missing record =&gt; SKIP. Prior failed attempts remain failures. No SDK generation claim.</td>
+<td>tests/flush.test.ts, examples/lifecycle_acceptance.ts</td>
+<td>historical genuine-provider evidence audit; no fresh execution — EVIDENCE AUDIT PASS; FRESH MODEL NOT RUN</td>
+</tr>
+<tr>
+<td>MODEL-04</td>
+<td>native summarizing compaction — native model operation</td>
+<td>compacted true, nonempty summary, persisted count &gt;=1.</td>
+<td>Missing record =&gt; SKIP. Prior failed attempts remain failures. No SDK generation claim.</td>
+<td>tests/flush.test.ts, examples/lifecycle_acceptance.ts</td>
+<td>historical genuine-provider evidence audit; no fresh execution — EVIDENCE AUDIT PASS; FRESH MODEL NOT RUN</td>
+</tr>
+<tr>
+<td>MODEL-05</td>
+<td>native duplicate merge — native owner/model dreaming</td>
+<td>Added 0/Merged 1/Superseded 0, one sourced fact, four unrelated facts, preserved session and durable restart recall.</td>
+<td>Missing record =&gt; SKIP. Prior failed attempts remain failures. No SDK generation claim.</td>
+<td>examples/provenance_acceptance.ts</td>
+<td>historical genuine-provider evidence audit; no fresh execution — EVIDENCE AUDIT PASS; FRESH MODEL NOT RUN</td>
+</tr>
+<tr>
+<td>MODEL-06</td>
+<td>native model Dream Diary — native model dreaming; SDK inspection only</td>
+<td>All three finished, nonempty native diary, no fallback, finite request totals.</td>
+<td>Missing record =&gt; SKIP. Prior failed attempts remain failures. No SDK generation claim.</td>
+<td>tests/model.test.ts, examples/provenance_acceptance.ts</td>
+<td>historical genuine-provider evidence audit; no fresh execution — EVIDENCE AUDIT PASS; FRESH MODEL NOT RUN</td>
+</tr>
+<tr>
+<td>MODEL-07</td>
+<td>Changed-fact supersession — no verified SDK trigger or accepted native case</td>
+<td>No observed success is claimed.</td>
+<td>Always SKIP; app note overwrite is not a substitute.</td>
+<td>None accepted</td>
+<td>explicit coverage gap — NOT TESTED</td>
+</tr>
+<tr>
+<td>EDGE-01</td>
+<td>SDK correlation, oversized request, timeout and malformed-reply handling — Installed SDK transport; fixture only</td>
+<td>Valid stream survives structured input error; uncertain transport poisons client.</td>
+<td>Timeout, malformed JSON, mismatched ID, malformed error, size bound, route-pair collision.</td>
+<td>python/tests/test_client.py</td>
+<td>protocol fixtures; three current checks passed — PASS</td>
+</tr>
+<tr>
+<td>EDGE-02</td>
+<td>HTTP auth/policy, cancellation, UTF-8, byte limits and connection errors — ReadyGateway transport; not Python SDK generation</td>
+<td>Exact error classes; pooled socket; preserved caller ownership.</td>
+<td>401/403/429/5xx, redirects, partial bodies, cancellation, malformed UTF-8, size caps, outstanding cap.</td>
+<td>tests/gateway.test.ts</td>
+<td>HTTP fixtures retained; current CI passed — PASS</td>
+</tr>
+<tr>
+<td>EDGE-03</td>
+<td>Paid boundaries, native fetch, checkpoint date and safe ledger files — Bridge guards; not a memory algorithm</td>
+<td>Blocked requests stop before dispatch; prior-day checkpoint works; ledger targets remain byte-identical.</td>
+<td>Unbounded/wrong/stale quotas, missing token bounds, retries, unsafe destination, symlink/nonregular ledger.</td>
+<td>tests/budget-preflight.test.ts, tests/lifecycle-budget.test.ts, tests/native-bootstrap.test.ts, tests/review-regression.test.ts, tests/paid-smoke.test.ts</td>
+<td>deterministic/fixture checks retained; current CI passed — PASS</td>
+</tr>
+</tbody></table>
+<h2>What is still not covered</h2>
+<p>Changed-fact supersession is not accepted. Fresh semantic/model generation through the Python SDK is not run. The SDK has no text/embedding selector, chat, flush, compact, or consolidation trigger. Its lifecycle read methods do not prove model generation in the same scope. App note deletion does not test erasure of backups or duplicate captures. Workspace routing does not test authentication.</p>
+<h2>Cleanup and assertion rules</h2>
+<p>Each fresh SDK case uses TemporaryDirectory, closes the owned MemoryClient, and removes its test root. Files, sources, search hits, IDs/routes, restart persistence, and errors are asserted where relevant. The examples create only synthetic input. No case imports unrelated user data. Existing native tests retain their own try/finally cleanup and explicit model gates. Audits read only retained synthetic records. Every matrix row supplies setup, expected assertions, prerequisites/tier, cleanup, and an executable runner.</p>
+<h2>Proposal for old-test removal — approval required</h2>
+<p><strong>Remove zero tests now.</strong> The new cases make agent behavior easier to see. They do not replace the lower-level failure matrix. A ten-case pass cannot justify removing auth, timeout, UTF-8, size-limit, secret, request-budget, ownership, or filesystem checks.</p>
+<table>
+<thead>
+<tr>
+<th>Candidate</th>
+<th>Overlap now shown</th>
+<th>What would be lost</th>
+<th>Recommendation</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>tests/protocol.test.ts + legacy examples/python_consumer.py integration</td>
+<td>SDK-01/02/04/05/06/09 cover its seven high-level flows with the installed package</td>
+<td>The separate legacy consumer implementation and its Node parent-process path</td>
+<td>Only consider retirement after a compatibility decision. Keep until approval and assertion-by-assertion comparison.</td>
+</tr>
+<tr>
+<td>tests/engine.test.ts</td>
+<td>SDK-01/02/03/04/05/06 cover write/read/update/delete/restart/corpus assertions</td>
+<td>Direct TypeScript Lab path, stored chunk-count check, exact single-line read, and native result score validity</td>
+<td>Keep. New SDK cases do not cover every assertion or the same entry point.</td>
+</tr>
+<tr>
+<td>tests/lifecycle.test.ts</td>
+<td>SDK-07 covers fixture -&gt; reset capture -&gt; recall</td>
+<td>Direct native test entry and its restart behavior after captured transcript</td>
+<td>Keep. Do not call fixture capture model extraction.</td>
+</tr>
+<tr>
+<td>examples/sdk_app.py checks</td>
+<td>New stable cases express its flows with clearer assertions</td>
+<td>Existing standalone install acceptance and prompt example remain useful to users</td>
+<td>Keep the example. Consider consolidating duplicated assertions only after approval.</td>
+</tr>
+<tr>
+<td>tests/gateway.test.ts; python/tests/test_client.py</td>
+<td>Some happy paths overlap</td>
+<td>Many distinct auth/policy/body/cancel/timeout/correlation modes</td>
+<td>Keep all.</td>
+</tr>
+<tr>
+<td>provider/env/budget/native-fetch/review tests</td>
+<td>README configuration and error stories refer to these checks</td>
+<td>Secret forwarding, no-dispatch admission, native fetch compatibility, midnight and symlink regressions</td>
+<td>Keep all.</td>
+</tr>
+<tr>
+<td>Optional model/vector and genuine native maintenance tests</td>
+<td>Historical audits refer to their accepted behavior</td>
+<td>Ability to execute a fresh gated native/provider test; audits cannot replace that</td>
+<td>Keep all.</td>
+</tr>
+</tbody></table>
+<p>A safe later cleanup should first list each old assertion and failure mode. Name the new test that replaces it. Keep a test when the entry point or tier differs. Then ask for deletion approval. No claim supports removing most of the suite today.</p>
+</details></main></html>

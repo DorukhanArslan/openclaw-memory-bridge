@@ -1,0 +1,37 @@
+{
+  "reviewStatus": "DRAFT \u2014 NOT APPROVED FOR README REPLACEMENT OR PUBLICATION",
+  "publishedSdkCommit": "961cb42c26258743af342cdf39d414448e58e4e4",
+  "publishedCi": {
+    "url": "https://github.com/DorukhanArslan/openclaw-memory-bridge/actions/runs/38198940078",
+    "result": "success",
+    "tests": 81,
+    "passed": 77,
+    "failed": 0,
+    "skipped": 4,
+    "clientOnlyPassed": 29
+  },
+  "currentDraftChecks": {
+    "realInstalledSdkCases": 10,
+    "sdkPassed": 10,
+    "fixtureTransportCases": 3,
+    "fixturePassed": 3,
+    "historicalModelEvidenceAudits": 6,
+    "auditPassed": 6,
+    "changedFactSupersessionSkipped": 1,
+    "freshModelRequests": 0
+  },
+  "initialSdkRound": {
+    "passed": 9,
+    "failed": 1,
+    "reason": "The new reset test incorrectly required a new logical UUID. Native capture passed. The test contract was corrected; implementation was not changed."
+  },
+  "followupChecks": [
+    "Reset capture/routing contract passed.",
+    "Same note ID with different facts in separate corpora passed bidirectional recall checks.",
+    "Model merge audit checks Added 0 / Merged 1 / Superseded 0."
+  ],
+  "scope": "Documentation, executable example, and tests only. Existing README, SDK implementation, native source, CI workflow, and existing tests are unchanged.",
+  "deletions": 0,
+  "newPublications": 0,
+  "modelTierBoundary": "Historical real-model evidence consistency checks are not fresh provider runs or direct SDK generation tests."
+}
