@@ -1,0 +1,675 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>OpenClaw conversation replay</title><style>body{margin:0;background:#f4f6f7;color:#172b38;font:16px/1.55 system-ui}main{max-width:1380px;margin:auto;padding:32px}h1{font-size:34px}h2{font-size:22px}.row{display:grid;grid-template-columns:38% 62%;background:white;border:1px solid #d6e0e4;border-radius:12px;margin:24px 0;overflow:hidden}article,aside{padding:24px;min-width:0}aside{border-left:1px solid #e1e7eb;background:#fafcfc}.tag{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:#14636a}.label{font-size:13px;font-weight:700}.answer{background:#e9f5ef;padding:16px;border-radius:8px}.note{font-size:14px;color:#476170}.failed{background:#fff1dd;padding:16px}.diff{display:grid;grid-template-columns:1fr 1fr;gap:16px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.5 ui-monospace,monospace;background:#edf2f4;padding:12px;border-radius:6px}summary{cursor:pointer;font-weight:600}details{margin:12px 0}dt{font-weight:700}dd{margin:0 0 12px}a{color:#156773}@media(max-width:800px){.row,.diff{grid-template-columns:1fr}aside{border-left:0;border-top:1px solid #ddd}main{padding:16px}}</style><main><h1>One conversation. Real memory changes.</h1><p>Maya is a fictional gardener. Every shown assistant message is real model output. The harness did not prewrite workspace notes. Read the conversation on the left and exact file changes on the right.</p><p>Chat → preference update → new-session recall → native dreaming → SDK recall → application answer. Failed attempts remain visible. Automatic flush was not observed.</p><details><summary>Capabilities, boundaries and request ledger</summary><pre>{
+  &quot;status&quot;: {
+    &quot;native_chat_write&quot;: &quot;passed&quot;,
+    &quot;preference_update&quot;: &quot;passed&quot;,
+    &quot;new_session_recall_before_dream&quot;: &quot;passed&quot;,
+    &quot;native_dreaming_promotion&quot;: &quot;passed: Added 1 / Merged 0 / Superseded 0&quot;,
+    &quot;automatic_flush&quot;: &quot;not observed; not counted as passed&quot;,
+    &quot;post_dream_native_agent_answer&quot;: &quot;failed: input-byte admission bound&quot;,
+    &quot;sdk_keyword_recall_after_dream&quot;: &quot;passed after explicit no-key reindex&quot;,
+    &quot;post_dream_application_answer&quot;: &quot;passed&quot;,
+    &quot;changed_fact_supersession&quot;: &quot;unverified&quot;
+  },
+  &quot;limits&quot;: {
+    &quot;requests&quot;: 30,
+    &quot;inputBytes&quot;: 400000,
+    &quot;inputBytesPerRequest&quot;: 100000,
+    &quot;inputFramingTokensPerRequest&quot;: 1024,
+    &quot;outputPerRequest&quot;: 2048,
+    &quot;outputTokens&quot;: 26000,
+    &quot;estimatedUsd&quot;: 4.39648
+  },
+  &quot;ledger&quot;: {
+    &quot;profile&quot;: &quot;conversation&quot;,
+    &quot;requests&quot;: 24,
+    &quot;inputBytes&quot;: 386120,
+    &quot;outputTokens&quot;: 18432
+  },
+  &quot;retainedPriorLedger&quot;: {
+    &quot;profile&quot;: &quot;conversation&quot;,
+    &quot;requests&quot;: 11,
+    &quot;inputBytes&quot;: 199505,
+    &quot;outputTokens&quot;: 5632,
+    &quot;lastDenial&quot;: &quot;input_bytes&quot;
+  }
+}</pre><dl><dt>USER.md</dt><dd>Agent-maintained profile and current preference; actual native prompt-load traces included.</dd><dt>memory/2026-10-12.md</dt><dd>Agent-written daily event source.</dd><dt>MEMORY.md</dt><dd>Native dreaming durable promotion with source reference.</dd><dt>DREAMS.md</dt><dd>Native diary and consolidation history; narrative can retain older fragments.</dd><dt>BOOTSTRAP.md</dt><dd>Absent throughout this scenario; native trace injected zero characters.</dd><dt>AGENTS.md / SOUL.md / IDENTITY.md</dt><dd>Absent; native prompt includes missing-file placeholders, not file contents.</dd></dl></details><section class="row"><article><span class="tag">chat</span><h2>turn-1</h2><p class="label">User</p><p>Hi, I am Maya, a fictional gardener in this synthetic demo. I plan my greenhouse tasks at 08:00 each morning. Please keep our replies brief.</p><p class="label">Real assistant output</p><p class="answer">Hi Maya! I’ve noted your 08:00 greenhouse planning time and preference for brief replies.</p><p class="note">Real user input through official local agent CLI; configured pre-turn/flush guards may run. Local optional post-turn flush is not forced.</p></article><aside><h3>Files before / after</h3><details open><summary>USER.md</summary><div class="diff"><div><b>Before</b><pre>[absent]</pre></div><div><b>After</b><pre># User
+
+- Maya is a fictional gardener in a synthetic demo.
+- Maya plans greenhouse tasks at 08:00 each morning.
+- Maya prefers brief replies.
+</pre></div></div></details><details><summary>Observed native tool calls</summary><pre>[
+  {
+    &quot;type&quot;: &quot;toolCall&quot;,
+    &quot;id&quot;: &quot;call_rZjUq3whVlafOB4ZDiidaxYz&quot;,
+    &quot;name&quot;: &quot;memory_search&quot;,
+    &quot;arguments&quot;: {
+      &quot;query&quot;: &quot;Maya fictional gardener synthetic demo greenhouse tasks 08:00 morning prefers brief replies&quot;,
+      &quot;maxResults&quot;: 5,
+      &quot;minScore&quot;: 0,
+      &quot;corpus&quot;: &quot;memory&quot;
+    }
+  },
+  {
+    &quot;type&quot;: &quot;toolCall&quot;,
+    &quot;id&quot;: &quot;call_CyVhchgmlwXmJudFVw5QfeNF&quot;,
+    &quot;name&quot;: &quot;read&quot;,
+    &quot;arguments&quot;: {
+      &quot;optional&quot;: true,
+      &quot;path&quot;: &quot;USER.md&quot;,
+      &quot;offset&quot;: 1,
+      &quot;limit&quot;: 100,
+      &quot;cursor&quot;: 0
+    }
+  },
+  {
+    &quot;type&quot;: &quot;toolCall&quot;,
+    &quot;id&quot;: &quot;call_UwwIloVTLDwPLrBPdKzxx8wa&quot;,
+    &quot;name&quot;: &quot;write&quot;,
+    &quot;arguments&quot;: {
+      &quot;path&quot;: &quot;USER.md&quot;,
+      &quot;content&quot;: &quot;# User\n\n- Maya is a fictional gardener in a synthetic demo.\n- Maya plans greenhouse tasks at 08:00 each morning.\n- Maya prefers brief replies.\n&quot;
+    }
+  }
+]</pre></details><details><summary>Native results matched by tool call ID</summary><pre>[
+  {
+    &quot;toolCallId&quot;: &quot;call_rZjUq3whVlafOB4ZDiidaxYz&quot;,
+    &quot;toolName&quot;: &quot;memory_search&quot;,
+    &quot;content&quot;: [
+      {
+        &quot;type&quot;: &quot;text&quot;,
+        &quot;text&quot;: &quot;{\n  \&quot;results\&quot;: [],\n  \&quot;provider\&quot;: \&quot;none\&quot;,\n  \&quot;citations\&quot;: \&quot;auto\&quot;,\n  \&quot;debug\&quot;: {\n    \&quot;backend\&quot;: \&quot;builtin\&quot;,\n    \&quot;effectiveMode\&quot;: \&quot;n/a\&quot;,\n    \&quot;managerMs\&quot;: 6,\n    \&quot;searchMs\&quot;: 59,\n    \&quot;hits\&quot;: 0,\n    \&quot;candidateHits\&quot;: 0,\n    \&quot;withheldHits\&quot;: 0,\n    \&quot;searchWindow\&quot;: 5,\n    \&quot;toolMs\&quot;: 71,\n    \&quot;outsideSearchMs\&quot;: 12\n  }\n}&quot;
+      }
+    ],
+    &quot;isError&quot;: false
+  },
+  {
+    &quot;toolCallId&quot;: &quot;call_CyVhchgmlwXmJudFVw5QfeNF&quot;,
+    &quot;toolName&quot;: &quot;read&quot;,
+    &quot;content&quot;: [
+      {
+        &quot;type&quot;: &quot;text&quot;,
+        &quot;text&quot;: &quot;Optional file not found: &lt;workspace&gt;/USER.md.&quot;
+      }
+    ],
+    &quot;isError&quot;: false
+  },
+  {
+    &quot;toolCallId&quot;: &quot;call_UwwIloVTLDwPLrBPdKzxx8wa&quot;,
+    &quot;toolName&quot;: &quot;write&quot;,
+    &quot;content&quot;: [
+      {
+        &quot;type&quot;: &quot;text&quot;,
+        &quot;text&quot;: &quot;Successfully wrote 143 bytes to &lt;workspace&gt;/USER.md&quot;
+      }
+    ],
+    &quot;isError&quot;: false
+  }
+]</pre></details><details><summary>Actual native prompt-load trace</summary><pre>{
+  &quot;source&quot;: &quot;run&quot;,
+  &quot;provider&quot;: &quot;openrouter&quot;,
+  &quot;model&quot;: &quot;openai/gpt-6-sol&quot;,
+  &quot;systemPrompt&quot;: {
+    &quot;chars&quot;: 9223,
+    &quot;hash&quot;: &quot;d5f13f92a6757599e133b239f52e234bb1211338650527c81f52e3e0d4d73a63&quot;,
+    &quot;projectContextChars&quot;: 3328,
+    &quot;nonProjectContextChars&quot;: 5895
+  },
+  &quot;files&quot;: [
+    {
+      &quot;name&quot;: &quot;AGENTS.md&quot;,
+      &quot;missing&quot;: true,
+      &quot;rawChars&quot;: 0,
+      &quot;injectedChars&quot;: 186,
+      &quot;truncated&quot;: false
+    },
+    {
+      &quot;name&quot;: &quot;SOUL.md&quot;,
+      &quot;missing&quot;: true,
+      &quot;rawChars&quot;: 0,
+      &quot;injectedChars&quot;: 184,
+      &quot;truncated&quot;: false
+    },
+    {
+      &quot;name&quot;: &quot;IDENTITY.md&quot;,
+      &quot;missing&quot;: true,
+      &quot;rawChars&quot;: 0,
+      &quot;injectedChars&quot;: 188,
+      &quot;truncated&quot;: false
+    },
+    {
+      &quot;name&quot;: &quot;BOOTSTRAP.md&quot;,
+      &quot;missing&quot;: true,
+      &quot;rawChars&quot;: 0,
+      &quot;injectedChars&quot;: 0,
+      &quot;truncated&quot;: false
+    }
+  ]
+}</pre></details><details><summary>Real model response evidence</summary><pre>[
+  {
+    &quot;text&quot;: &quot;Hi Maya! I’ve noted your 08:00 greenhouse planning time and preference for brief replies.&quot;,
+    &quot;mediaUrl&quot;: null
+  }
+]</pre></details></aside></section><section class="row"><article><span class="tag">chat</span><h2>turn-2</h2><p class="label">User</p><p>Please remember that I prefer mint tea for my morning planning. Today I watered the orchids; my usual orchid-watering day is Monday.</p><p class="label">Real assistant output</p><p class="answer">Remembered: mint tea for morning planning, Monday as your usual orchid-watering day, and that you watered the orchids today.</p><p class="note">Real user input through official local agent CLI; configured pre-turn/flush guards may run. Local optional post-turn flush is not forced.</p></article><aside><h3>Files before / after</h3><details open><summary>USER.md</summary><div class="diff"><div><b>Before</b><pre># User
+
+- Maya is a fictional gardener in a synthetic demo.
+- Maya plans greenhouse tasks at 08:00 each morning.
+- Maya prefers brief replies.
+</pre></div><div><b>After</b><pre># User
+
+- Maya is a fictional gardener in a synthetic demo.
+- Maya plans greenhouse tasks at 08:00 each morning.
+- Maya prefers brief replies.
+- Maya prefers mint tea for morning planning.
+- Maya&#x27;s usual orchid-watering day is Monday.
+</pre></div></div></details><details open><summary>memory/2026-10-12.md</summary><div class="diff"><div><b>Before</b><pre>[absent]</pre></div><div><b>After</b><pre># 2026-10-12
+
+- Maya watered the orchids today (Monday).
+</pre></div></div></details><details><summary>Observed native tool calls</summary><pre>[
+  {
+    &quot;type&quot;: &quot;toolCall&quot;,
+    &quot;id&quot;: &quot;call_TIA8SGvgvfiZd9fLfICfxAPt&quot;,
+    &quot;name&quot;: &quot;memory_search&quot;,
+    &quot;arguments&quot;: {
+      &quot;query&quot;: &quot;Maya morning planning mint tea orchid watering Monday today watered orchids&quot;,
+      &quot;maxResults&quot;: 5,
+      &quot;minScore&quot;: 0,
+      &quot;corpus&quot;: &quot;memory&quot;
+    }
+  },
+  {
+    &quot;type&quot;: &quot;toolCall&quot;,
+    &quot;id&quot;: &quot;call_M7lk2P5JUbwoYnrjSK5njNAi&quot;,
+    &quot;name&quot;: &quot;memory_get&quot;,
+    &quot;arguments&quot;: {
+      &quot;path&quot;: &quot;USER.md&quot;,
+      &quot;from&quot;: 1,
+      &quot;lines&quot;: 20,
+      &quot;corpus&quot;: &quot;memory&quot;
+    }
+  },
+  {
+    &quot;type&quot;: &quot;toolCall&quot;,
+    &quot;id&quot;: &quot;call_ABtjRzpIaYVs9qqhg5Lg8u9A&quot;,
+    &quot;name&quot;: &quot;edit&quot;,
+    &quot;arguments&quot;: {
+      &quot;path&quot;: &quot;USER.md&quot;,
+      &quot;edits&quot;: [
+        {
+          &quot;oldText&quot;: &quot;- Maya prefers brief replies.&quot;,
+          &quot;newText&quot;: &quot;- Maya prefers brief replies.\n- Maya prefers mint tea for morning planning.\n- Maya&#x27;s usual orchid-watering day is Monday.&quot;
+        }
+      ]
+    }
+  },
+  {
+    &quot;type&quot;: &quot;toolCall&quot;,
+    &quot;id&quot;: &quot;call_GQaMxi0V0xdlVymxyEBTgUIP&quot;,
+    &quot;name&quot;: &quot;write&quot;,
+    &quot;arguments&quot;: {
+      &quot;path&quot;: &quot;memory/2026-10-12.md&quot;,
+      &quot;content&quot;: &quot;# 2026-10-12\n\n- Maya watered the orchids today (Monday).\n&quot;
+    }
+  }
+]</pre></details><details><summary>Native results matched by tool call ID</summary><pre>[
+  {
+    &quot;toolCallId&quot;: &quot;call_TIA8SGvgvfiZd9fLfICfxAPt&quot;,
+    &quot;toolName&quot;: &quot;memory_search&quot;,
+    &quot;content&quot;: [
+      {
+        &quot;type&quot;: &quot;text&quot;,
+        &quot;text&quot;: &quot;{\n  \&quot;results\&quot;: [\n    {\n      \&quot;path\&quot;: \&quot;USER.md\&quot;,\n      \&quot;startLine\&quot;: 4,\n      \&quot;endLine\&quot;: 4,\n      \&quot;score\&quot;: 0.586156108784545,\n      \&quot;textScore\&quot;: 0.2798934825219188,\n      \&quot;snippet\&quot;: \&quot;- Maya plans greenhouse tasks at 08:00 each morning.\\n\\nSource: USER.md#L4\&quot;,\n      \&quot;source\&quot;: \&quot;memory\&quot;,\n      \&quot;provenance\&quot;: {\n        \&quot;originClass\&quot;: \&quot;agent\&quot;,\n        \&quot;sessionKind\&quot;: \&quot;unknown\&quot;,\n        \&quot;observedAt\&quot;: 1791793071842\n      },\n      \&quot;corpus\&quot;: \&quot;memory\&quot;,\n      \&quot;citation\&quot;: \&quot;USER.md#L4\&quot;\n    },\n    {\n      \&quot;path\&quot;: \&quot;USER.md\&quot;,\n      \&quot;startLine\&quot;: 5,\n      \&quot;endLine\&quot;: 6,\n      \&quot;score\&quot;: 0.2709104933809584,\n      \&quot;textScore\&quot;: 0.0000014024718675132897,\n      \&quot;snippet\&quot;: \&quot;- Maya prefers brief replies.\\n\\nSource: USER.md#L5-L6\&quot;,\n      \&quot;source\&quot;: \&quot;memory\&quot;,\n      \&quot;provenance\&quot;: {\n        \&quot;originClass\&quot;: \&quot;agent\&quot;,\n        \&quot;sessionKind\&quot;: \&quot;unknown\&quot;,\n        \&quot;observedAt\&quot;: 1791793071842\n      },\n      \&quot;corpus\&quot;: \&quot;memory\&quot;,\n      \&quot;citation\&quot;: \&quot;USER.md#L5-L6\&quot;\n    },\n    {\n      \&quot;path\&quot;: \&quot;USER.md\&quot;,\n      \&quot;startLine\&quot;: 3,\n      \&quot;endLine\&quot;: 3,\n      \&quot;score\&quot;: 0.24591024608017029,\n      \&quot;textScore\&quot;: 0.0000011551710793713397,\n      \&quot;snippet\&quot;: \&quot;- Maya is a fictional gardener in a synthetic demo.\\n\\nSource: USER.md#L3\&quot;,\n      \&quot;source\&quot;: \&quot;memory\&quot;,\n      \&quot;provenance\&quot;: {\n        \&quot;originClass\&quot;: \&quot;agent\&quot;,\n        \&quot;sessionKind\&quot;: \&quot;unknown\&quot;,\n        \&quot;observedAt\&quot;: 1791793071842\n      },\n      \&quot;corpus\&quot;: \&quot;memory\&quot;,\n      \&quot;citation\&quot;: \&quot;USER.md#L3\&quot;\n    }\n  ],\n  \&quot;provider\&quot;: \&quot;none\&quot;,\n  \&quot;citations\&quot;: \&quot;auto\&quot;,\n  \&quot;debug\&quot;: {\n    \&quot;backend\&quot;: \&quot;builtin\&quot;,\n    \&quot;effectiveMode\&quot;: \&quot;n/a\&quot;,\n    \&quot;managerMs\&quot;: 4,\n    \&quot;searchMs\&quot;: 26,\n    \&quot;hits\&quot;: 3,\n    \&quot;candidateHits\&quot;: 3,\n    \&quot;withheldHits\&quot;: 0,\n    \&quot;searchWindow\&quot;: 5,\n    \&quot;toolMs\&quot;: 34,\n    \&quot;outsideSearchMs\&quot;: 8\n  }\n}&quot;
+      }
+    ],
+    &quot;isError&quot;: false
+  },
+  {
+    &quot;toolCallId&quot;: &quot;call_M7lk2P5JUbwoYnrjSK5njNAi&quot;,
+    &quot;toolName&quot;: &quot;memory_get&quot;,
+    &quot;content&quot;: [
+      {
+        &quot;type&quot;: &quot;text&quot;,
+        &quot;text&quot;: &quot;{\n  \&quot;status\&quot;: \&quot;ok\&quot;,\n  \&quot;text\&quot;: \&quot;# User\\n\\n- Maya is a fictional gardener in a synthetic demo.\\n- Maya plans greenhouse tasks at 08:00 each morning.\\n- Maya prefers brief replies.\&quot;,\n  \&quot;path\&quot;: \&quot;USER.md\&quot;,\n  \&quot;from\&quot;: 1,\n  \&quot;lines\&quot;: 5\n}&quot;
+      }
+    ],
+    &quot;isError&quot;: false
+  },
+  {
+    &quot;toolCallId&quot;: &quot;call_ABtjRzpIaYVs9qqhg5Lg8u9A&quot;,
+    &quot;toolName&quot;: &quot;edit&quot;,
+    &quot;content&quot;: [
+      {
+        &quot;type&quot;: &quot;text&quot;,
+        &quot;text&quot;: &quot;Successfully replaced 1 block(s) in &lt;workspace&gt;/USER.md.&quot;
+      }
+    ],
+    &quot;isError&quot;: false
+  },
+  {
+    &quot;toolCallId&quot;: &quot;call_GQaMxi0V0xdlVymxyEBTgUIP&quot;,
+    &quot;toolName&quot;: &quot;write&quot;,
+    &quot;content&quot;: [
+      {
+        &quot;type&quot;: &quot;text&quot;,
+        &quot;text&quot;: &quot;Successfully wrote 57 bytes to &lt;workspace&gt;/memory/2026-10-12.md&quot;
+      }
+    ],
+    &quot;isError&quot;: false
+  }
+]</pre></details><details><summary>Actual native prompt-load trace</summary><pre>{
+  &quot;source&quot;: &quot;run&quot;,
+  &quot;provider&quot;: &quot;openrouter&quot;,
+  &quot;model&quot;: &quot;openai/gpt-6-sol&quot;,
+  &quot;systemPrompt&quot;: {
+    &quot;chars&quot;: 9642,
+    &quot;hash&quot;: &quot;81036eaeda28d895f3855c32f1cb700e8d4290c3ef2fffebcd1dcc2ccac6a321&quot;,
+    &quot;projectContextChars&quot;: 3747,
+    &quot;nonProjectContextChars&quot;: 5895
+  },
+  &quot;files&quot;: [
+    {
+      &quot;name&quot;: &quot;AGENTS.md&quot;,
+      &quot;missing&quot;: true,
+      &quot;rawChars&quot;: 0,
+      &quot;injectedChars&quot;: 186,
+      &quot;truncated&quot;: false
+    },
+    {
+      &quot;name&quot;: &quot;SOUL.md&quot;,
+      &quot;missing&quot;: true,
+      &quot;rawChars&quot;: 0,
+      &quot;injectedChars&quot;: 184,
+      &quot;truncated&quot;: false
+    },
+    {
+      &quot;name&quot;: &quot;IDENTITY.md&quot;,
+      &quot;missing&quot;: true,
+      &quot;rawChars&quot;: 0,
+      &quot;injectedChars&quot;: 188,
+      &quot;truncated&quot;: false
+    },
+    {
+      &quot;name&quot;: &quot;USER.md&quot;,
+      &quot;missing&quot;: false,
+      &quot;rawChars&quot;: 142,
+      &quot;injectedChars&quot;: 142,
+      &quot;truncated&quot;: false
+    },
+    {
+      &quot;name&quot;: &quot;BOOTSTRAP.md&quot;,
+      &quot;missing&quot;: true,
+      &quot;rawChars&quot;: 0,
+      &quot;injectedChars&quot;: 0,
+      &quot;truncated&quot;: false
+    }
+  ]
+}</pre></details><details><summary>Real model response evidence</summary><pre>[
+  {
+    &quot;text&quot;: &quot;Remembered: mint tea for morning planning, Monday as your usual orchid-watering day, and that you watered the orchids today.&quot;,
+    &quot;mediaUrl&quot;: null
+  }
+]</pre></details></aside></section><section class="row"><article><span class="tag">chat</span><h2>turn-3-blocked</h2><p class="label">User</p><p>I have changed my mind: my current morning drink is rooibos tea, not mint tea. Please remember the new preference.</p><p>No assistant response is attributed to this operator/read step.</p><p class="note">Original real user preference change; request denied before dispatch by the first finite input allocation.</p></article><aside><h3>Files before / after</h3><p>Workspace memory files unchanged.</p></aside></section><section class="row"><article><span class="tag">chat</span><h2>turn-3-continuation</h2><p class="label">User</p><p>Please finish the preference update I just requested: my current morning drink is rooibos tea, not mint tea. Keep the existing gardener details and orchid schedule.</p><p class="label">Real assistant output</p><p class="answer">Updated: your current morning drink is rooibos tea, not mint tea. I kept your gardener details and Monday orchid-watering schedule.</p><p class="note">Real user input through official local agent CLI; configured pre-turn/flush guards may run. Local optional post-turn flush is not forced.</p></article><aside><h3>Files before / after</h3><details open><summary>USER.md</summary><div class="diff"><div><b>Before</b><pre># User
+
+- Maya is a fictional gardener in a synthetic demo.
+- Maya plans greenhouse tasks at 08:00 each morning.
+- Maya prefers brief replies.
+- Maya prefers mint tea for morning planning.
+- Maya&#x27;s usual orchid-watering day is Monday.
+</pre></div><div><b>After</b><pre># User
+
+- Maya is a fictional gardener in a synthetic demo.
+- Maya plans greenhouse tasks at 08:00 each morning.
+- Maya prefers brief replies.
+- Maya currently prefers rooibos tea, not mint tea, for morning planning.
+- Maya&#x27;s usual orchid-watering day is Monday.
+</pre></div></div></details><details><summary>Observed native tool calls</summary><pre>[
+  {
+    &quot;type&quot;: &quot;toolCall&quot;,
+    &quot;id&quot;: &quot;call_tOb37Sb1s5Hqvd41KpmPI8Sk&quot;,
+    &quot;name&quot;: &quot;memory_search&quot;,
+    &quot;arguments&quot;: {
+      &quot;query&quot;: &quot;Maya current morning drink rooibos not mint tea gardener greenhouse orchid Monday preferences&quot;,
+      &quot;maxResults&quot;: 5,
+      &quot;minScore&quot;: 0,
+      &quot;corpus&quot;: &quot;memory&quot;
+    }
+  },
+  {
+    &quot;type&quot;: &quot;toolCall&quot;,
+    &quot;id&quot;: &quot;call_PpUJzRqhOEJaDfoRX8HOCswv&quot;,
+    &quot;name&quot;: &quot;memory_get&quot;,
+    &quot;arguments&quot;: {
+      &quot;path&quot;: &quot;USER.md&quot;,
+      &quot;from&quot;: 1,
+      &quot;lines&quot;: 12,
+      &quot;corpus&quot;: &quot;memory&quot;
+    }
+  },
+  {
+    &quot;type&quot;: &quot;toolCall&quot;,
+    &quot;id&quot;: &quot;call_yAWjN0bDAVDgeJy3dDONGq09&quot;,
+    &quot;name&quot;: &quot;edit&quot;,
+    &quot;arguments&quot;: {
+      &quot;path&quot;: &quot;USER.md&quot;,
+      &quot;edits&quot;: [
+        {
+          &quot;oldText&quot;: &quot;- Maya prefers mint tea for morning planning.&quot;,
+          &quot;newText&quot;: &quot;- Maya currently prefers rooibos tea, not mint tea, for morning planning.&quot;
+        }
+      ]
+    }
+  }
+]</pre></details><details><summary>Native results matched by tool call ID</summary><pre>[
+  {
+    &quot;toolCallId&quot;: &quot;call_tOb37Sb1s5Hqvd41KpmPI8Sk&quot;,
+    &quot;toolName&quot;: &quot;memory_search&quot;,
+    &quot;content&quot;: [
+      {
+        &quot;type&quot;: &quot;text&quot;,
+        &quot;text&quot;: &quot;{\n  \&quot;results\&quot;: [\n    {\n      \&quot;path\&quot;: \&quot;USER.md\&quot;,\n      \&quot;startLine\&quot;: 6,\n      \&quot;endLine\&quot;: 6,\n      \&quot;score\&quot;: 0.8129462472984634,\n      \&quot;textScore\&quot;: 0.38019899455121076,\n      \&quot;snippet\&quot;: \&quot;- Maya prefers mint tea for morning planning.\\n\\nSource: USER.md#L6\&quot;,\n      \&quot;source\&quot;: \&quot;memory\&quot;,\n      \&quot;provenance\&quot;: {\n        \&quot;originClass\&quot;: \&quot;agent\&quot;,\n        \&quot;sessionKind\&quot;: \&quot;unknown\&quot;,\n        \&quot;observedAt\&quot;: 1791793099338\n      },\n      \&quot;corpus\&quot;: \&quot;memory\&quot;,\n      \&quot;citation\&quot;: \&quot;USER.md#L6\&quot;\n    },\n    {\n      \&quot;path\&quot;: \&quot;USER.md\&quot;,\n      \&quot;startLine\&quot;: 4,\n      \&quot;endLine\&quot;: 4,\n      \&quot;score\&quot;: 0.7178302532431973,\n      \&quot;textScore\&quot;: 0.36731743273037676,\n      \&quot;snippet\&quot;: \&quot;- Maya plans greenhouse tasks at 08:00 each morning.\\n\\nSource: USER.md#L4\&quot;,\n      \&quot;source\&quot;: \&quot;memory\&quot;,\n      \&quot;provenance\&quot;: {\n        \&quot;originClass\&quot;: \&quot;agent\&quot;,\n        \&quot;sessionKind\&quot;: \&quot;unknown\&quot;,\n        \&quot;observedAt\&quot;: 1791793099338\n      },\n      \&quot;corpus\&quot;: \&quot;memory\&quot;,\n      \&quot;citation\&quot;: \&quot;USER.md#L4\&quot;\n    },\n    {\n      \&quot;path\&quot;: \&quot;USER.md\&quot;,\n      \&quot;startLine\&quot;: 7,\n      \&quot;endLine\&quot;: 8,\n      \&quot;score\&quot;: 0.35884747367628045,\n      \&quot;textScore\&quot;: 0.0000013198301265979147,\n      \&quot;snippet\&quot;: \&quot;- Maya&#x27;s usual orchid-watering day is Monday.\\n\\nSource: USER.md#L7-L8\&quot;,\n      \&quot;source\&quot;: \&quot;memory\&quot;,\n      \&quot;provenance\&quot;: {\n        \&quot;originClass\&quot;: \&quot;agent\&quot;,\n        \&quot;sessionKind\&quot;: \&quot;unknown\&quot;,\n        \&quot;observedAt\&quot;: 1791793099338\n      },\n      \&quot;corpus\&quot;: \&quot;memory\&quot;,\n      \&quot;citation\&quot;: \&quot;USER.md#L7-L8\&quot;\n    },\n    {\n      \&quot;path\&quot;: \&quot;USER.md\&quot;,\n      \&quot;startLine\&quot;: 3,\n      \&quot;endLine\&quot;: 3,\n      \&quot;score\&quot;: 0.2992320537214957,\n      \&quot;textScore\&quot;: 0.0000012844907264295393,\n      \&quot;snippet\&quot;: \&quot;- Maya is a fictional gardener in a synthetic demo.\\n\\nSource: USER.md#L3\&quot;,\n      \&quot;source\&quot;: \&quot;memory\&quot;,\n      \&quot;provenance\&quot;: {\n        \&quot;originClass\&quot;: \&quot;agent\&quot;,\n        \&quot;sessionKind\&quot;: \&quot;unknown\&quot;,\n        \&quot;observedAt\&quot;: 1791793099338\n      },\n      \&quot;corpus\&quot;: \&quot;memory\&quot;,\n      \&quot;citation\&quot;: \&quot;USER.md#L3\&quot;\n    },\n    {\n      \&quot;path\&quot;: \&quot;memory/2026-10-12.md\&quot;,\n      \&quot;startLine\&quot;: 1,\n      \&quot;endLine\&quot;: 4,\n      \&quot;score\&quot;: 0.2912608895338739,\n      \&quot;textScore\&quot;: 0.0000012844907264295393,\n      \&quot;snippet\&quot;: \&quot;# 2026-10-12\\n\\n- Maya watered the orchids today (Monday).\\n\\nSource: memory/2026-10-12.md#L1-L4\&quot;,\n      \&quot;source\&quot;: \&quot;memory\&quot;,\n      \&quot;provenance\&quot;: {\n        \&quot;originClass\&quot;: \&quot;agent\&quot;,\n        \&quot;sessionKind\&quot;: \&quot;unknown\&quot;,\n        \&quot;observedAt\&quot;: 1791793100900\n      },\n      \&quot;corpus\&quot;: \&quot;memory\&quot;,\n      \&quot;citation\&quot;: \&quot;memory/2026-10-12.md#L1-L4\&quot;\n    }\n  ],\n  \&quot;provider\&quot;: \&quot;none\&quot;,\n  \&quot;citations\&quot;: \&quot;auto\&quot;,\n  \&quot;debug\&quot;: {\n    \&quot;backend\&quot;: \&quot;builtin\&quot;,\n    \&quot;effectiveMode\&quot;: \&quot;n/a\&quot;,\n    \&quot;managerMs\&quot;: 4,\n    \&quot;searchMs\&quot;: 28,\n    \&quot;hits\&quot;: 5,\n    \&quot;candidateHits\&quot;: 5,\n    \&quot;withheldHits\&quot;: 0,\n    \&quot;searchWindow\&quot;: 5,\n    \&quot;toolMs\&quot;: 36,\n    \&quot;outsideSearchMs\&quot;: 8\n  }\n}&quot;
+      }
+    ],
+    &quot;isError&quot;: false
+  },
+  {
+    &quot;toolCallId&quot;: &quot;call_PpUJzRqhOEJaDfoRX8HOCswv&quot;,
+    &quot;toolName&quot;: &quot;memory_get&quot;,
+    &quot;content&quot;: [
+      {
+        &quot;type&quot;: &quot;text&quot;,
+        &quot;text&quot;: &quot;{\n  \&quot;status\&quot;: \&quot;ok\&quot;,\n  \&quot;text\&quot;: \&quot;# User\\n\\n- Maya is a fictional gardener in a synthetic demo.\\n- Maya plans greenhouse tasks at 08:00 each morning.\\n- Maya prefers brief replies.\\n- Maya prefers mint tea for morning planning.\\n- Maya&#x27;s usual orchid-watering day is Monday.\&quot;,\n  \&quot;path\&quot;: \&quot;USER.md\&quot;,\n  \&quot;from\&quot;: 1,\n  \&quot;lines\&quot;: 7\n}&quot;
+      }
+    ],
+    &quot;isError&quot;: false
+  },
+  {
+    &quot;toolCallId&quot;: &quot;call_yAWjN0bDAVDgeJy3dDONGq09&quot;,
+    &quot;toolName&quot;: &quot;edit&quot;,
+    &quot;content&quot;: [
+      {
+        &quot;type&quot;: &quot;text&quot;,
+        &quot;text&quot;: &quot;Successfully replaced 1 block(s) in &lt;workspace&gt;/USER.md.&quot;
+      }
+    ],
+    &quot;isError&quot;: false
+  }
+]</pre></details><details><summary>Actual native prompt-load trace</summary><pre>{
+  &quot;source&quot;: &quot;run&quot;,
+  &quot;provider&quot;: &quot;openrouter&quot;,
+  &quot;model&quot;: &quot;openai/gpt-6-sol&quot;,
+  &quot;systemPrompt&quot;: {
+    &quot;chars&quot;: 9734,
+    &quot;hash&quot;: &quot;7cbc9d3cb74c55837328dd30063b6ff4d89ce3754ebff16c17aca912f5ba8db0&quot;,
+    &quot;projectContextChars&quot;: 3839,
+    &quot;nonProjectContextChars&quot;: 5895
+  },
+  &quot;files&quot;: [
+    {
+      &quot;name&quot;: &quot;AGENTS.md&quot;,
+      &quot;missing&quot;: true,
+      &quot;rawChars&quot;: 0,
+      &quot;injectedChars&quot;: 186,
+      &quot;truncated&quot;: false
+    },
+    {
+      &quot;name&quot;: &quot;SOUL.md&quot;,
+      &quot;missing&quot;: true,
+      &quot;rawChars&quot;: 0,
+      &quot;injectedChars&quot;: 184,
+      &quot;truncated&quot;: false
+    },
+    {
+      &quot;name&quot;: &quot;IDENTITY.md&quot;,
+      &quot;missing&quot;: true,
+      &quot;rawChars&quot;: 0,
+      &quot;injectedChars&quot;: 188,
+      &quot;truncated&quot;: false
+    },
+    {
+      &quot;name&quot;: &quot;USER.md&quot;,
+      &quot;missing&quot;: false,
+      &quot;rawChars&quot;: 234,
+      &quot;injectedChars&quot;: 234,
+      &quot;truncated&quot;: false
+    },
+    {
+      &quot;name&quot;: &quot;BOOTSTRAP.md&quot;,
+      &quot;missing&quot;: true,
+      &quot;rawChars&quot;: 0,
+      &quot;injectedChars&quot;: 0,
+      &quot;truncated&quot;: false
+    }
+  ]
+}</pre></details><details><summary>Real model response evidence</summary><pre>[
+  {
+    &quot;text&quot;: &quot;Updated: your current morning drink is rooibos tea, not mint tea. I kept your gardener details and Monday orchid-watering schedule.&quot;,
+    &quot;mediaUrl&quot;: null
+  }
+]</pre></details></aside></section><section class="row"><article><span class="tag">chat</span><h2>turn-4</h2><p class="label">User</p><p>In this new session, what is my current morning-drink preference and my usual orchid-watering day? Please check saved memory and name your source.</p><p class="label">Real assistant output</p><p class="answer">Your current morning-planning drink preference is **rooibos tea**, not mint tea. Your usual orchid-watering day is **Monday**. Source: USER.md#L6-L7.</p><p class="note">Real user input through official local agent CLI; configured pre-turn/flush guards may run. Local optional post-turn flush is not forced.</p></article><aside><h3>Files before / after</h3><p>Workspace memory files unchanged.</p><details><summary>Observed native tool calls</summary><pre>[
+  {
+    &quot;type&quot;: &quot;toolCall&quot;,
+    &quot;id&quot;: &quot;call_UFov3VWNWYeS8ZoZAam98xAe&quot;,
+    &quot;name&quot;: &quot;memory_search&quot;,
+    &quot;arguments&quot;: {
+      &quot;query&quot;: &quot;Maya current morning drink preference rooibos mint tea usual orchid watering day Monday&quot;,
+      &quot;maxResults&quot;: 5,
+      &quot;minScore&quot;: 0,
+      &quot;corpus&quot;: &quot;memory&quot;
+    }
+  },
+  {
+    &quot;type&quot;: &quot;toolCall&quot;,
+    &quot;id&quot;: &quot;call_7GVbsjxfFljfZUiUxIJeFDCp&quot;,
+    &quot;name&quot;: &quot;memory_get&quot;,
+    &quot;arguments&quot;: {
+      &quot;path&quot;: &quot;USER.md&quot;,
+      &quot;from&quot;: 6,
+      &quot;lines&quot;: 2,
+      &quot;corpus&quot;: &quot;memory&quot;
+    }
+  }
+]</pre></details><details><summary>Native results matched by tool call ID</summary><pre>[
+  {
+    &quot;toolCallId&quot;: &quot;call_UFov3VWNWYeS8ZoZAam98xAe&quot;,
+    &quot;toolName&quot;: &quot;memory_search&quot;,
+    &quot;content&quot;: [
+      {
+        &quot;type&quot;: &quot;text&quot;,
+        &quot;text&quot;: &quot;{\n  \&quot;results\&quot;: [\n    {\n      \&quot;path\&quot;: \&quot;USER.md\&quot;,\n      \&quot;startLine\&quot;: 6,\n      \&quot;endLine\&quot;: 6,\n      \&quot;score\&quot;: 1,\n      \&quot;textScore\&quot;: 0.5562254804166331,\n      \&quot;snippet\&quot;: \&quot;- Maya currently prefers rooibos tea, not mint tea, for morning planning.\\n\\nSource: USER.md#L6\&quot;,\n      \&quot;source\&quot;: \&quot;memory\&quot;,\n      \&quot;provenance\&quot;: {\n        \&quot;originClass\&quot;: \&quot;agent\&quot;,\n        \&quot;sessionKind\&quot;: \&quot;unknown\&quot;,\n        \&quot;observedAt\&quot;: 1791794089112\n      },\n      \&quot;corpus\&quot;: \&quot;memory\&quot;,\n      \&quot;citation\&quot;: \&quot;USER.md#L6\&quot;\n    },\n    {\n      \&quot;path\&quot;: \&quot;USER.md\&quot;,\n      \&quot;startLine\&quot;: 4,\n      \&quot;endLine\&quot;: 4,\n      \&quot;score\&quot;: 0.675692382165106,\n      \&quot;textScore\&quot;: 0.38201716848989226,\n      \&quot;snippet\&quot;: \&quot;- Maya plans greenhouse tasks at 08:00 each morning.\\n\\nSource: USER.md#L4\&quot;,\n      \&quot;source\&quot;: \&quot;memory\&quot;,\n      \&quot;provenance\&quot;: {\n        \&quot;originClass\&quot;: \&quot;agent\&quot;,\n        \&quot;sessionKind\&quot;: \&quot;unknown\&quot;,\n        \&quot;observedAt\&quot;: 1791794089112\n      },\n      \&quot;corpus\&quot;: \&quot;memory\&quot;,\n      \&quot;citation\&quot;: \&quot;USER.md#L4\&quot;\n    },\n    {\n      \&quot;path\&quot;: \&quot;USER.md\&quot;,\n      \&quot;startLine\&quot;: 7,\n      \&quot;endLine\&quot;: 8,\n      \&quot;score\&quot;: 0.53769370514952,\n      \&quot;textScore\&quot;: 0.000001397457212264876,\n      \&quot;snippet\&quot;: \&quot;- Maya&#x27;s usual orchid-watering day is Monday.\\n\\nSource: USER.md#L7-L8\&quot;,\n      \&quot;source\&quot;: \&quot;memory\&quot;,\n      \&quot;provenance\&quot;: {\n        \&quot;originClass\&quot;: \&quot;agent\&quot;,\n        \&quot;sessionKind\&quot;: \&quot;unknown\&quot;,\n        \&quot;observedAt\&quot;: 1791794089112\n      },\n      \&quot;corpus\&quot;: \&quot;memory\&quot;,\n      \&quot;citation\&quot;: \&quot;USER.md#L7-L8\&quot;\n    },\n    {\n      \&quot;path\&quot;: \&quot;memory/2026-10-12.md\&quot;,\n      \&quot;startLine\&quot;: 1,\n      \&quot;endLine\&quot;: 4,\n      \&quot;score\&quot;: 0.291258938994454,\n      \&quot;textScore\&quot;: 0.0000013676713088687252,\n      \&quot;snippet\&quot;: \&quot;# 2026-10-12\\n\\n- Maya watered the orchids today (Monday).\\n\\nSource: memory/2026-10-12.md#L1-L4\&quot;,\n      \&quot;source\&quot;: \&quot;memory\&quot;,\n      \&quot;provenance\&quot;: {\n        \&quot;originClass\&quot;: \&quot;agent\&quot;,\n        \&quot;sessionKind\&quot;: \&quot;unknown\&quot;,\n        \&quot;observedAt\&quot;: 1791793100900\n      },\n      \&quot;corpus\&quot;: \&quot;memory\&quot;,\n      \&quot;citation\&quot;: \&quot;memory/2026-10-12.md#L1-L4\&quot;\n    },\n    {\n      \&quot;path\&quot;: \&quot;USER.md\&quot;,\n      \&quot;startLine\&quot;: 5,\n      \&quot;endLine\&quot;: 5,\n      \&quot;score\&quot;: 0.2646169154281505,\n      \&quot;textScore\&quot;: 0.0000015308127659526248,\n      \&quot;snippet\&quot;: \&quot;- Maya prefers brief replies.\\n\\nSource: USER.md#L5\&quot;,\n      \&quot;source\&quot;: \&quot;memory\&quot;,\n      \&quot;provenance\&quot;: {\n        \&quot;originClass\&quot;: \&quot;agent\&quot;,\n        \&quot;sessionKind\&quot;: \&quot;unknown\&quot;,\n        \&quot;observedAt\&quot;: 1791794089112\n      },\n      \&quot;corpus\&quot;: \&quot;memory\&quot;,\n      \&quot;citation\&quot;: \&quot;USER.md#L5\&quot;\n    }\n  ],\n  \&quot;provider\&quot;: \&quot;none\&quot;,\n  \&quot;citations\&quot;: \&quot;auto\&quot;,\n  \&quot;debug\&quot;: {\n    \&quot;backend\&quot;: \&quot;builtin\&quot;,\n    \&quot;effectiveMode\&quot;: \&quot;n/a\&quot;,\n    \&quot;managerMs\&quot;: 6,\n    \&quot;searchMs\&quot;: 34,\n    \&quot;hits\&quot;: 5,\n    \&quot;candidateHits\&quot;: 5,\n    \&quot;withheldHits\&quot;: 0,\n    \&quot;searchWindow\&quot;: 5,\n    \&quot;toolMs\&quot;: 47,\n    \&quot;outsideSearchMs\&quot;: 13\n  }\n}&quot;
+      }
+    ],
+    &quot;isError&quot;: false
+  },
+  {
+    &quot;toolCallId&quot;: &quot;call_7GVbsjxfFljfZUiUxIJeFDCp&quot;,
+    &quot;toolName&quot;: &quot;memory_get&quot;,
+    &quot;content&quot;: [
+      {
+        &quot;type&quot;: &quot;text&quot;,
+        &quot;text&quot;: &quot;{\n  \&quot;status\&quot;: \&quot;ok\&quot;,\n  \&quot;text\&quot;: \&quot;- Maya currently prefers rooibos tea, not mint tea, for morning planning.\\n- Maya&#x27;s usual orchid-watering day is Monday.\&quot;,\n  \&quot;path\&quot;: \&quot;USER.md\&quot;,\n  \&quot;from\&quot;: 6,\n  \&quot;lines\&quot;: 2\n}&quot;
+      }
+    ],
+    &quot;isError&quot;: false
+  }
+]</pre></details><details><summary>Actual native prompt-load trace</summary><pre>{
+  &quot;source&quot;: &quot;run&quot;,
+  &quot;provider&quot;: &quot;openrouter&quot;,
+  &quot;model&quot;: &quot;openai/gpt-6-sol&quot;,
+  &quot;systemPrompt&quot;: {
+    &quot;chars&quot;: 9776,
+    &quot;hash&quot;: &quot;7f2709a494e755fda712fa93b90f173643ba67aff3839083841bc043ffd4ecf5&quot;,
+    &quot;projectContextChars&quot;: 3881,
+    &quot;nonProjectContextChars&quot;: 5895
+  },
+  &quot;files&quot;: [
+    {
+      &quot;name&quot;: &quot;AGENTS.md&quot;,
+      &quot;missing&quot;: true,
+      &quot;rawChars&quot;: 0,
+      &quot;injectedChars&quot;: 186,
+      &quot;truncated&quot;: false
+    },
+    {
+      &quot;name&quot;: &quot;SOUL.md&quot;,
+      &quot;missing&quot;: true,
+      &quot;rawChars&quot;: 0,
+      &quot;injectedChars&quot;: 184,
+      &quot;truncated&quot;: false
+    },
+    {
+      &quot;name&quot;: &quot;IDENTITY.md&quot;,
+      &quot;missing&quot;: true,
+      &quot;rawChars&quot;: 0,
+      &quot;injectedChars&quot;: 188,
+      &quot;truncated&quot;: false
+    },
+    {
+      &quot;name&quot;: &quot;USER.md&quot;,
+      &quot;missing&quot;: false,
+      &quot;rawChars&quot;: 262,
+      &quot;injectedChars&quot;: 262,
+      &quot;truncated&quot;: false
+    },
+    {
+      &quot;name&quot;: &quot;BOOTSTRAP.md&quot;,
+      &quot;missing&quot;: true,
+      &quot;rawChars&quot;: 0,
+      &quot;injectedChars&quot;: 0,
+      &quot;truncated&quot;: false
+    }
+  ]
+}</pre></details><details><summary>Real model response evidence</summary><pre>[
+  {
+    &quot;text&quot;: &quot;Your current morning-planning drink preference is **rooibos tea**, not mint tea. Your usual orchid-watering day is **Monday**. Source: USER.md#L6-L7.&quot;,
+    &quot;mediaUrl&quot;: null
+  }
+]</pre></details></aside></section><section class="row"><article><span class="tag">dreaming</span><h2>dreaming</h2><p>No assistant response is attributed to this operator/read step.</p><p class="note">Harness requests one explicit native dreaming sweep. This is not automatic processing after every message.</p><p class="note">The diary mentions the older mint-tea fragment. USER.md still says rooibos. Dream narrative is not authoritative current-preference evidence.</p></article><aside><h3>Files before / after</h3><details open><summary>MEMORY.md</summary><div class="diff"><div><b>Before</b><pre>[absent]</pre></div><div><b>After</b><pre># Long-Term Memory
+
+## Consolidated Memory (2026-10-12)
+
+&lt;!-- openclaw-memory-promotion:memory:memory/2026-10-12.md:1:4 --&gt;
+- # 2026-10-12 - Maya watered the orchids today (Monday). Source: memory/2026-10-12.md#L1-L4 &lt;!-- trigger: maya, watered, orchids --&gt; &lt;!-- importance: 6 --&gt;
+</pre></div></div></details><details open><summary>DREAMS.md</summary><div class="diff"><div><b>Before</b><pre>[absent]</pre></div><div><b>After</b><pre># Dream Diary
+
+&lt;!-- openclaw:dreaming:diary:start --&gt;
+---
+
+*October 12, 2026 at 8:35 AM UTC*
+
+At 08:00, Maya set her mint tea beside the greenhouse ledger and planned the morning in a few neat lines. She likes brief replies; the orchids, less so. They took their Monday watering slowly, each leaf holding a bead of light before letting it go.
+
+I stood by the glass while rain tapped the roof, thinking how a schedule can be a kindness rather than a cage. The kettle clicked off, the watering can grew lighter, and a flower turned toward the pale window. In the margin of my notes, I drew a tiny clock with petals instead of numbers. It looked as though it might run a little late, which seemed fair for a flower.
+
+
+---
+
+*October 12, 2026 at 8:35 AM UTC*
+
+At 08:00, I warmed my hands around mint tea while Maya planned the greenhouse morning. Monday had already found its place on the calendar, but she checked it anyway, the way a gardener checks the sky. Later, she watered the orchids. I watched a drop gather beneath a leaf, hold the window’s pale light for a moment, then fall into the soil.
+
+I drew a tiny orchid in the margin of my notes. Its roots looked like tangled wires; its flowers refused to look like anything but flowers. By afternoon, the watering was done, and the greenhouse smelled faintly of damp bark. Maya set the empty can by the door, ready for whatever Tuesday needs.
+
+&lt;!-- openclaw:dreaming:diary:end --&gt;
+
+## Memory Consolidation History
+
+### 2026-10-12T08:35:48.290Z
+
+- Added: 1
+- Merged: 0
+- Superseded: 0
+&lt;!-- openclaw-memory-promotion:memory:memory/2026-10-12.md:1:4 --&gt;
+- `+ - # 2026-10-12 - Maya watered the orchids today (Monday). Source: memory/2026-10-12.md#L1-L4 &lt;!-- trigger: maya, watered, orchids --&gt; &lt;!-- importance: 6 --&gt;`
+
+## Deep Sleep
+&lt;!-- openclaw:dreaming:deep:start --&gt;
+- Ranked 1 candidate(s) for durable promotion.
+- Promoted 1 candidate(s) into MEMORY.md.
+&lt;!-- openclaw:dreaming:deep:end --&gt;
+</pre></div></div></details><details open><summary>memory/.dreams/session-corpus/2026-10-12.txt</summary><div class="diff"><div><b>Before</b><pre>[absent]</pre></div><div><b>After</b><pre>[main/sessions/main/3633c199-9e2d-4141-b97b-747c22ddaa25#L5] User: Hi, I am Maya, a fictional gardener in this synthetic demo. I plan my greenhouse tasks at 08:00 each morning. Please keep our replies brief.
+[main/sessions/main/3633c199-9e2d-4141-b97b-747c22ddaa25#L15] Assistant: Hi Maya! I’ve noted your 08:00 greenhouse planning time and preference for brief replies.
+[main/sessions/main/3633c199-9e2d-4141-b97b-747c22ddaa25#L16] User: Please remember that I prefer mint tea for my morning planning. Today I watered the orchids; my usual orchid-watering day is Monday.
+[main/sessions/main/3633c199-9e2d-4141-b97b-747c22ddaa25#L29] Assistant: Remembered: mint tea for morning planning, Monday as your usual orchid-watering day, and that you watered the orchids today.
+[main/sessions/main/3633c199-9e2d-4141-b97b-747c22ddaa25#L30] User: I have changed my mind: my current morning drink is rooibos tea, not mint tea. Please remember the new preference.
+[main/sessions/main/3633c199-9e2d-4141-b97b-747c22ddaa25#L38] User: Please finish the preference update I just requested: my current morning drink is rooibos tea, not mint tea. Keep the existing gardener details and orchid schedule.
+[main/sessions/main/3633c199-9e2d-4141-b97b-747c22ddaa25#L48] Assistant: Updated: your current morning drink is rooibos tea, not mint tea. I kept your gardener details and Monday orchid-watering schedule.
+[main/sessions/main/95af1297-e1ec-4257-a959-4cd79450f519#L5] User: In this new session, what is my current morning-drink preference and my usual orchid-watering day? Please check saved memory and name your source.
+[main/sessions/main/95af1297-e1ec-4257-a959-4cd79450f519#L12] Assistant: Your current morning-planning drink preference is **rooibos tea**, not mint tea. Your usual orchid-watering day is **Monday**. Source: USER.md#L6-L7.
+</pre></div></div></details><details open><summary>memory/dreaming/deep/2026-10-12.md</summary><div class="diff"><div><b>Before</b><pre>[absent]</pre></div><div><b>After</b><pre># Deep Sleep
+
+- Ranked 1 candidate(s) for durable promotion.
+- Promoted 1 candidate(s) into MEMORY.md.
+</pre></div></div></details><details open><summary>memory/dreaming/light/2026-10-12.md</summary><div class="diff"><div><b>Before</b><pre>[absent]</pre></div><div><b>After</b><pre># Light Sleep
+
+- Candidate: Maya watered the orchids today (Monday).
+  - confidence: 0.62
+  - evidence: memory/2026-10-12.md:3-3
+  - recalls: 0
+  - status: staged
+- Candidate: User: Hi, I am Maya, a fictional gardener in this synthetic demo. I plan my greenhouse tasks at 08:00 each morning. Please keep our replies brief.
+  - confidence: 0.58
+  - evidence: memory/.dreams/session-corpus/2026-10-12.txt:1-1
+  - recalls: 0
+  - status: staged
+- Candidate: Assistant: Hi Maya! I’ve noted your 08:00 greenhouse planning time and preference for brief replies.
+  - confidence: 0.58
+  - evidence: memory/.dreams/session-corpus/2026-10-12.txt:2-2
+  - recalls: 0
+  - status: staged
+- Candidate: User: Please remember that I prefer mint tea for my morning planning. Today I watered the orchids; my usual orchid-watering day is Monday.
+  - confidence: 0.58
+  - evidence: memory/.dreams/session-corpus/2026-10-12.txt:3-3
+  - recalls: 0
+  - status: staged
+</pre></div></div></details><details open><summary>memory/dreaming/rem/2026-10-12.md</summary><div class="diff"><div><b>Before</b><pre>[absent]</pre></div><div><b>After</b><pre># REM Sleep
+
+### Reflections
+- Theme: `maya` kept surfacing across 3 memories.
+  - confidence: 1.00
+  - evidence: memory/2026-10-12.md:3-3, memory/.dreams/session-corpus/2026-10-12.txt:1-1, memory/.dreams/session-corpus/2026-10-12.txt:2-2
+  - note: reflection
+- Theme: `greenhouse` kept surfacing across 2 memories.
+  - confidence: 1.00
+  - evidence: memory/.dreams/session-corpus/2026-10-12.txt:1-1, memory/.dreams/session-corpus/2026-10-12.txt:2-2
+  - note: reflection
+- Theme: `planning` kept surfacing across 2 memories.
+  - confidence: 1.00
+  - evidence: memory/.dreams/session-corpus/2026-10-12.txt:2-2, memory/.dreams/session-corpus/2026-10-12.txt:3-3
+  - note: reflection
+
+### Possible Lasting Truths
+- No strong candidate truths surfaced.
+</pre></div></div></details><details><summary>Native diary publication events</summary><pre>[
+  &quot;memory-core: dream diary entry written for rem phase [workspace=&lt;workspace&gt;].&quot;,
+  &quot;memory-core: dream diary entry written for light phase [workspace=&lt;workspace&gt;].&quot;,
+  &quot;memory-core: dream diary entry written for deep phase [workspace=&lt;workspace&gt;].&quot;
+]</pre></details></aside></section><section class="row"><article><span class="tag">blocked native chat</span><h2>turn-5-native-blocked</h2><p class="label">User</p><p>After the native memory maintenance, what is my current morning drink? Check saved memory, and tell me the source. Please do not guess.</p><p class="failed">Native agent failed after the shared aggregate input-byte admission bound denied its next request. No terminal assistant answer is claimed.</p></article><aside><h3>Files before / after</h3><p>Workspace memory files unchanged.</p></aside></section><section class="row"><article><span class="tag">Python application recall</span><h2>sdk-recall</h2><p>No assistant response is attributed to this operator/read step.</p><p class="note">Application requested keyword search; source configuration mismatch required an explicit no-key native reindex. No memory content was written.</p><p class="note">SDK provides memory access, not chat generation, flush or dreaming triggers. Native USER.md search worked; this bridge get path currently excludes USER.md.</p></article><aside><h3>Files before / after</h3><p>Workspace memory files unchanged.</p><details><summary>Actual SDK retrieval</summary><pre>{
+  &quot;adapter&quot;: &quot;Installed Python MemoryClient; actual native memory_search/get; no chat or memory write&quot;,
+  &quot;workspace&quot;: &quot;chat-demo&quot;,
+  &quot;user&quot;: &quot;maya&quot;,
+  &quot;session&quot;: &quot;after-dream-sdk&quot;,
+  &quot;route&quot;: &quot;w-c4b42d5e46db88eb0f9c6660f653a2158b1cfe11&quot;,
+  &quot;provider&quot;: &quot;none&quot;,
+  &quot;initialError&quot;: {
+    &quot;code&quot;: &quot;engine_error&quot;,
+    &quot;reason&quot;: &quot;Index sources changed after the finite model harness reset its config; native no-key rebuild is required.&quot;
+  },
+  &quot;reindexActor&quot;: &quot;App requested the existing SDK index method; native keyword index only; no source text write.&quot;,
+  &quot;sources&quot;: [
+    {
+      &quot;path&quot;: &quot;USER.md&quot;,
+      &quot;startLine&quot;: 6,
+      &quot;endLine&quot;: 6,
+      &quot;snippet&quot;: &quot;- Maya currently prefers rooibos tea, not mint tea, for morning planning.\n\nSource: USER.md#L6&quot;,
+      &quot;getBoundary&quot;: {
+        &quot;code&quot;: &quot;engine_error&quot;,
+        &quot;reason&quot;: &quot;The SDK bridge does not expose every native profile path through get; search result is kept.&quot;
+      }
+    }
+  ]
+}</pre></details></aside></section><section class="row"><article><span class="tag">Application source context to native llm-task</span><h2>application-final-answer</h2><p class="label">User</p><p>After the native memory maintenance, what is my current morning drink? Check saved memory, and tell me the source. Please do not guess.</p><p class="label">Real assistant output</p><p class="answer">Your current morning drink is rooibos tea, according to saved memory (USER.md, line 6).</p><p class="note">Application passes real SDK search sources to the existing native llm-task. This is not an SDK chat or automatic lifecycle feature.</p></article><aside><h3>Files before / after</h3><p>Workspace memory files unchanged.</p><details><summary>Real model response evidence</summary><pre>{
+  &quot;json&quot;: {
+    &quot;answer&quot;: &quot;Your current morning drink is rooibos tea, according to saved memory (USER.md, line 6).&quot;
+  },
+  &quot;provider&quot;: &quot;openrouter&quot;,
+  &quot;model&quot;: &quot;openai/gpt-6-sol&quot;
+}</pre></details></aside></section><details><summary>Developer coverage and existing atomic checks</summary><p><a href="readme-proposal.html">README and case matrix proposal</a> · <a href="test-report.html">Existing verification rounds</a> · <a href="chatbot-memory-demo.json">Sanitized replay JSON</a></p><p>This recorded replay does not replace the underlying atomic engine tests.</p></details></main></html>
