@@ -26,6 +26,7 @@ import { consolidationCheckpoint } from "./consolidation-checkpoint.ts";
 import { ReadyGateway } from "./gateway.ts";
 import {
   CONSOLIDATION_LIMITS,
+  E2E_LIMITS,
   LIFECYCLE_LIMITS,
   readLifecycleLedger,
 } from "./lifecycle-request-budget.ts";
@@ -173,6 +174,7 @@ export class Lab {
   private compactionTest = false;
   private smoke?: { fixtureUrl?: string };
   private lifecycleLedger?: string;
+  private conversationDemo = false;
 
   constructor(name = "alpha", root = join(PROJECT, ".lab")) {
     this.root = resolve(root);
@@ -339,7 +341,7 @@ export class Lab {
               heartbeat: { every: "0m" },
               ...(this.lifecycleLedger
                 ? {
-                    params: { maxTokens: 1024 },
+                    params: { maxTokens: this.conversationDemo ? 512 : 1024 },
                     thinkingDefault: "off",
                     timeoutSeconds: 60,
                     embeddedAgent: { cyberFailover: { mode: "off" } },
@@ -402,7 +404,9 @@ export class Lab {
                                 name: "GPT-6 Sol bounded smoke",
                                 reasoning: true,
                                 maxTokens: this.lifecycleLedger
-                                  ? 1024
+                                  ? this.conversationDemo
+                                    ? 512
+                                    : 1024
                                   : SMOKE.maxOutputTokens,
                                 compat: {
                                   maxTokensField: "max_completion_tokens",
@@ -489,6 +493,9 @@ export class Lab {
             },
           },
           tools: {
+            ...(this.conversationDemo
+              ? { codeMode: false, toolSearch: false }
+              : {}),
             fs: { workspaceOnly: true },
             allow: [
               "memory_search",
@@ -1407,6 +1414,346 @@ export class Lab {
       this.lifecycleLedger = undefined;
       this.settings = { provider: "none" };
       await this.provision();
+    }
+    return result;
+  }
+
+  /** Fixed genuine conversation demo. Harness writes config/evidence only. */
+  async boundedConversationDemo(
+    ledgerPath: string,
+    checkpoint: (value: Record<string, unknown>) => Promise<void>,
+  ) {
+    await verifySmokeRuntime();
+    requireEnvironment([PAID_SELECTION.keyEnv]);
+    if (
+      this.lifecycleLedger ||
+      this.settings.textModel ||
+      (await this.listNotes()).length
+    )
+      throw new Error(
+        "Conversation demo requires a fresh synthetic workspace.",
+      );
+    this.lifecycleLedger = resolve(ledgerPath);
+    this.conversationDemo = true;
+    this.settings = {
+      provider: "none",
+      dreaming: true,
+      flush: "test",
+      sessionMemory: true,
+      textModel: nativeModel(PAID_SELECTION.chat, PAID_SELECTION.keyEnv),
+    };
+    const workspace = join(this.directory, "workspace");
+    const result: Record<string, unknown> = {
+      mode: "real-provider/chatbot-memory-conversation",
+      model: PAID_SELECTION.chat,
+      limits: E2E_LIMITS,
+      harness: {
+        skipBootstrap: true,
+        thinking: "off",
+        outputPerAgentCall: 512,
+        codeMode: false,
+        toolSearch: false,
+        memoryFlushTranscriptBytes: 1024,
+        dreamingSchedule: "0 0 1 1 *",
+        manualDreamingTrigger: true,
+        workspaceFileWrites:
+          "None by the harness. Model tools and native lifecycle may write.",
+        chatAdapter:
+          "Official agent --local; optional post-turn maintenance may be deferred. No Python SDK chat API.",
+      },
+      steps: [],
+      stages: {},
+    };
+    const steps = result.steps as Array<Record<string, unknown>>;
+    const stages = result.stages as Record<string, string>;
+    const snapshot = async () => {
+      const files: Record<string, string | null> = {};
+      for (const name of [
+        "USER.md",
+        "BOOTSTRAP.md",
+        "AGENTS.md",
+        "SOUL.md",
+        "IDENTITY.md",
+        "TOOLS.md",
+        "HEARTBEAT.md",
+        "MEMORY.md",
+        "DREAMS.md",
+      ])
+        files[name] = null;
+      const visit = async (directory: string, prefix = "") => {
+        for (const entry of await readdir(directory, { withFileTypes: true })) {
+          const path = join(directory, entry.name),
+            relative = prefix + entry.name;
+          if (entry.isSymbolicLink())
+            throw new Error(
+              "Unexpected workspace symlink; stop evidence capture.",
+            );
+          if (entry.isDirectory()) await visit(path, `${relative}/`);
+          else if (entry.isFile() && /\.(md|txt)$/.test(entry.name)) {
+            const content = await readFile(path, "utf8");
+            if (Buffer.byteLength(content) > 100000)
+              throw new Error(
+                "Workspace evidence file exceeds its fixed bound.",
+              );
+            files[relative] = content;
+          }
+        }
+      };
+      await visit(workspace);
+      return files;
+    };
+    const changes = (
+      before: Record<string, string | null>,
+      after: Record<string, string | null>,
+    ) =>
+      Object.keys({ ...before, ...after })
+        .filter((path) => before[path] !== after[path])
+        .map((path) => ({
+          path,
+          before: before[path] ?? null,
+          after: after[path] ?? null,
+        }));
+    const safeCheckpoint = async () => {
+      result.requestLedger = readLifecycleLedger(
+        this.lifecycleLedger as string,
+      );
+      await checkpoint(result);
+    };
+    try {
+      await this.saveSettings();
+      await this.validateConfig();
+      const budget = smokeBudget(await this.providerUsage(), {
+        keyLimit: true,
+        prices: SMOKE.prices,
+        providerLimitUsd: 50,
+      });
+      result.beforeBudget = budget;
+      if (budget.usedUsd + E2E_LIMITS.estimatedUsd > 5)
+        throw new Error(
+          "The fixed conversation envelope does not fit the remaining cumulative 5 USD budget.",
+        );
+      result.initialWorkspace = await snapshot();
+      await safeCheckpoint();
+      const turns = [
+        {
+          id: "turn-1",
+          session: "main",
+          user: "Hi, I am Maya, a fictional gardener in this synthetic demo. I plan my greenhouse tasks at 08:00 each morning. Please keep our replies brief.",
+        },
+        {
+          id: "turn-2",
+          session: "main",
+          user: "Please remember that I prefer mint tea for my morning planning. Today I watered the orchids; my usual orchid-watering day is Monday.",
+        },
+        {
+          id: "turn-3",
+          session: "main",
+          user: "I have changed my mind: my current morning drink is rooibos tea, not mint tea. Please remember the new preference.",
+        },
+        {
+          id: "turn-4",
+          session: "later-before-dream",
+          user: "In this new session, what is my current morning-drink preference and my usual orchid-watering day? Please check saved memory and name your source.",
+        },
+      ];
+      const doTurn = async (turn: {
+        id: string;
+        session: string;
+        user: string;
+      }) => {
+        const before = await snapshot();
+        let historyBefore: { messages?: unknown[] };
+        try {
+          historyBefore = (await this.sessionHistory(turn.session)) as {
+            messages?: unknown[];
+          };
+        } catch {
+          historyBefore = { messages: [] };
+        }
+        await this.stop();
+        const native = JSON.parse(
+          await this.native(
+            [
+              "agent",
+              "--local",
+              "--agent",
+              "main",
+              "--session-key",
+              this.sessionKey(turn.session),
+              "--message",
+              turn.user,
+              "--thinking",
+              "off",
+              "--timeout",
+              "120",
+              "--json",
+            ],
+            150000,
+            false,
+            true,
+          ),
+        );
+        const history = (await this.sessionHistory(turn.session)) as {
+          messages?: Array<{
+            role?: string;
+            content?: unknown;
+            toolName?: string;
+          }>;
+        };
+        const state = await this.sessionState(turn.session);
+        const after = await snapshot();
+        const messages = (history.messages ?? []).slice(
+          historyBefore.messages?.length ?? 0,
+        );
+        const calls = messages
+          .filter((m) => m.role === "assistant")
+          .flatMap((m) =>
+            Array.isArray(m.content)
+              ? m.content.filter((part) => part?.type === "toolCall")
+              : [],
+          );
+        const bot =
+          (native.payloads ?? [])
+            .map((part: { text?: string }) => part.text ?? "")
+            .filter(Boolean)
+            .join("\n") ||
+          native.meta?.finalAssistantVisibleText ||
+          "";
+        if (!bot.trim())
+          throw new Error(
+            "Native turn completed without an observable bot reply.",
+          );
+        const step = {
+          ...turn,
+          kind: "chat",
+          bot,
+          before,
+          after,
+          changes: changes(before, after),
+          native,
+          historyDelta: messages,
+          toolCalls: calls,
+          maintenance: state.nativeMaintenance,
+          bootstrapTrace: native.meta?.systemPromptReport ?? null,
+          writeActor:
+            "Changed paths are attributed only when observed native tool calls or lifecycle events support it.",
+          eventTrigger:
+            "Real user input through official local agent CLI; configured pre-turn/flush guards may run. Local optional post-turn flush is not forced.",
+        };
+        steps.push(step);
+        await safeCheckpoint();
+        return step;
+      };
+      for (const turn of turns) await doTurn(turn);
+      await this.index();
+      result.sourcesBeforeDreaming = await this.search(
+        "rooibos",
+        "later-before-dream",
+      );
+      const before = await snapshot();
+      const sweep = await this.dreamRun();
+      const deadline = Date.now() + 150000;
+      while (Date.now() < deadline) {
+        const log = this.redact(
+          await readFile(join(this.directory, "openclaw.log"), "utf8"),
+        );
+        const complete = (log.match(/dream diary entry written for/g) ?? [])
+          .length;
+        const failed = (
+          log.match(/narrative generation (?:failed|used fallback)/g) ?? []
+        ).length;
+        const pending = Number(/narrativesPending=(\d+)/.exec(log)?.[1] ?? 0);
+        if (pending === 0 || complete + failed >= pending) break;
+        await delay(1000);
+      }
+      const after = await snapshot();
+      const nativeStatus = await this.dreamStatus();
+      const diary = await this.dreamDiary();
+      const log = this.redact(
+        await readFile(join(this.directory, "openclaw.log"), "utf8"),
+      );
+      result.nativeDiagnostics = log
+        .split("\n")
+        .filter((line) =>
+          /consolidat|promotion|dream diary|fallback|degraded|Finite lifecycle|memory.flush/i.test(
+            line,
+          ),
+        )
+        .slice(-80);
+      steps.push({
+        id: "dreaming",
+        kind: "dreaming",
+        user: null,
+        bot: null,
+        before,
+        after,
+        changes: changes(before, after),
+        sweep,
+        nativeStatus,
+        diary,
+        writeActor:
+          "Native memory-core phase/corpus/promotion/diary writers; model utility output only if native publication is observed.",
+        eventTrigger:
+          "Harness requests one explicit native dreaming sweep. This is not automatic processing after every message.",
+      });
+      await safeCheckpoint();
+      await this.index();
+      result.sourcesAfterDreaming = await this.search(
+        "rooibos",
+        "later-after-dream",
+      );
+      const final = await doTurn({
+        id: "turn-5",
+        session: "later-after-dream",
+        user: "After the native memory maintenance, what is my current morning drink? Check saved memory, and tell me the source. Please do not guess.",
+      });
+      stages.realChat = "pass";
+      const fourth = steps.find((step) => step.id === "turn-4");
+      stages.newSessionRecall = /rooibos/i.test(String(fourth?.bot ?? ""))
+        ? "pass"
+        : "fail: current preference not recalled before dreaming";
+      stages.afterDreamingRecall = /rooibos/i.test(final.bot)
+        ? "pass"
+        : "fail: current preference not recalled after dreaming";
+      stages.sourceEvidence = (
+        result.sourcesAfterDreaming as SearchResult
+      ).results.some((hit) => /rooibos/i.test(hit.snippet))
+        ? "pass"
+        : "fail: no current-preference source";
+      stages.flushObserved = steps.some((step) =>
+        JSON.stringify(step.maintenance).includes('"kind":"succeeded"'),
+      )
+        ? "pass"
+        : "deferred/not observed: do not claim continuous automatic flush";
+      stages.nativeDreaming =
+        (sweep as { completed?: boolean; completionStatus?: string })
+          .completed &&
+        (sweep as { completionStatus?: string }).completionStatus ===
+          "succeeded"
+          ? "pass"
+          : "fail";
+      stages.changedFactSupersession =
+        "not verified: an updated answer or direct model edit is not lineage-based native supersession";
+    } catch (error) {
+      result.error = this.redact((error as Error).message);
+    } finally {
+      await this.stop();
+      result.finalWorkspace = await snapshot();
+      try {
+        result.afterBudget = smokeBudget(await this.providerUsage(), {
+          keyLimit: true,
+          prices: SMOKE.prices,
+          providerLimitUsd: 50,
+        });
+      } catch {
+        result.costMeasurement = "unavailable";
+      }
+      result.requestLedger = readLifecycleLedger(this.lifecycleLedger);
+      this.lifecycleLedger = undefined;
+      this.conversationDemo = false;
+      this.settings = { provider: "none" };
+      await this.saveSettings();
+      await checkpoint(result);
     }
     return result;
   }

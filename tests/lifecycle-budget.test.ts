@@ -190,3 +190,41 @@ test("Consolidation utility adapter adds only the finite output bound; ordinary 
     await rm(root, { recursive: true, force: true });
   }
 });
+
+test("Conversation profile stays inside its separate finite ceiling without resetting prior ledgers", async () => {
+  const { E2E_LIMITS, boundConsolidationUtilityRequest } = await import(
+    "../src/lifecycle-request-budget.ts"
+  );
+  const root = await mkdtemp(join(tmpdir(), "e2e-budget-"));
+  const path = join(root, "ledger.json");
+  try {
+    createLifecycleLedger(path, "conversation");
+    const url = "https://openrouter.ai/api/v1/chat/completions";
+    const init = {
+      method: "POST",
+      body: JSON.stringify({
+        model: "openai/gpt-6-sol",
+        messages: [{ role: "user", content: "Synthetic conversation" }],
+      }),
+    };
+    const bounded = boundConsolidationUtilityRequest(path, url, init);
+    admitLifecycleRequest(path, url, bounded);
+    assert.equal(JSON.parse(await readFile(path, "utf8")).outputTokens, 2048);
+    assert.equal(E2E_LIMITS.estimatedUsd, 4.56);
+    assert.ok(E2E_LIMITS.estimatedUsd + 0.23909542 < 5);
+    assert.throws(
+      () =>
+        admitLifecycleRequest(path, url, {
+          method: "POST",
+          body: JSON.stringify({
+            model: "openai/gpt-6-sol",
+            max_completion_tokens: 2049,
+          }),
+        }),
+      /bound denied/,
+    );
+    assert.throws(() => createLifecycleLedger(path, "conversation"), /EEXIST/);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});

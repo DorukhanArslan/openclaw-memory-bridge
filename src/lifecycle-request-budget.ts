@@ -24,11 +24,18 @@ export const CONSOLIDATION_LIMITS = Object.freeze({
   outputTokens: 40000,
   estimatedUsd: (180000 * 18 + 40000 * 30) / 1e6,
 });
+export const E2E_LIMITS = Object.freeze({
+  requests: 20,
+  inputBytes: 210000,
+  outputPerRequest: 2048,
+  outputTokens: 26000,
+  estimatedUsd: (210000 * 18 + 26000 * 30) / 1e6,
+});
 type Ledger = {
   requests: number;
   inputBytes: number;
   outputTokens: number;
-  profile?: "consolidation";
+  profile?: "consolidation" | "conversation";
 };
 // Open the final ledger component without following a link. Verify the opened
 // descriptor, not a path checked earlier. Never truncate before this check.
@@ -67,7 +74,10 @@ function writeLifecycleLedger(path: string, value: unknown) {
   });
 }
 
-export function createLifecycleLedger(path: string, profile?: "consolidation") {
+export function createLifecycleLedger(
+  path: string,
+  profile?: "consolidation" | "conversation",
+) {
   const fd = openSync(path, "wx", 0o600);
   try {
     writeFileSync(
@@ -121,13 +131,16 @@ export function admitLifecycleRequest(
   const ledgerProfile = readLifecycleLedger(path);
   if (
     ledgerProfile.profile !== undefined &&
-    ledgerProfile.profile !== "consolidation"
+    ledgerProfile.profile !== "consolidation" &&
+    ledgerProfile.profile !== "conversation"
   )
     throw new Error("Invalid finite lifecycle profile.");
   const limits =
-    ledgerProfile.profile === "consolidation"
-      ? CONSOLIDATION_LIMITS
-      : LIFECYCLE_LIMITS;
+    ledgerProfile.profile === "conversation"
+      ? E2E_LIMITS
+      : ledgerProfile.profile === "consolidation"
+        ? CONSOLIDATION_LIMITS
+        : LIFECYCLE_LIMITS;
   const body = JSON.parse(text) as {
     model?: string;
     max_completion_tokens?: number;
@@ -202,7 +215,8 @@ export function boundConsolidationUtilityRequest(
   init?: RequestInit,
 ): RequestInit | undefined {
   const ledger = readLifecycleLedger(path);
-  if (ledger.profile !== "consolidation") return init;
+  if (ledger.profile !== "consolidation" && ledger.profile !== "conversation")
+    return init;
   const url = new URL(
     typeof input === "string"
       ? input
