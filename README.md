@@ -1,4 +1,4 @@
-# OpenClaw memory foundation
+# OpenClaw memory bridge
 
 This project lets you test OpenClaw's existing memory engine through a local TypeScript bridge and Python client. An agent can recall saved facts with source lines, keep them across sessions, and inspect how native memory maintenance changes them.
 
@@ -89,7 +89,7 @@ The [ready Gateway client](src/gateway.ts) only searches and reads an existing l
 
 Embeddings and maintenance can need a model. `vector` selects a local embedding endpoint; approved provider selection uses native configuration and an environment SecretRef. Keep keys in ignored `.env` and tokens on the server. Services stay on loopback. There is no invented memory-write endpoint.
 
-A diary can retain an old preference; it is not current truth. A complete Maya chat → flush → compaction → post-dream agent run remains unverified. Consumed ledgers stay intact. The cumulative 5 USD test limit permits no new full flush run. A 50 USD key cap is not test approval.
+A diary can retain an old preference; it is not current truth. A complete Maya chat → flush → compaction → post-dream agent run remains unverified. Live model tests require explicit configuration and a spending limit.
 
 ```sh
 npm run typecheck
