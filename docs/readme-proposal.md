@@ -277,4 +277,3 @@ These are command shapes, not measured outputs or a paid-execution recipe. Gener
 **Cold start:** `MemoryClient` starts its owned JSONL bridge. The first native tool request starts a private Gateway. Repeated requests can reuse it. Indexing, status checks, restarts, or workspace changes can stop or replace that process. Closing the client closes its owned processes.
 
 **Ready Gateway — NATIVE-01:** the separate TypeScript `ReadyGateway` client borrows an already-running Gateway. It can search and get sources without owning server lifetime. Its real-engine case checks warm recall, source reads, connection loss, and that client close leaves the owner's Gateway alive. Python `MemoryClient` has no ready-Gateway constructor option. Keep the operator token server-side.
-
