@@ -312,7 +312,7 @@
     "tier": "fresh real provider/native integration; NOT SDK generation",
     "setupInput": "Retained text-embedding-3-small record.",
     "expectedAssertions": "Nonmatching-word query recalls resident source and source read verifies bicycle.",
-    "failureCoverage": "Missing record => SKIP. Prior failed attempts remain failures. No SDK generation claim.",
+    "failureCoverage": "Audit only: missing record => SKIP. Real entrypoint: missing authorization/budget, consumed ledger, stale artifact, or mismatched native output is not success. No SDK generation or mock-model success is claimed.",
     "existingTests": [
       "tests/vector.test.ts",
       "tests/ready-vector.test.ts",
@@ -344,7 +344,7 @@
     "tier": "measured genuine native provider run plus actual gated entrypoint; audit separate",
     "setupInput": "Retained genuine Borealis conversation with empty starting Markdown.",
     "expectedAssertions": "Model completion plus new daily preference source, no app-prewritten note.",
-    "failureCoverage": "Missing record => SKIP. Prior failed attempts remain failures. No SDK generation claim.",
+    "failureCoverage": "Audit only: missing record => SKIP. Real entrypoint: missing authorization/budget, consumed ledger, stale artifact, or mismatched native output is not success. No SDK generation or mock-model success is claimed.",
     "existingTests": [
       "tests/flush.test.ts",
       "examples/lifecycle_acceptance.ts",
@@ -375,7 +375,7 @@
     "tier": "measured genuine native provider run plus actual gated entrypoint; audit separate",
     "setupInput": "Retained configured native flush record.",
     "expectedAssertions": "Succeeded marker AND daily file AND recall, not a flag alone.",
-    "failureCoverage": "Missing record => SKIP. Prior failed attempts remain failures. No SDK generation claim.",
+    "failureCoverage": "Audit only: missing record => SKIP. Real entrypoint: missing authorization/budget, consumed ledger, stale artifact, or mismatched native output is not success. No SDK generation or mock-model success is claimed.",
     "existingTests": [
       "tests/flush.test.ts",
       "examples/lifecycle_acceptance.ts",
@@ -406,7 +406,7 @@
     "tier": "measured genuine native provider run plus actual gated entrypoint; audit separate",
     "setupInput": "Retained summarizing operation.",
     "expectedAssertions": "compacted true, nonempty summary, persisted count >=1.",
-    "failureCoverage": "Missing record => SKIP. Prior failed attempts remain failures. No SDK generation claim.",
+    "failureCoverage": "Audit only: missing record => SKIP. Real entrypoint: missing authorization/budget, consumed ledger, stale artifact, or mismatched native output is not success. No SDK generation or mock-model success is claimed.",
     "existingTests": [
       "tests/flush.test.ts",
       "examples/lifecycle_acceptance.ts",
@@ -437,7 +437,7 @@
     "tier": "measured genuine native provider run plus actual gated entrypoint; audit separate",
     "setupInput": "Retained matching-project duplicate and actual owner session.",
     "expectedAssertions": "Added 0/Merged 1/Superseded 0, one sourced fact, four unrelated facts, preserved session and durable restart recall.",
-    "failureCoverage": "Missing record => SKIP. Prior failed attempts remain failures. No SDK generation claim.",
+    "failureCoverage": "Audit only: missing record => SKIP. Real entrypoint: missing authorization/budget, consumed ledger, stale artifact, or mismatched native output is not success. No SDK generation or mock-model success is claimed.",
     "existingTests": [
       "examples/provenance_acceptance.ts",
       "tests/readme-model-cases.test.ts"
@@ -467,7 +467,7 @@
     "tier": "measured genuine native provider run plus actual gated entrypoint; audit separate",
     "setupInput": "Retained light/REM/deep publications.",
     "expectedAssertions": "All three finished, nonempty native diary, no fallback, finite request totals.",
-    "failureCoverage": "Missing record => SKIP. Prior failed attempts remain failures. No SDK generation claim.",
+    "failureCoverage": "Audit only: missing record => SKIP. Real entrypoint: missing authorization/budget, consumed ledger, stale artifact, or mismatched native output is not success. No SDK generation or mock-model success is claimed.",
     "existingTests": [
       "tests/model.test.ts",
       "examples/provenance_acceptance.ts",
