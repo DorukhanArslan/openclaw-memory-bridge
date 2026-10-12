@@ -28,12 +28,15 @@ with MemoryClient(BridgeConfig(foundation, data_root)) as memory:
     memory.write(scope, &quot;filters&quot;, &quot;Synthetic Vega uses cobalt filters on Tuesday.&quot;)
     memory.index(scope)
     hits = memory.search(scope, &quot;cobalt&quot;)[&quot;results&quot;]
-    context = &quot;\n&quot;.join(hit[&quot;snippet&quot;] for hit in hits)
+    context = &quot;\n&quot;.join(
+        f&quot;[{hit[&#39;path&#39;]}:L{hit[&#39;startLine&#39;]}-L{hit[&#39;endLine&#39;]}]\n{hit[&#39;snippet&#39;]}&quot;
+        for hit in hits
+    )
     agent_prompt = f&quot;Use these recalled sources:\n{context}\nWhich filter does Vega use?&quot;
     print(agent_prompt)
     # Your app sends agent_prompt to its own model.
 </code></pre>
-<p><strong>Observable result:</strong> the note exists as <code>memory/filters.md</code>. Native keyword search returns that source. The built prompt contains <code>cobalt</code> and the source reference. The test does not call a model or measure answer quality. It does not claim that an agent replied.</p>
+<p><strong>Observable result:</strong> the note exists as <code>memory/filters.md</code>. Native keyword search returns that source. The app adds an explicit <code>[path:Lstart-Lend]</code> prefix to each snippet. The built prompt contains <code>cobalt</code> and that exact source range, independent of automatic snippet citations. The test does not call a model or measure answer quality. It does not claim that an agent replied.</p>
 <p><code>examples/readme_quickstart.py</code> is the executable example. <strong>SDK-01</strong> calls its prompt-building function with the real installed SDK. The inline code shows the same API flow.</p>
 <h2>Direct SDK features and real cases</h2>
 <p>The fragments below assume an open client named <code>memory</code> and a matching <code>scope</code>. Put them inside the quickstart <code>with</code> block. Each scenario starts from its stated input; the fragments are not one combined script.</p>
@@ -107,7 +110,7 @@ except FoundationError as error:
 </code></pre>
 <p><strong>SDK-09</strong> uses the actual bridge to reject invalid operations, IDs, and empty queries. It checks that the valid note and recall remain intact. <strong>EDGE-01</strong> uses labelled protocol fixtures to check timeouts, malformed replies, and request correlation. A timeout leaves completion uncertain. Close that client before deciding whether to retry. A happy-path acceptance does not replace these edge tests.</p>
 <h2>Native capabilities that are not SDK triggers</h2>
-<p>The following examples come from real native acceptance records unless marked otherwise. The new <code>MODEL-*</code> tests audit those records. They do not make fresh model requests and are not direct SDK generation cases. Missing records cause a skip. A skip is not a pass.</p>
+<p>The model cases have actual gated native test entrypoints. They reuse the existing finite acceptance runners. MODEL-01 passed in a fresh real-provider run during this review. MODEL-02/03/04 and MODEL-05/06 map to earlier measured genuine runs with the same source/state assertions. Their consumed ledgers block automatic replay. Separate Python record audits check consistency; they do not replace feature execution. None of these is a direct SDK generation method.</p>
 <table>
 <thead>
 <tr>
@@ -119,7 +122,7 @@ except FoundationError as error:
 <tbody><tr>
 <td>MODEL-01: semantic recall</td>
 <td><code>Zephyr travels to the office by bicycle.</code> → native embedding index → <code>pedal-powered commuting</code> recalled <code>memory/resident.md</code>; source read confirmed <code>bicycle</code></td>
-<td>Bridge embedding configuration, then native search. Recorded <code>text-embedding-3-small</code> acceptance. No SDK embedding selector. Fresh model run: not tested in this draft.</td>
+<td>Bridge embedding configuration, then native search. Recorded <code>text-embedding-3-small</code> acceptance. No SDK embedding selector. Fresh real native run passed in this review; SDK semantic integration was not run.</td>
 </tr>
 <tr>
 <td>MODEL-02: extraction</td>
@@ -153,21 +156,9 @@ except FoundationError as error:
 </tr>
 </tbody></table>
 <p>The recorded text-model tests used GPT-6 Sol. The merge baseline was an explicit synthetic application fixture. Its new daily duplicate was genuinely written by the native model. The test preserved the native source session. It did not import or relabel trust metadata.</p>
-<p>The fixed operator tests use a cumulative 5 USD test ceiling and finite request ledgers. The utility transport adapter adds a token ceiling; it does not implement consolidation or change model prompts. Do not turn these tests into unrestricted paid execution. No fresh paid test is part of this draft.</p>
+<p>The fixed operator tests use a cumulative 5 USD test ceiling and finite request ledgers. The utility transport adapter adds a token ceiling; it does not implement consolidation or change model prompts. Do not turn these tests into unrestricted paid execution. One fresh fixed MODEL-01 test passed after checking native cumulative usage plus its finite estimate against 5 USD. Other recorded model workflows were not repeated.</p>
 <h3>Deterministic native maintenance — NATIVE-02</h3>
 <p>A daily synthetic cobalt note → native REM staging and dreaming → a sourced durable promotion → recall after restart. The existing real-engine test checks phase signals, source references, and persistence. This no-model maintenance case does not prove model consolidation or a model diary.</p>
-<h2>Configuration and process ownership</h2>
-<p><strong>NATIVE-03</strong> checks provider configuration with the actual pinned native schema and dummy credentials. Configuration sends zero embedding requests in that test. It does not prove provider authentication or authorize model use.</p>
-<p><code>BridgeConfig(foundation, root, timeout=180)</code> points to the foundation runtime and your data root. The bridge creates its private workspace/config/state under that root when the scope is used. <code>configure(scope, ingestion=False)</code> only controls the capture hook. It does not select embeddings or a text model.</p>
-<p>No key is required for keyword cases. Optional approved provider keys belong in the foundation&#39;s ignored <code>.env</code>, not in Python source or browser code. The bridge uses its existing project loader and selected native SecretRefs. The Python client does not forward arbitrary provider credentials from the app environment. Provider/model setup is a separate operator action.</p>
-<p>CLI configuration uses the foundation&#39;s <code>.lab</code> root. For CLI/SDK interoperation, use that same root and the SDK&#39;s <code>scope.routing_workspace</code> as the CLI workspace ID. Close the client before operator configuration. Native configuration commands include:</p>
-<pre><code class="language-text">./node_modules/node/bin/node src/cli.ts native-model WS PROVIDER/MODEL KEY_ENV
-./node_modules/node/bin/node src/cli.ts native-vector WS URL MODEL KEY_ENV
-./node_modules/node/bin/node src/cli.ts validate-config WS
-</code></pre>
-<p>These are command shapes, not measured outputs or a paid-execution recipe. General credential-backed execution remains guarded. Local embeddings are optional and require an installed, running compatible server. The same <code>search(scope, query)</code> method uses native results after that separate configuration and indexing. Fresh SDK semantic integration is not tested in this draft.</p>
-<p><strong>Cold start:</strong> <code>MemoryClient</code> starts its owned JSONL bridge. The first native tool request starts a private Gateway. Repeated requests can reuse it. Indexing, status checks, restarts, or workspace changes can stop or replace that process. Closing the client closes its owned processes.</p>
-<p><strong>Ready Gateway — NATIVE-01:</strong> the separate TypeScript <code>ReadyGateway</code> client borrows an already-running Gateway. It can search and get sources without owning server lifetime. Its real-engine case checks warm recall, source reads, connection loss, and that client close leaves the owner&#39;s Gateway alive. Python <code>MemoryClient</code> has no ready-Gateway constructor option. Keep the operator token server-side.</p>
 <h2>Run the scenario cases</h2>
 <p>After installing the wheel, run the direct SDK cases:</p>
 <pre><code class="language-sh">FOUNDATION_ROOT=&quot;$PWD&quot; .bootstrap/readme-venv/bin/python -I -m unittest discover \
@@ -177,7 +168,12 @@ except FoundationError as error:
 <pre><code class="language-sh">FOUNDATION_ROOT=&quot;$PWD&quot; .bootstrap/readme-venv/bin/python -I -m unittest discover \
   -s python/tests -p test_readme_model_evidence.py -v
 </code></pre>
-<p>The second command is an evidence audit, not a fresh model run. The coverage matrix gives each case&#39;s setup, assertions, cleanup, prerequisites, and existing-test mapping. Existing transport, secret, path, budget, and timeout tests remain. No test is removed by this proposal.</p>
+<p>The second command is an evidence audit, not a model-feature execution. Actual native model test commands are:</p>
+<pre><code class="language-sh">LAB_README_REAL_MODEL_CASE=MODEL-01 ./node_modules/node/bin/node --test tests/readme-model-cases.test.ts
+LAB_README_REAL_MODEL_CASE=MODEL-02-04 ./node_modules/node/bin/node --test tests/readme-model-cases.test.ts
+LAB_README_REAL_MODEL_CASE=MODEL-05-06 ./node_modules/node/bin/node --test tests/readme-model-cases.test.ts
+</code></pre>
+<p>These are gated fixed tests, not unrestricted SDK model methods. Default execution skips them. Do not reset or rename the consumed lifecycle/merge ledgers. The matrix distinguishes the fresh MODEL-01 pass, measured older stage passes, consumed-ledger blockers, and audits. The coverage matrix gives each case&#39;s setup, assertions, cleanup, prerequisites, and existing-test mapping. Existing transport, secret, path, budget, and timeout tests remain. No test is removed by this proposal.</p>
 <h2>Limits you should keep in your app design</h2>
 <p>Store facts deliberately. Index after source changes. Supply recalled context to your model. Keep stable scope IDs and a persistent data root. Use native agent execution if you need native extraction/flush/compaction; external app chats do not enter that lifecycle automatically.</p>
 <p>No MD creation, background schedule, or consolidation is guaranteed after <code>pip install</code> or every conversation. Model generation plus SDK inspection in the same paid scope is not newly verified here. Changed-fact supersession remains unverified. Scope routing is not a security boundary.</p>
@@ -203,14 +199,27 @@ MemoryClient.dream_diary(self, scope: &#39;MemoryScope&#39;)
 MemoryClient.call(self, op: &#39;str&#39;, workspace: &#39;str&#39; = &#39;alpha&#39;, **args: &#39;Any&#39;) -&gt; &#39;Any&#39;
 MemoryClient.close(self) -&gt; &#39;None&#39;
 </code></pre>
-<h2 id="test-rounds">Current test rounds</h2><article><h3>README SDK examples: initial test round</h3><dl><dt><strong>Goal</strong></dt><dd>Check each direct SDK promise with the actual no-key engine.</dd><dt><strong>Action</strong></dt><dd>Run ten installed-client cases in temporary roots.</dd><dt><strong>Expected</strong></dt><dd>Files, recall, sources, state, and errors match the proposed README.</dd><dt><strong>Actual</strong></dt><dd>Nine cases passed. One new reset test failed because it assumed the logical UUID must change. That assumption was not a SDK guarantee.</dd><dt><strong>App meaning</strong></dt><dd>Document the native capture/routing contract. Do not promise a new UUID.</dd><dt><strong>Status</strong></dt><dd>FAIL before test-contract correction</dd></dl></article><article><h3>README SDK examples: final real-engine round</h3><dl><dt><strong>Goal</strong></dt><dd>Verify the executable quickstart and all direct SDK scenarios.</dd><dt><strong>Action</strong></dt><dd>Run the ten-case suite. Rerun the strengthened symmetric routing case.</dd><dt><strong>Expected</strong></dt><dd>Each named case has observable native/source/file assertions.</dd><dt><strong>Actual</strong></dt><dd>All ten passed. The quickstart function is executed by SDK-01. Reset capture and same-note-ID corpus separation passed.</dd><dt><strong>App meaning</strong></dt><dd>The SDK can store and recall your chosen notes. It does not create agent replies or automatic model lifecycle work.</dd><dt><strong>Status</strong></dt><dd>PASS — fresh real engine</dd></dl></article><article><h3>Native model capabilities: historical record audit</h3><dl><dt><strong>Goal</strong></dt><dd>Check the evidence behind semantic recall and native model lifecycle examples.</dd><dt><strong>Action</strong></dt><dd>Read retained genuine-provider records; verify source/state/publication assertions.</dd><dt><strong>Expected</strong></dt><dd>Each native claim has its specific accepted evidence.</dd><dt><strong>Actual</strong></dt><dd>Six audits passed. Changed-fact supersession is skipped. No model request was sent.</dd><dt><strong>App meaning</strong></dt><dd>Native capabilities are real historical results. They are not new SDK generation tests.</dd><dt><strong>Status</strong></dt><dd>EVIDENCE AUDIT PASS; FRESH MODEL NOT TESTED</dd></dl></article><article><h3>Transport failures and native CI mapping</h3><dl><dt><strong>Goal</strong></dt><dd>Keep lower-level error coverage separate from happy-path acceptance.</dd><dt><strong>Action</strong></dt><dd>Run three SDK protocol fixture tests. Map native/config cases to the successful exact-commit CI logs.</dd><dt><strong>Expected</strong></dt><dd>Failure handling remains covered, and existing cases are retained.</dd><dt><strong>Actual</strong></dt><dd>Three fixture tests passed. Native borrowed ownership, deterministic maintenance, config validation, and 81-test CI remain separate evidence. No old tests were removed.</dd><dt><strong>App meaning</strong></dt><dd>Do not remove most tests after a scenario pass. Different entry points and failure modes still need their own checks.</dd><dt><strong>Status</strong></dt><dd>PASS — fixture checks and verified CI mapping</dd></dl></article><details id="case-coverage"><summary><strong>Open the behavior coverage matrix and removal proposal</strong></summary><h1>README promise and behavior coverage matrix</h1>
+<h2>Operator appendix: configuration and process ownership</h2>
+<p><strong>NATIVE-03</strong> checks provider configuration with the actual pinned native schema and dummy credentials. Configuration sends zero embedding requests in that test. It does not prove provider authentication or authorize model use.</p>
+<p><code>BridgeConfig(foundation, root, timeout=180)</code> points to the foundation runtime and your data root. The bridge creates its private workspace/config/state under that root when the scope is used. <code>configure(scope, ingestion=False)</code> only controls the capture hook. It does not select embeddings or a text model.</p>
+<p>No key is required for keyword cases. Optional approved provider keys belong in the foundation&#39;s ignored <code>.env</code>, not in Python source or browser code. The bridge uses its existing project loader and selected native SecretRefs. The Python client does not forward arbitrary provider credentials from the app environment. Provider/model setup is a separate operator action.</p>
+<p>CLI configuration uses the foundation&#39;s <code>.lab</code> root. For CLI/SDK interoperation, use that same root and the SDK&#39;s <code>scope.routing_workspace</code> as the CLI workspace ID. Close the client before operator configuration. Native configuration commands include:</p>
+<pre><code class="language-text">./node_modules/node/bin/node src/cli.ts native-model WS PROVIDER/MODEL KEY_ENV
+./node_modules/node/bin/node src/cli.ts native-vector WS URL MODEL KEY_ENV
+./node_modules/node/bin/node src/cli.ts validate-config WS
+</code></pre>
+<p>These are command shapes, not measured outputs or a paid-execution recipe. General credential-backed execution remains guarded. Local embeddings are optional and require an installed, running compatible server. The same <code>search(scope, query)</code> method uses native results after that separate configuration and indexing. Fresh SDK semantic integration is not tested in this draft.</p>
+<p><strong>Cold start:</strong> <code>MemoryClient</code> starts its owned JSONL bridge. The first native tool request starts a private Gateway. Repeated requests can reuse it. Indexing, status checks, restarts, or workspace changes can stop or replace that process. Closing the client closes its owned processes.</p>
+<p><strong>Ready Gateway — NATIVE-01:</strong> the separate TypeScript <code>ReadyGateway</code> client borrows an already-running Gateway. It can search and get sources without owning server lifetime. Its real-engine case checks warm recall, source reads, connection loss, and that client close leaves the owner&#39;s Gateway alive. Python <code>MemoryClient</code> has no ready-Gateway constructor option. Keep the operator token server-side.</p>
+<h2 id="test-rounds">Current test rounds</h2><article><h3>README SDK examples: initial test round</h3><dl><dt><strong>Goal</strong></dt><dd>Check each direct SDK promise with the actual no-key engine.</dd><dt><strong>Action</strong></dt><dd>Run ten installed-client cases in temporary roots.</dd><dt><strong>Expected</strong></dt><dd>Files, recall, sources, state, and errors match the proposed README.</dd><dt><strong>Actual</strong></dt><dd>Nine cases passed. One new reset test failed because it assumed the logical UUID must change. That assumption was not a SDK guarantee.</dd><dt><strong>App meaning</strong></dt><dd>Document the native capture/routing contract. Do not promise a new UUID.</dd><dt><strong>Status</strong></dt><dd>FAIL before test-contract correction</dd></dl></article><article><h3>README SDK examples: final real-engine round</h3><dl><dt><strong>Goal</strong></dt><dd>Verify the executable quickstart and all direct SDK scenarios.</dd><dt><strong>Action</strong></dt><dd>Run the ten-case suite. Rerun the strengthened symmetric routing case.</dd><dt><strong>Expected</strong></dt><dd>Each named case has observable native/source/file assertions.</dd><dt><strong>Actual</strong></dt><dd>All ten passed. The quickstart function is executed by SDK-01. Reset capture and same-note-ID corpus separation passed.</dd><dt><strong>App meaning</strong></dt><dd>The SDK can store and recall your chosen notes. It does not create agent replies or automatic model lifecycle work.</dd><dt><strong>Status</strong></dt><dd>PASS — fresh real engine</dd></dl></article><article><h3>Native model capabilities: historical record audit</h3><dl><dt><strong>Goal</strong></dt><dd>Check the evidence behind semantic recall and native model lifecycle examples.</dd><dt><strong>Action</strong></dt><dd>Read retained genuine-provider records; verify source/state/publication assertions.</dd><dt><strong>Expected</strong></dt><dd>Each native claim has its specific accepted evidence.</dd><dt><strong>Actual</strong></dt><dd>Six audits passed. Changed-fact supersession is skipped. No model request was sent.</dd><dt><strong>App meaning</strong></dt><dd>Native capabilities are real historical results. They are not new SDK generation tests.</dd><dt><strong>Status</strong></dt><dd>EVIDENCE AUDIT PASS; FRESH MODEL NOT TESTED</dd></dl></article><article><h3>Transport failures and native CI mapping</h3><dl><dt><strong>Goal</strong></dt><dd>Keep lower-level error coverage separate from happy-path acceptance.</dd><dt><strong>Action</strong></dt><dd>Run three SDK protocol fixture tests. Map native/config cases to the successful exact-commit CI logs.</dd><dt><strong>Expected</strong></dt><dd>Failure handling remains covered, and existing cases are retained.</dd><dt><strong>Actual</strong></dt><dd>Three fixture tests passed. Native borrowed ownership, deterministic maintenance, config validation, and 81-test CI remain separate evidence. No old tests were removed.</dd><dt><strong>App meaning</strong></dt><dd>Do not remove most tests after a scenario pass. Different entry points and failure modes still need their own checks.</dd><dt><strong>Status</strong></dt><dd>PASS — fixture checks and verified CI mapping</dd></dl></article><article><h3>Explicit quickstart source-range context</h3><dl><dt><strong>Goal</strong></dt><dd>Make the application carry the source path and lines, without relying on automatic snippet citations.</dd><dt><strong>Action</strong></dt><dd>Add a failing exact-format assertion, then add the same path/range prefix to executable and inline code.</dd><dt><strong>Expected</strong></dt><dd>Every returned source contributes [path:Lstart-Lend] to the prompt.</dd><dt><strong>Actual</strong></dt><dd>The old code had native automatic citations but no explicit prefix. After the change, the real SDK-01 case passed.</dd><dt><strong>App meaning</strong></dt><dd>The app now supplies an explicit source range with each recalled snippet. It still does not generate an agent reply.</dd><dt><strong>Status</strong></dt><dd>PASS — real SDK; red/green verified</dd></dl></article><article><h3>Actual gated model runner and measured-run mapping</h3><dl><dt><strong>Goal</strong></dt><dd>Provide executable feature tests, not substitute JSON audits for real model behavior.</dd><dt><strong>Action</strong></dt><dd>Reuse fixed native runners behind explicit family gates. Run MODEL-01 against the real provider after cumulative budget preflight. Map the other families to their measured actual runs.</dd><dt><strong>Expected</strong></dt><dd>A fresh selected case executes native work. Unselected or consumed workflows do not silently reuse an old record.</dd><dt><strong>Actual</strong></dt><dd>MODEL-01 passed fresh in 27.59 seconds. Its native runner asserted embedding/synonym/source behavior. Lifecycle and merge/Diary ledgers remain consumed; their actual prior stage results and matching assertions are recorded separately. Supersession is not verified.</dd><dt><strong>App meaning</strong></dt><dd>Model capabilities are native/CLI tests. Python SDK generation is not claimed. A record audit only checks consistency.</dd><dt><strong>Status</strong></dt><dd>MODEL-01 fresh PASS; other measured stages PASS; other fresh families NOT RUN</dd></dl></article><details id="case-coverage"><summary><strong>Open the behavior coverage matrix and removal proposal</strong></summary><h1>README promise and behavior coverage matrix</h1>
 <p>Review proposal. No test removal is approved or performed. This matrix maps behavior, not a percentage of executed lines.</p>
 <h2>Test tiers</h2>
 <ul>
 <li><strong>Fresh SDK/engine:</strong> installed Python client plus actual no-key OpenClaw, with temporary files and real process restarts.</li>
 <li><strong>Current native CI:</strong> real native/CLI checks at published <code>961cb42</code>, in <a href="https://github.com/DorukhanArslan/openclaw-memory-bridge/actions/runs/38198940078">CI run</a>. These cases reuse existing executable tests.</li>
 <li><strong>Protocol/HTTP/config fixture:</strong> tests controlled failures. It does not prove a model capability.</li>
-<li><strong>Historical model audit:</strong> assertions over retained genuine provider records. Fresh model execution is NOT RUN. Missing records are SKIP.</li>
+<li><strong>Actual model feature runner:</strong> <code>tests/readme-model-cases.test.ts</code> calls the existing fixed native acceptance runners. MODEL-01 passed fresh in this review. MODEL-02/03/04 and MODEL-05/06 have measured genuine runs and the same assertion mapping. Their consumed ledgers block automatic replay.</li>
+<li><strong>Historical model audit:</strong> a separate read-only consistency check. It is not an executable model-feature test. Missing records are SKIP.</li>
 <li><strong>Coverage gap:</strong> NOT TESTED. Never convert a skip, fixture, config flag, or fallback into success.</li>
 </ul>
 <p>The full details and exact runner command are in <code>docs/readme-case-matrix.json</code>. All fresh SDK cases require Python &gt;=3.10, an installed wheel, and the pinned foundation runtime. The current checks used Python 3.12. No provider key is needed for those cases. Historical model audits require the corresponding local ignored record. A fresh model run needs the existing finite approved flow and the cumulative 5 USD ceiling.</p>
@@ -333,57 +342,57 @@ MemoryClient.close(self) -&gt; &#39;None&#39;
 <td>MODEL-01</td>
 <td>semantic recall — native embedding config/search</td>
 <td>Nonmatching-word query recalls resident source and source read verifies bicycle.</td>
-<td>Missing record =&gt; SKIP. Prior failed attempts remain failures. No SDK generation claim.</td>
-<td>tests/vector.test.ts, tests/ready-vector.test.ts, examples/bounded_smoke.ts</td>
-<td>historical genuine-provider evidence audit; no fresh execution — EVIDENCE AUDIT PASS; FRESH MODEL NOT RUN</td>
+<td>Missing record =&gt; SKIP. Prior failed attempts remain failures. No SDK generation claim. Cumulative native key usage plus finite smoke envelope checked &lt;=5 before dispatch; official current prices rechecked.</td>
+<td>tests/vector.test.ts, tests/ready-vector.test.ts, examples/bounded_smoke.ts, tests/readme-model-cases.test.ts</td>
+<td>fresh real provider/native integration; NOT SDK generation — FRESH REAL MODEL PASS; 2026-10-12: fresh MODEL-01 entrypoint passed in 27.59 seconds; no SDK generation claim.</td>
 </tr>
 <tr>
 <td>MODEL-02</td>
 <td>native model extraction — native agent lifecycle</td>
 <td>Model completion plus new daily preference source, no app-prewritten note.</td>
-<td>Missing record =&gt; SKIP. Prior failed attempts remain failures. No SDK generation claim.</td>
-<td>tests/flush.test.ts, examples/lifecycle_acceptance.ts</td>
-<td>historical genuine-provider evidence audit; no fresh execution — EVIDENCE AUDIT PASS; FRESH MODEL NOT RUN</td>
+<td>Missing record =&gt; SKIP. Prior failed attempts remain failures. No SDK generation claim. The original fixed ledger is consumed. Do not reset/rename it. Fresh execution is not automatic; guard and cumulative 5 USD policy remain.</td>
+<td>tests/flush.test.ts, examples/lifecycle_acceptance.ts, tests/readme-model-cases.test.ts</td>
+<td>measured genuine native provider run plus actual gated entrypoint; audit separate — MEASURED REAL STAGES PASS; FRESH ENTRYPOINT NOT RUN (consumed ledger); 2026-10-11: genuine native lifecycle run; extraction/flush/compaction stages passed, later unrelated REM failed and bundle exit was 2.</td>
 </tr>
 <tr>
 <td>MODEL-03</td>
 <td>native successful flush — native config/agent lifecycle</td>
 <td>Succeeded marker AND daily file AND recall, not a flag alone.</td>
-<td>Missing record =&gt; SKIP. Prior failed attempts remain failures. No SDK generation claim.</td>
-<td>tests/flush.test.ts, examples/lifecycle_acceptance.ts</td>
-<td>historical genuine-provider evidence audit; no fresh execution — EVIDENCE AUDIT PASS; FRESH MODEL NOT RUN</td>
+<td>Missing record =&gt; SKIP. Prior failed attempts remain failures. No SDK generation claim. The original fixed ledger is consumed. Do not reset/rename it. Fresh execution is not automatic; guard and cumulative 5 USD policy remain.</td>
+<td>tests/flush.test.ts, examples/lifecycle_acceptance.ts, tests/readme-model-cases.test.ts</td>
+<td>measured genuine native provider run plus actual gated entrypoint; audit separate — MEASURED REAL STAGES PASS; FRESH ENTRYPOINT NOT RUN (consumed ledger); 2026-10-11: genuine native lifecycle run; extraction/flush/compaction stages passed, later unrelated REM failed and bundle exit was 2.</td>
 </tr>
 <tr>
 <td>MODEL-04</td>
 <td>native summarizing compaction — native model operation</td>
 <td>compacted true, nonempty summary, persisted count &gt;=1.</td>
-<td>Missing record =&gt; SKIP. Prior failed attempts remain failures. No SDK generation claim.</td>
-<td>tests/flush.test.ts, examples/lifecycle_acceptance.ts</td>
-<td>historical genuine-provider evidence audit; no fresh execution — EVIDENCE AUDIT PASS; FRESH MODEL NOT RUN</td>
+<td>Missing record =&gt; SKIP. Prior failed attempts remain failures. No SDK generation claim. The original fixed ledger is consumed. Do not reset/rename it. Fresh execution is not automatic; guard and cumulative 5 USD policy remain.</td>
+<td>tests/flush.test.ts, examples/lifecycle_acceptance.ts, tests/readme-model-cases.test.ts</td>
+<td>measured genuine native provider run plus actual gated entrypoint; audit separate — MEASURED REAL STAGES PASS; FRESH ENTRYPOINT NOT RUN (consumed ledger); 2026-10-11: genuine native lifecycle run; extraction/flush/compaction stages passed, later unrelated REM failed and bundle exit was 2.</td>
 </tr>
 <tr>
 <td>MODEL-05</td>
 <td>native duplicate merge — native owner/model dreaming</td>
 <td>Added 0/Merged 1/Superseded 0, one sourced fact, four unrelated facts, preserved session and durable restart recall.</td>
-<td>Missing record =&gt; SKIP. Prior failed attempts remain failures. No SDK generation claim.</td>
-<td>examples/provenance_acceptance.ts</td>
-<td>historical genuine-provider evidence audit; no fresh execution — EVIDENCE AUDIT PASS; FRESH MODEL NOT RUN</td>
+<td>Missing record =&gt; SKIP. Prior failed attempts remain failures. No SDK generation claim. The original fixed ledger is consumed. Do not reset/rename it. Fresh execution is not automatic; guard and cumulative 5 USD policy remain.</td>
+<td>examples/provenance_acceptance.ts, tests/readme-model-cases.test.ts</td>
+<td>measured genuine native provider run plus actual gated entrypoint; audit separate — MEASURED REAL STAGES PASS; FRESH ENTRYPOINT NOT RUN (consumed ledger); 2026-10-11: genuine retained-owner duplicate-merge run; bundle exit 0 and all six acceptance stages passed.</td>
 </tr>
 <tr>
 <td>MODEL-06</td>
 <td>native model Dream Diary — native model dreaming; SDK inspection only</td>
 <td>All three finished, nonempty native diary, no fallback, finite request totals.</td>
-<td>Missing record =&gt; SKIP. Prior failed attempts remain failures. No SDK generation claim.</td>
-<td>tests/model.test.ts, examples/provenance_acceptance.ts</td>
-<td>historical genuine-provider evidence audit; no fresh execution — EVIDENCE AUDIT PASS; FRESH MODEL NOT RUN</td>
+<td>Missing record =&gt; SKIP. Prior failed attempts remain failures. No SDK generation claim. The original fixed ledger is consumed. Do not reset/rename it. Fresh execution is not automatic; guard and cumulative 5 USD policy remain.</td>
+<td>tests/model.test.ts, examples/provenance_acceptance.ts, tests/readme-model-cases.test.ts</td>
+<td>measured genuine native provider run plus actual gated entrypoint; audit separate — MEASURED REAL STAGES PASS; FRESH ENTRYPOINT NOT RUN (consumed ledger); 2026-10-11: genuine retained-owner duplicate-merge run; bundle exit 0 and all six acceptance stages passed.</td>
 </tr>
 <tr>
 <td>MODEL-07</td>
 <td>Changed-fact supersession — no verified SDK trigger or accepted native case</td>
 <td>No observed success is claimed.</td>
 <td>Always SKIP; app note overwrite is not a substitute.</td>
-<td>None accepted</td>
-<td>explicit coverage gap — NOT TESTED</td>
+<td>No accepted case</td>
+<td>explicit coverage gap — NOT TESTED; None. Changed-fact native supersession remains NOT TESTED.</td>
 </tr>
 <tr>
 <td>EDGE-01</td>
@@ -410,8 +419,46 @@ MemoryClient.close(self) -&gt; &#39;None&#39;
 <td>deterministic/fixture checks retained; current CI passed — PASS</td>
 </tr>
 </tbody></table>
+<h2>Actual model commands and measured-run mapping</h2>
+<p>These are real native/CLI tests, not Python SDK generation methods. Default execution skips provider calls. The commands select one fixed family, use the existing authorized key flow, and keep the original guards. They do not reset a consumed ledger or reuse an old record after runner failure.</p>
+<table>
+<thead>
+<tr>
+<th>Case IDs</th>
+<th>Actual gated command</th>
+<th>Existing real runner</th>
+<th>Measured evidence and same assertions</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>MODEL-01</td>
+<td><code>LAB_README_REAL_MODEL_CASE=MODEL-01 ./node_modules/node/bin/node --test tests/readme-model-cases.test.ts</code></td>
+<td><code>examples/bounded_smoke.ts</code> → <code>Lab.boundedSmoke</code></td>
+<td>Fresh 2026-10-12 entrypoint PASS: actual embedding index, synonym query, resident source and bicycle text checked inside the native runner; mode and hit asserted by the test. Earlier genuine 2026-10-11 smoke also passed.</td>
+</tr>
+<tr>
+<td>MODEL-02/03/04</td>
+<td><code>LAB_README_REAL_MODEL_CASE=MODEL-02-04 ./node_modules/node/bin/node --test tests/readme-model-cases.test.ts</code></td>
+<td><code>examples/lifecycle_acceptance.ts</code> → <code>Lab.boundedLifecycle</code></td>
+<td>Genuine 2026-10-11 observed empty starting files, actual model completion, new daily preference, successful flush marker plus source/recall, and committed summary/count. The later REM failure means the whole old bundle was partial, not all-pass. These specific stages passed.</td>
+</tr>
+<tr>
+<td>MODEL-05/06</td>
+<td><code>LAB_README_REAL_MODEL_CASE=MODEL-05-06 ./node_modules/node/bin/node --test tests/readme-model-cases.test.ts</code></td>
+<td><code>examples/provenance_acceptance.ts</code> → <code>Lab.boundedProvenanceAcceptance</code></td>
+<td>Genuine 2026-10-11 bundle PASS: native valid merge, Added 0/Merged 1/Superseded 0, four preserved unrelated facts, sourced durable recall, same observed session ID, and all three model diary publishers without fallback.</td>
+</tr>
+<tr>
+<td>MODEL-07</td>
+<td>No accepted fresh command</td>
+<td>Explicit skip in the real case file</td>
+<td>No verified fixture that supplies matching native lineage. Do not fabricate it by modifying provenance/database records or count app overwrite as supersession.</td>
+</tr>
+</tbody></table>
+<p>The actual gated test verifies a newly written artifact when it runs. It cannot accept a retained JSON file after a failed runner and call it fresh success. The Python model-evidence file is deliberately separate and read-only.</p>
+<p>Fresh MODEL-02/03/04 and MODEL-05/06 were not repeated: their fixed ledgers already contain 11 and 6 dispatches. They must not be reset or renamed for automatic replay. The conservative lifecycle envelope is 4.83 USD, which also does not fit the remaining 5 USD ceiling after the earlier sampled usage. The existing measured runs cover the stated feature assertions; record audits verify that mapping, not fresh execution.</p>
 <h2>What is still not covered</h2>
-<p>Changed-fact supersession is not accepted. Fresh semantic/model generation through the Python SDK is not run. The SDK has no text/embedding selector, chat, flush, compact, or consolidation trigger. Its lifecycle read methods do not prove model generation in the same scope. App note deletion does not test erasure of backups or duplicate captures. Workspace routing does not test authentication.</p>
+<p>Changed-fact supersession is not accepted. Fresh MODEL-01 semantic native integration passed; semantic/model generation through the Python SDK is not run. The SDK has no text/embedding selector, chat, flush, compact, or consolidation trigger. Its lifecycle read methods do not prove model generation in the same scope. App note deletion does not test erasure of backups or duplicate captures. Workspace routing does not test authentication.</p>
 <h2>Cleanup and assertion rules</h2>
 <p>Each fresh SDK case uses TemporaryDirectory, closes the owned MemoryClient, and removes its test root. Files, sources, search hits, IDs/routes, restart persistence, and errors are asserted where relevant. The examples create only synthetic input. No case imports unrelated user data. Existing native tests retain their own try/finally cleanup and explicit model gates. Audits read only retained synthetic records. Every matrix row supplies setup, expected assertions, prerequisites/tier, cleanup, and an executable runner.</p>
 <h2>Proposal for old-test removal — approval required</h2>

@@ -34,5 +34,23 @@
     "Actual": "Three fixture tests passed. Native borrowed ownership, deterministic maintenance, config validation, and 81-test CI remain separate evidence. No old tests were removed.",
     "App meaning": "Do not remove most tests after a scenario pass. Different entry points and failure modes still need their own checks.",
     "Status": "PASS \u2014 fixture checks and verified CI mapping"
+  },
+  {
+    "title": "Explicit quickstart source-range context",
+    "Goal": "Make the application carry the source path and lines, without relying on automatic snippet citations.",
+    "Action": "Add a failing exact-format assertion, then add the same path/range prefix to executable and inline code.",
+    "Expected": "Every returned source contributes [path:Lstart-Lend] to the prompt.",
+    "Actual": "The old code had native automatic citations but no explicit prefix. After the change, the real SDK-01 case passed.",
+    "App meaning": "The app now supplies an explicit source range with each recalled snippet. It still does not generate an agent reply.",
+    "Status": "PASS \u2014 real SDK; red/green verified"
+  },
+  {
+    "title": "Actual gated model runner and measured-run mapping",
+    "Goal": "Provide executable feature tests, not substitute JSON audits for real model behavior.",
+    "Action": "Reuse fixed native runners behind explicit family gates. Run MODEL-01 against the real provider after cumulative budget preflight. Map the other families to their measured actual runs.",
+    "Expected": "A fresh selected case executes native work. Unselected or consumed workflows do not silently reuse an old record.",
+    "Actual": "MODEL-01 passed fresh in 27.59 seconds. Its native runner asserted embedding/synonym/source behavior. Lifecycle and merge/Diary ledgers remain consumed; their actual prior stage results and matching assertions are recorded separately. Supersession is not verified.",
+    "App meaning": "Model capabilities are native/CLI tests. Python SDK generation is not claimed. A record audit only checks consistency.",
+    "Status": "MODEL-01 fresh PASS; other measured stages PASS; other fresh families NOT RUN"
   }
 ]

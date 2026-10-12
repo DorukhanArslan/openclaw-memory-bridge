@@ -49,6 +49,9 @@ class ReadmeSDKCases(unittest.TestCase):
         self.assertIn("cobalt", self.note_file().read_text())
         self.assertIn("cobalt", result["agent_prompt"])
         self.assertIn("memory/filters.md", result["agent_prompt"])
+        for source in result["sources"]:
+            reference = f"[{source['path']}:L{source['startLine']}-L{source['endLine']}]"
+            self.assertIn(reference, result["agent_prompt"])
         self.assertEqual(self.client.search(self.scope, "unrecordedword")["results"], [])
 
     def test_SDK_02_get_source_and_line_range(self):

@@ -9,7 +9,10 @@ def prepare_agent_prompt(memory, scope):
     memory.write(scope, "filters", "Synthetic Vega uses cobalt filters on Tuesday.")
     memory.index(scope)
     recall = memory.search(scope, "cobalt")
-    context = "\n".join(hit["snippet"] for hit in recall["results"])
+    context = "\n".join(
+        f"[{hit['path']}:L{hit['startLine']}-L{hit['endLine']}]\n{hit['snippet']}"
+        for hit in recall["results"]
+    )
     return {
         "provider": recall["provider"],
         "sources": [{"path": h["path"], "startLine": h["startLine"], "endLine": h["endLine"]} for h in recall["results"]],

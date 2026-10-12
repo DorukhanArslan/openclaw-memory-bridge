@@ -19,7 +19,8 @@
       "Python >=3.10; installed local wheel.",
       "FOUNDATION_ROOT set to this repository.",
       "Synthetic local fixtures only. No model/provider key needed."
-    ]
+    ],
+    "auditRunner": null
   },
   {
     "caseId": "SDK-01",
@@ -43,7 +44,8 @@
       "Python >=3.10; installed local wheel.",
       "FOUNDATION_ROOT set to this repository.",
       "Synthetic local fixtures only. No model/provider key needed."
-    ]
+    ],
+    "auditRunner": null
   },
   {
     "caseId": "SDK-02",
@@ -66,7 +68,8 @@
       "Python >=3.10; installed local wheel.",
       "FOUNDATION_ROOT set to this repository.",
       "Synthetic local fixtures only. No model/provider key needed."
-    ]
+    ],
+    "auditRunner": null
   },
   {
     "caseId": "SDK-03",
@@ -88,7 +91,8 @@
       "Python >=3.10; installed local wheel.",
       "FOUNDATION_ROOT set to this repository.",
       "Synthetic local fixtures only. No model/provider key needed."
-    ]
+    ],
+    "auditRunner": null
   },
   {
     "caseId": "SDK-04",
@@ -111,7 +115,8 @@
       "Python >=3.10; installed local wheel.",
       "FOUNDATION_ROOT set to this repository.",
       "Synthetic local fixtures only. No model/provider key needed."
-    ]
+    ],
+    "auditRunner": null
   },
   {
     "caseId": "SDK-05",
@@ -134,7 +139,8 @@
       "Python >=3.10; installed local wheel.",
       "FOUNDATION_ROOT set to this repository.",
       "Synthetic local fixtures only. No model/provider key needed."
-    ]
+    ],
+    "auditRunner": null
   },
   {
     "caseId": "SDK-06",
@@ -157,7 +163,8 @@
       "Python >=3.10; installed local wheel.",
       "FOUNDATION_ROOT set to this repository.",
       "Synthetic local fixtures only. No model/provider key needed."
-    ]
+    ],
+    "auditRunner": null
   },
   {
     "caseId": "SDK-07",
@@ -180,7 +187,8 @@
       "Python >=3.10; installed local wheel.",
       "FOUNDATION_ROOT set to this repository.",
       "Synthetic local fixtures only. No model/provider key needed."
-    ]
+    ],
+    "auditRunner": null
   },
   {
     "caseId": "SDK-08",
@@ -203,7 +211,8 @@
       "Python >=3.10; installed local wheel.",
       "FOUNDATION_ROOT set to this repository.",
       "Synthetic local fixtures only. No model/provider key needed."
-    ]
+    ],
+    "auditRunner": null
   },
   {
     "caseId": "SDK-09",
@@ -226,7 +235,8 @@
       "Python >=3.10; installed local wheel.",
       "FOUNDATION_ROOT set to this repository.",
       "Synthetic local fixtures only. No model/provider key needed."
-    ]
+    ],
+    "auditRunner": null
   },
   {
     "caseId": "NATIVE-01",
@@ -247,7 +257,8 @@
       "Pinned Node 24.16.0 and OpenClaw 2026.9.9 foundation runtime.",
       "Synthetic local fixtures only. No model/provider key needed."
     ],
-    "ciEvidence": "https://github.com/DorukhanArslan/openclaw-memory-bridge/actions/runs/38198940078"
+    "ciEvidence": "https://github.com/DorukhanArslan/openclaw-memory-bridge/actions/runs/38198940078",
+    "auditRunner": null
   },
   {
     "caseId": "NATIVE-02",
@@ -268,7 +279,8 @@
       "Pinned Node 24.16.0 and OpenClaw 2026.9.9 foundation runtime.",
       "Synthetic local fixtures only. No model/provider key needed."
     ],
-    "ciEvidence": "https://github.com/DorukhanArslan/openclaw-memory-bridge/actions/runs/38198940078"
+    "ciEvidence": "https://github.com/DorukhanArslan/openclaw-memory-bridge/actions/runs/38198940078",
+    "auditRunner": null
   },
   {
     "caseId": "NATIVE-03",
@@ -290,24 +302,26 @@
       "Pinned Node 24.16.0 and OpenClaw 2026.9.9 foundation runtime.",
       "Synthetic local fixtures only. No model/provider key needed."
     ],
-    "ciEvidence": "https://github.com/DorukhanArslan/openclaw-memory-bridge/actions/runs/38198940078"
+    "ciEvidence": "https://github.com/DorukhanArslan/openclaw-memory-bridge/actions/runs/38198940078",
+    "auditRunner": null
   },
   {
     "caseId": "MODEL-01",
     "promise": "semantic recall",
     "access": "native embedding config/search",
-    "tier": "historical genuine-provider evidence audit; no fresh execution",
+    "tier": "fresh real provider/native integration; NOT SDK generation",
     "setupInput": "Retained text-embedding-3-small record.",
     "expectedAssertions": "Nonmatching-word query recalls resident source and source read verifies bicycle.",
     "failureCoverage": "Missing record => SKIP. Prior failed attempts remain failures. No SDK generation claim.",
     "existingTests": [
       "tests/vector.test.ts",
       "tests/ready-vector.test.ts",
-      "examples/bounded_smoke.ts"
+      "examples/bounded_smoke.ts",
+      "tests/readme-model-cases.test.ts"
     ],
-    "runner": "FOUNDATION_ROOT=\"$PWD\" .bootstrap/readme-venv/bin/python -I -m unittest discover -s python/tests -p test_readme_model_evidence.py -k MODEL_01 -v",
+    "runner": "LAB_README_REAL_MODEL_CASE=MODEL-01 ./node_modules/node/bin/node --test tests/readme-model-cases.test.ts",
     "modelRequiredForCapability": true,
-    "currentStatus": "EVIDENCE AUDIT PASS; FRESH MODEL NOT RUN",
+    "currentStatus": "FRESH REAL MODEL PASS",
     "cleanup": "Read-only audit; creates no runtime, files, or model requests.",
     "prerequisites": [
       "Pinned Node 24.16.0 and OpenClaw 2026.9.9 foundation runtime.",
@@ -315,23 +329,30 @@
       "FOUNDATION_ROOT set to this repository.",
       "Historical genuine-provider record: evidence/live-smoke/acceptance.json. Missing record yields SKIP.",
       "No fresh provider call; capability originally required a selected approved model."
-    ]
+    ],
+    "auditRunner": "FOUNDATION_ROOT=\"$PWD\" .bootstrap/readme-venv/bin/python -I -m unittest discover -s python/tests -p test_readme_model_evidence.py -k MODEL_01 -v",
+    "actualFeatureRunner": "LAB_README_REAL_MODEL_CASE=MODEL-01 ./node_modules/node/bin/node --test tests/readme-model-cases.test.ts",
+    "realEntryPoint": "tests/readme-model-cases.test.ts -> examples/bounded_smoke.ts / Lab.boundedSmoke",
+    "measuredRun": "2026-10-12: fresh MODEL-01 entrypoint passed in 27.59 seconds; no SDK generation claim.",
+    "assertionMatch": "Real runner produced the observed fields checked by this case. Record audits check consistency only and do not replace the actual feature runner.",
+    "freshRunBoundary": "Cumulative native key usage plus finite smoke envelope checked <=5 before dispatch; official current prices rechecked."
   },
   {
     "caseId": "MODEL-02",
     "promise": "native model extraction",
     "access": "native agent lifecycle",
-    "tier": "historical genuine-provider evidence audit; no fresh execution",
+    "tier": "measured genuine native provider run plus actual gated entrypoint; audit separate",
     "setupInput": "Retained genuine Borealis conversation with empty starting Markdown.",
     "expectedAssertions": "Model completion plus new daily preference source, no app-prewritten note.",
     "failureCoverage": "Missing record => SKIP. Prior failed attempts remain failures. No SDK generation claim.",
     "existingTests": [
       "tests/flush.test.ts",
-      "examples/lifecycle_acceptance.ts"
+      "examples/lifecycle_acceptance.ts",
+      "tests/readme-model-cases.test.ts"
     ],
-    "runner": "FOUNDATION_ROOT=\"$PWD\" .bootstrap/readme-venv/bin/python -I -m unittest discover -s python/tests -p test_readme_model_evidence.py -k MODEL_02 -v",
+    "runner": "LAB_README_REAL_MODEL_CASE=MODEL-02-04 ./node_modules/node/bin/node --test tests/readme-model-cases.test.ts",
     "modelRequiredForCapability": true,
-    "currentStatus": "EVIDENCE AUDIT PASS; FRESH MODEL NOT RUN",
+    "currentStatus": "MEASURED REAL STAGES PASS; FRESH ENTRYPOINT NOT RUN (consumed ledger)",
     "cleanup": "Read-only audit; creates no runtime, files, or model requests.",
     "prerequisites": [
       "Pinned Node 24.16.0 and OpenClaw 2026.9.9 foundation runtime.",
@@ -339,23 +360,30 @@
       "FOUNDATION_ROOT set to this repository.",
       "Historical genuine-provider record: evidence/lifecycle-acceptance/acceptance.json. Missing record yields SKIP.",
       "No fresh provider call; capability originally required a selected approved model."
-    ]
+    ],
+    "auditRunner": "FOUNDATION_ROOT=\"$PWD\" .bootstrap/readme-venv/bin/python -I -m unittest discover -s python/tests -p test_readme_model_evidence.py -k MODEL_02 -v",
+    "actualFeatureRunner": "LAB_README_REAL_MODEL_CASE=MODEL-02-04 ./node_modules/node/bin/node --test tests/readme-model-cases.test.ts",
+    "realEntryPoint": "tests/readme-model-cases.test.ts -> examples/lifecycle_acceptance.ts / Lab.boundedLifecycle",
+    "measuredRun": "2026-10-11: genuine native lifecycle run; extraction/flush/compaction stages passed, later unrelated REM failed and bundle exit was 2.",
+    "assertionMatch": "Real runner produced the observed fields checked by this case. Record audits check consistency only and do not replace the actual feature runner.",
+    "freshRunBoundary": "The original fixed ledger is consumed. Do not reset/rename it. Fresh execution is not automatic; guard and cumulative 5 USD policy remain."
   },
   {
     "caseId": "MODEL-03",
     "promise": "native successful flush",
     "access": "native config/agent lifecycle",
-    "tier": "historical genuine-provider evidence audit; no fresh execution",
+    "tier": "measured genuine native provider run plus actual gated entrypoint; audit separate",
     "setupInput": "Retained configured native flush record.",
     "expectedAssertions": "Succeeded marker AND daily file AND recall, not a flag alone.",
     "failureCoverage": "Missing record => SKIP. Prior failed attempts remain failures. No SDK generation claim.",
     "existingTests": [
       "tests/flush.test.ts",
-      "examples/lifecycle_acceptance.ts"
+      "examples/lifecycle_acceptance.ts",
+      "tests/readme-model-cases.test.ts"
     ],
-    "runner": "FOUNDATION_ROOT=\"$PWD\" .bootstrap/readme-venv/bin/python -I -m unittest discover -s python/tests -p test_readme_model_evidence.py -k MODEL_03 -v",
+    "runner": "LAB_README_REAL_MODEL_CASE=MODEL-02-04 ./node_modules/node/bin/node --test tests/readme-model-cases.test.ts",
     "modelRequiredForCapability": true,
-    "currentStatus": "EVIDENCE AUDIT PASS; FRESH MODEL NOT RUN",
+    "currentStatus": "MEASURED REAL STAGES PASS; FRESH ENTRYPOINT NOT RUN (consumed ledger)",
     "cleanup": "Read-only audit; creates no runtime, files, or model requests.",
     "prerequisites": [
       "Pinned Node 24.16.0 and OpenClaw 2026.9.9 foundation runtime.",
@@ -363,23 +391,30 @@
       "FOUNDATION_ROOT set to this repository.",
       "Historical genuine-provider record: evidence/lifecycle-acceptance/acceptance.json. Missing record yields SKIP.",
       "No fresh provider call; capability originally required a selected approved model."
-    ]
+    ],
+    "auditRunner": "FOUNDATION_ROOT=\"$PWD\" .bootstrap/readme-venv/bin/python -I -m unittest discover -s python/tests -p test_readme_model_evidence.py -k MODEL_03 -v",
+    "actualFeatureRunner": "LAB_README_REAL_MODEL_CASE=MODEL-02-04 ./node_modules/node/bin/node --test tests/readme-model-cases.test.ts",
+    "realEntryPoint": "tests/readme-model-cases.test.ts -> examples/lifecycle_acceptance.ts / Lab.boundedLifecycle",
+    "measuredRun": "2026-10-11: genuine native lifecycle run; extraction/flush/compaction stages passed, later unrelated REM failed and bundle exit was 2.",
+    "assertionMatch": "Real runner produced the observed fields checked by this case. Record audits check consistency only and do not replace the actual feature runner.",
+    "freshRunBoundary": "The original fixed ledger is consumed. Do not reset/rename it. Fresh execution is not automatic; guard and cumulative 5 USD policy remain."
   },
   {
     "caseId": "MODEL-04",
     "promise": "native summarizing compaction",
     "access": "native model operation",
-    "tier": "historical genuine-provider evidence audit; no fresh execution",
+    "tier": "measured genuine native provider run plus actual gated entrypoint; audit separate",
     "setupInput": "Retained summarizing operation.",
     "expectedAssertions": "compacted true, nonempty summary, persisted count >=1.",
     "failureCoverage": "Missing record => SKIP. Prior failed attempts remain failures. No SDK generation claim.",
     "existingTests": [
       "tests/flush.test.ts",
-      "examples/lifecycle_acceptance.ts"
+      "examples/lifecycle_acceptance.ts",
+      "tests/readme-model-cases.test.ts"
     ],
-    "runner": "FOUNDATION_ROOT=\"$PWD\" .bootstrap/readme-venv/bin/python -I -m unittest discover -s python/tests -p test_readme_model_evidence.py -k MODEL_04 -v",
+    "runner": "LAB_README_REAL_MODEL_CASE=MODEL-02-04 ./node_modules/node/bin/node --test tests/readme-model-cases.test.ts",
     "modelRequiredForCapability": true,
-    "currentStatus": "EVIDENCE AUDIT PASS; FRESH MODEL NOT RUN",
+    "currentStatus": "MEASURED REAL STAGES PASS; FRESH ENTRYPOINT NOT RUN (consumed ledger)",
     "cleanup": "Read-only audit; creates no runtime, files, or model requests.",
     "prerequisites": [
       "Pinned Node 24.16.0 and OpenClaw 2026.9.9 foundation runtime.",
@@ -387,22 +422,29 @@
       "FOUNDATION_ROOT set to this repository.",
       "Historical genuine-provider record: evidence/lifecycle-acceptance/acceptance.json. Missing record yields SKIP.",
       "No fresh provider call; capability originally required a selected approved model."
-    ]
+    ],
+    "auditRunner": "FOUNDATION_ROOT=\"$PWD\" .bootstrap/readme-venv/bin/python -I -m unittest discover -s python/tests -p test_readme_model_evidence.py -k MODEL_04 -v",
+    "actualFeatureRunner": "LAB_README_REAL_MODEL_CASE=MODEL-02-04 ./node_modules/node/bin/node --test tests/readme-model-cases.test.ts",
+    "realEntryPoint": "tests/readme-model-cases.test.ts -> examples/lifecycle_acceptance.ts / Lab.boundedLifecycle",
+    "measuredRun": "2026-10-11: genuine native lifecycle run; extraction/flush/compaction stages passed, later unrelated REM failed and bundle exit was 2.",
+    "assertionMatch": "Real runner produced the observed fields checked by this case. Record audits check consistency only and do not replace the actual feature runner.",
+    "freshRunBoundary": "The original fixed ledger is consumed. Do not reset/rename it. Fresh execution is not automatic; guard and cumulative 5 USD policy remain."
   },
   {
     "caseId": "MODEL-05",
     "promise": "native duplicate merge",
     "access": "native owner/model dreaming",
-    "tier": "historical genuine-provider evidence audit; no fresh execution",
+    "tier": "measured genuine native provider run plus actual gated entrypoint; audit separate",
     "setupInput": "Retained matching-project duplicate and actual owner session.",
     "expectedAssertions": "Added 0/Merged 1/Superseded 0, one sourced fact, four unrelated facts, preserved session and durable restart recall.",
     "failureCoverage": "Missing record => SKIP. Prior failed attempts remain failures. No SDK generation claim.",
     "existingTests": [
-      "examples/provenance_acceptance.ts"
+      "examples/provenance_acceptance.ts",
+      "tests/readme-model-cases.test.ts"
     ],
-    "runner": "FOUNDATION_ROOT=\"$PWD\" .bootstrap/readme-venv/bin/python -I -m unittest discover -s python/tests -p test_readme_model_evidence.py -k MODEL_05 -v",
+    "runner": "LAB_README_REAL_MODEL_CASE=MODEL-05-06 ./node_modules/node/bin/node --test tests/readme-model-cases.test.ts",
     "modelRequiredForCapability": true,
-    "currentStatus": "EVIDENCE AUDIT PASS; FRESH MODEL NOT RUN",
+    "currentStatus": "MEASURED REAL STAGES PASS; FRESH ENTRYPOINT NOT RUN (consumed ledger)",
     "cleanup": "Read-only audit; creates no runtime, files, or model requests.",
     "prerequisites": [
       "Pinned Node 24.16.0 and OpenClaw 2026.9.9 foundation runtime.",
@@ -410,23 +452,30 @@
       "FOUNDATION_ROOT set to this repository.",
       "Historical genuine-provider record: evidence/provenance-merge-acceptance/acceptance.json. Missing record yields SKIP.",
       "No fresh provider call; capability originally required a selected approved model."
-    ]
+    ],
+    "auditRunner": "FOUNDATION_ROOT=\"$PWD\" .bootstrap/readme-venv/bin/python -I -m unittest discover -s python/tests -p test_readme_model_evidence.py -k MODEL_05 -v",
+    "actualFeatureRunner": "LAB_README_REAL_MODEL_CASE=MODEL-05-06 ./node_modules/node/bin/node --test tests/readme-model-cases.test.ts",
+    "realEntryPoint": "tests/readme-model-cases.test.ts -> examples/provenance_acceptance.ts / Lab.boundedProvenanceAcceptance",
+    "measuredRun": "2026-10-11: genuine retained-owner duplicate-merge run; bundle exit 0 and all six acceptance stages passed.",
+    "assertionMatch": "Real runner produced the observed fields checked by this case. Record audits check consistency only and do not replace the actual feature runner.",
+    "freshRunBoundary": "The original fixed ledger is consumed. Do not reset/rename it. Fresh execution is not automatic; guard and cumulative 5 USD policy remain."
   },
   {
     "caseId": "MODEL-06",
     "promise": "native model Dream Diary",
     "access": "native model dreaming; SDK inspection only",
-    "tier": "historical genuine-provider evidence audit; no fresh execution",
+    "tier": "measured genuine native provider run plus actual gated entrypoint; audit separate",
     "setupInput": "Retained light/REM/deep publications.",
     "expectedAssertions": "All three finished, nonempty native diary, no fallback, finite request totals.",
     "failureCoverage": "Missing record => SKIP. Prior failed attempts remain failures. No SDK generation claim.",
     "existingTests": [
       "tests/model.test.ts",
-      "examples/provenance_acceptance.ts"
+      "examples/provenance_acceptance.ts",
+      "tests/readme-model-cases.test.ts"
     ],
-    "runner": "FOUNDATION_ROOT=\"$PWD\" .bootstrap/readme-venv/bin/python -I -m unittest discover -s python/tests -p test_readme_model_evidence.py -k MODEL_06 -v",
+    "runner": "LAB_README_REAL_MODEL_CASE=MODEL-05-06 ./node_modules/node/bin/node --test tests/readme-model-cases.test.ts",
     "modelRequiredForCapability": true,
-    "currentStatus": "EVIDENCE AUDIT PASS; FRESH MODEL NOT RUN",
+    "currentStatus": "MEASURED REAL STAGES PASS; FRESH ENTRYPOINT NOT RUN (consumed ledger)",
     "cleanup": "Read-only audit; creates no runtime, files, or model requests.",
     "prerequisites": [
       "Pinned Node 24.16.0 and OpenClaw 2026.9.9 foundation runtime.",
@@ -434,7 +483,13 @@
       "FOUNDATION_ROOT set to this repository.",
       "Historical genuine-provider record: evidence/provenance-merge-acceptance/acceptance.json. Missing record yields SKIP.",
       "No fresh provider call; capability originally required a selected approved model."
-    ]
+    ],
+    "auditRunner": "FOUNDATION_ROOT=\"$PWD\" .bootstrap/readme-venv/bin/python -I -m unittest discover -s python/tests -p test_readme_model_evidence.py -k MODEL_06 -v",
+    "actualFeatureRunner": "LAB_README_REAL_MODEL_CASE=MODEL-05-06 ./node_modules/node/bin/node --test tests/readme-model-cases.test.ts",
+    "realEntryPoint": "tests/readme-model-cases.test.ts -> examples/provenance_acceptance.ts / Lab.boundedProvenanceAcceptance",
+    "measuredRun": "2026-10-11: genuine retained-owner duplicate-merge run; bundle exit 0 and all six acceptance stages passed.",
+    "assertionMatch": "Real runner produced the observed fields checked by this case. Record audits check consistency only and do not replace the actual feature runner.",
+    "freshRunBoundary": "The original fixed ledger is consumed. Do not reset/rename it. Fresh execution is not automatic; guard and cumulative 5 USD policy remain."
   },
   {
     "caseId": "MODEL-07",
@@ -454,7 +509,11 @@
       "Python >=3.10; installed local wheel.",
       "FOUNDATION_ROOT set to this repository.",
       "Matching native lineage and a separately bounded accepted run are not available in this case."
-    ]
+    ],
+    "auditRunner": "FOUNDATION_ROOT=\"$PWD\" .bootstrap/readme-venv/bin/python -I -m unittest discover -s python/tests -p test_readme_model_evidence.py -k MODEL_07 -v",
+    "actualFeatureRunner": "No verified lineage-producing fixture; gated test is explicitly skipped.",
+    "realEntryPoint": "tests/readme-model-cases.test.ts: MODEL-07 skip",
+    "measuredRun": "None. Changed-fact native supersession remains NOT TESTED."
   },
   {
     "caseId": "EDGE-01",
@@ -476,7 +535,8 @@
       "Python >=3.10; installed local wheel.",
       "FOUNDATION_ROOT set to this repository.",
       "Synthetic local fixtures only. No model/provider key needed."
-    ]
+    ],
+    "auditRunner": null
   },
   {
     "caseId": "EDGE-02",
@@ -497,7 +557,8 @@
       "Pinned Node 24.16.0 and OpenClaw 2026.9.9 foundation runtime.",
       "Synthetic local fixtures only. No model/provider key needed."
     ],
-    "ciEvidence": "https://github.com/DorukhanArslan/openclaw-memory-bridge/actions/runs/38198940078"
+    "ciEvidence": "https://github.com/DorukhanArslan/openclaw-memory-bridge/actions/runs/38198940078",
+    "auditRunner": null
   },
   {
     "caseId": "EDGE-03",
@@ -522,6 +583,7 @@
       "Pinned Node 24.16.0 and OpenClaw 2026.9.9 foundation runtime.",
       "Synthetic local fixtures only. No model/provider key needed."
     ],
-    "ciEvidence": "https://github.com/DorukhanArslan/openclaw-memory-bridge/actions/runs/38198940078"
+    "ciEvidence": "https://github.com/DorukhanArslan/openclaw-memory-bridge/actions/runs/38198940078",
+    "auditRunner": null
   }
 ]

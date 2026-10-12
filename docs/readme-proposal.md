@@ -42,13 +42,16 @@ with MemoryClient(BridgeConfig(foundation, data_root)) as memory:
     memory.write(scope, "filters", "Synthetic Vega uses cobalt filters on Tuesday.")
     memory.index(scope)
     hits = memory.search(scope, "cobalt")["results"]
-    context = "\n".join(hit["snippet"] for hit in hits)
+    context = "\n".join(
+        f"[{hit['path']}:L{hit['startLine']}-L{hit['endLine']}]\n{hit['snippet']}"
+        for hit in hits
+    )
     agent_prompt = f"Use these recalled sources:\n{context}\nWhich filter does Vega use?"
     print(agent_prompt)
     # Your app sends agent_prompt to its own model.
 ```
 
-**Observable result:** the note exists as `memory/filters.md`. Native keyword search returns that source. The built prompt contains `cobalt` and the source reference. The test does not call a model or measure answer quality. It does not claim that an agent replied.
+**Observable result:** the note exists as `memory/filters.md`. Native keyword search returns that source. The app adds an explicit `[path:Lstart-Lend]` prefix to each snippet. The built prompt contains `cobalt` and that exact source range, independent of automatic snippet citations. The test does not call a model or measure answer quality. It does not claim that an agent replied.
 
 `examples/readme_quickstart.py` is the executable example. **SDK-01** calls its prompt-building function with the real installed SDK. The inline code shows the same API flow.
 
@@ -175,11 +178,11 @@ except FoundationError as error:
 
 ## Native capabilities that are not SDK triggers
 
-The following examples come from real native acceptance records unless marked otherwise. The new `MODEL-*` tests audit those records. They do not make fresh model requests and are not direct SDK generation cases. Missing records cause a skip. A skip is not a pass.
+The model cases have actual gated native test entrypoints. They reuse the existing finite acceptance runners. MODEL-01 passed in a fresh real-provider run during this review. MODEL-02/03/04 and MODEL-05/06 map to earlier measured genuine runs with the same source/state assertions. Their consumed ledgers block automatic replay. Separate Python record audits check consistency; they do not replace feature execution. None of these is a direct SDK generation method.
 
 | Case | Concrete input → native action → checked result | Access and requirement |
 |---|---|---|
-| MODEL-01: semantic recall | `Zephyr travels to the office by bicycle.` → native embedding index → `pedal-powered commuting` recalled `memory/resident.md`; source read confirmed `bicycle` | Bridge embedding configuration, then native search. Recorded `text-embedding-3-small` acceptance. No SDK embedding selector. Fresh model run: not tested in this draft. |
+| MODEL-01: semantic recall | `Zephyr travels to the office by bicycle.` → native embedding index → `pedal-powered commuting` recalled `memory/resident.md`; source read confirmed `bicycle` | Bridge embedding configuration, then native search. Recorded `text-embedding-3-small` acceptance. No SDK embedding selector. Fresh real native run passed in this review; SDK semantic integration was not run. |
 | MODEL-02: extraction | A genuine conversation states the indigo/Thursday preference for synthetic Borealis → the native model later writes a daily note → the source contains that preference | Native agent lifecycle. The app did not prewrite this note. No SDK extraction method. |
 | MODEL-03: flush | The conversation crosses the configured test trigger → native flush reports `kind: succeeded` → the physical daily note and recall confirm the fact | Native model plus flush configuration and continued agent execution. Enabling config alone is not success. No SDK flush trigger. |
 | MODEL-04: compaction | The native conversation is summarized → native compaction commits → stored `compactionCount` becomes 1 | Native model operation. Compaction does not force flush. The SDK can inspect session state but cannot compact your external agent history. |
@@ -189,33 +192,11 @@ The following examples come from real native acceptance records unless marked ot
 
 The recorded text-model tests used GPT-6 Sol. The merge baseline was an explicit synthetic application fixture. Its new daily duplicate was genuinely written by the native model. The test preserved the native source session. It did not import or relabel trust metadata.
 
-The fixed operator tests use a cumulative 5 USD test ceiling and finite request ledgers. The utility transport adapter adds a token ceiling; it does not implement consolidation or change model prompts. Do not turn these tests into unrestricted paid execution. No fresh paid test is part of this draft.
+The fixed operator tests use a cumulative 5 USD test ceiling and finite request ledgers. The utility transport adapter adds a token ceiling; it does not implement consolidation or change model prompts. Do not turn these tests into unrestricted paid execution. One fresh fixed MODEL-01 test passed after checking native cumulative usage plus its finite estimate against 5 USD. Other recorded model workflows were not repeated.
 
 ### Deterministic native maintenance — NATIVE-02
 
 A daily synthetic cobalt note → native REM staging and dreaming → a sourced durable promotion → recall after restart. The existing real-engine test checks phase signals, source references, and persistence. This no-model maintenance case does not prove model consolidation or a model diary.
-
-## Configuration and process ownership
-
-**NATIVE-03** checks provider configuration with the actual pinned native schema and dummy credentials. Configuration sends zero embedding requests in that test. It does not prove provider authentication or authorize model use.
-
-`BridgeConfig(foundation, root, timeout=180)` points to the foundation runtime and your data root. The bridge creates its private workspace/config/state under that root when the scope is used. `configure(scope, ingestion=False)` only controls the capture hook. It does not select embeddings or a text model.
-
-No key is required for keyword cases. Optional approved provider keys belong in the foundation's ignored `.env`, not in Python source or browser code. The bridge uses its existing project loader and selected native SecretRefs. The Python client does not forward arbitrary provider credentials from the app environment. Provider/model setup is a separate operator action.
-
-CLI configuration uses the foundation's `.lab` root. For CLI/SDK interoperation, use that same root and the SDK's `scope.routing_workspace` as the CLI workspace ID. Close the client before operator configuration. Native configuration commands include:
-
-```text
-./node_modules/node/bin/node src/cli.ts native-model WS PROVIDER/MODEL KEY_ENV
-./node_modules/node/bin/node src/cli.ts native-vector WS URL MODEL KEY_ENV
-./node_modules/node/bin/node src/cli.ts validate-config WS
-```
-
-These are command shapes, not measured outputs or a paid-execution recipe. General credential-backed execution remains guarded. Local embeddings are optional and require an installed, running compatible server. The same `search(scope, query)` method uses native results after that separate configuration and indexing. Fresh SDK semantic integration is not tested in this draft.
-
-**Cold start:** `MemoryClient` starts its owned JSONL bridge. The first native tool request starts a private Gateway. Repeated requests can reuse it. Indexing, status checks, restarts, or workspace changes can stop or replace that process. Closing the client closes its owned processes.
-
-**Ready Gateway — NATIVE-01:** the separate TypeScript `ReadyGateway` client borrows an already-running Gateway. It can search and get sources without owning server lifetime. Its real-engine case checks warm recall, source reads, connection loss, and that client close leaves the owner's Gateway alive. Python `MemoryClient` has no ready-Gateway constructor option. Keep the operator token server-side.
 
 ## Run the scenario cases
 
@@ -233,7 +214,15 @@ FOUNDATION_ROOT="$PWD" .bootstrap/readme-venv/bin/python -I -m unittest discover
   -s python/tests -p test_readme_model_evidence.py -v
 ```
 
-The second command is an evidence audit, not a fresh model run. The coverage matrix gives each case's setup, assertions, cleanup, prerequisites, and existing-test mapping. Existing transport, secret, path, budget, and timeout tests remain. No test is removed by this proposal.
+The second command is an evidence audit, not a model-feature execution. Actual native model test commands are:
+
+```sh
+LAB_README_REAL_MODEL_CASE=MODEL-01 ./node_modules/node/bin/node --test tests/readme-model-cases.test.ts
+LAB_README_REAL_MODEL_CASE=MODEL-02-04 ./node_modules/node/bin/node --test tests/readme-model-cases.test.ts
+LAB_README_REAL_MODEL_CASE=MODEL-05-06 ./node_modules/node/bin/node --test tests/readme-model-cases.test.ts
+```
+
+These are gated fixed tests, not unrestricted SDK model methods. Default execution skips them. Do not reset or rename the consumed lifecycle/merge ledgers. The matrix distinguishes the fresh MODEL-01 pass, measured older stage passes, consumed-ledger blockers, and audits. The coverage matrix gives each case's setup, assertions, cleanup, prerequisites, and existing-test mapping. Existing transport, secret, path, budget, and timeout tests remain. No test is removed by this proposal.
 
 ## Limits you should keep in your app design
 
@@ -266,3 +255,26 @@ MemoryClient.dream_diary(self, scope: 'MemoryScope')
 MemoryClient.call(self, op: 'str', workspace: 'str' = 'alpha', **args: 'Any') -> 'Any'
 MemoryClient.close(self) -> 'None'
 ```
+
+## Operator appendix: configuration and process ownership
+
+**NATIVE-03** checks provider configuration with the actual pinned native schema and dummy credentials. Configuration sends zero embedding requests in that test. It does not prove provider authentication or authorize model use.
+
+`BridgeConfig(foundation, root, timeout=180)` points to the foundation runtime and your data root. The bridge creates its private workspace/config/state under that root when the scope is used. `configure(scope, ingestion=False)` only controls the capture hook. It does not select embeddings or a text model.
+
+No key is required for keyword cases. Optional approved provider keys belong in the foundation's ignored `.env`, not in Python source or browser code. The bridge uses its existing project loader and selected native SecretRefs. The Python client does not forward arbitrary provider credentials from the app environment. Provider/model setup is a separate operator action.
+
+CLI configuration uses the foundation's `.lab` root. For CLI/SDK interoperation, use that same root and the SDK's `scope.routing_workspace` as the CLI workspace ID. Close the client before operator configuration. Native configuration commands include:
+
+```text
+./node_modules/node/bin/node src/cli.ts native-model WS PROVIDER/MODEL KEY_ENV
+./node_modules/node/bin/node src/cli.ts native-vector WS URL MODEL KEY_ENV
+./node_modules/node/bin/node src/cli.ts validate-config WS
+```
+
+These are command shapes, not measured outputs or a paid-execution recipe. General credential-backed execution remains guarded. Local embeddings are optional and require an installed, running compatible server. The same `search(scope, query)` method uses native results after that separate configuration and indexing. Fresh SDK semantic integration is not tested in this draft.
+
+**Cold start:** `MemoryClient` starts its owned JSONL bridge. The first native tool request starts a private Gateway. Repeated requests can reuse it. Indexing, status checks, restarts, or workspace changes can stop or replace that process. Closing the client closes its owned processes.
+
+**Ready Gateway — NATIVE-01:** the separate TypeScript `ReadyGateway` client borrows an already-running Gateway. It can search and get sources without owning server lifetime. Its real-engine case checks warm recall, source reads, connection loss, and that client close leaves the owner's Gateway alive. Python `MemoryClient` has no ready-Gateway constructor option. Keep the operator token server-side.
+

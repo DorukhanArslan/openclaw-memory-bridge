@@ -18,7 +18,10 @@
     "historicalModelEvidenceAudits": 6,
     "auditPassed": 6,
     "changedFactSupersessionSkipped": 1,
-    "freshModelRequests": 0
+    "freshModelRequests": "One finite native MODEL-01 run; all other model families gated.",
+    "freshRealModelCases": 1,
+    "freshRealModelCasesPassed": 1,
+    "explicitSourceReferenceCasePassed": true
   },
   "initialSdkRound": {
     "passed": 9,
@@ -30,8 +33,9 @@
     "Same note ID with different facts in separate corpora passed bidirectional recall checks.",
     "Model merge audit checks Added 0 / Merged 1 / Superseded 0."
   ],
-  "scope": "Documentation, executable example, and tests only. Existing README, SDK implementation, native source, CI workflow, and existing tests are unchanged.",
+  "scope": "Documentation, executable examples, and tests only. Existing README, SDK implementation, native source, CI workflow, and old tests remain unchanged.",
   "deletions": 0,
   "newPublications": 0,
-  "modelTierBoundary": "Historical real-model evidence consistency checks are not fresh provider runs or direct SDK generation tests."
+  "modelTierBoundary": "Actual feature entrypoints are separate from record audits. MODEL-01 passed fresh. MODEL-02/03/04 and MODEL-05/06 have measured real runs; their consumed ledgers block automatic replay. MODEL-07 remains not verified.",
+  "actualModelEntryPoint": "tests/readme-model-cases.test.ts"
 }
