@@ -1,4 +1,801 @@
-<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>OpenClaw conversation replay</title><style>body{margin:0;background:#f4f6f7;color:#172b38;font:16px/1.55 system-ui}main{max-width:1380px;margin:auto;padding:32px}h1{font-size:34px}h2{font-size:22px}.row{display:grid;grid-template-columns:38% 62%;background:white;border:1px solid #d6e0e4;border-radius:12px;margin:24px 0;overflow:hidden}article,aside{padding:24px;min-width:0}aside{border-left:1px solid #e1e7eb;background:#fafcfc}.tag{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:#14636a}.label{font-size:13px;font-weight:700}.answer{background:#e9f5ef;padding:16px;border-radius:8px}.note{font-size:14px;color:#476170}.failed{background:#fff1dd;padding:16px}.diff{display:grid;grid-template-columns:1fr 1fr;gap:16px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.5 ui-monospace,monospace;background:#edf2f4;padding:12px;border-radius:6px}summary{cursor:pointer;font-weight:600}details{margin:12px 0}dt{font-weight:700}dd{margin:0 0 12px}a{color:#156773}@media(max-width:800px){.row,.diff{grid-template-columns:1fr}aside{border-left:0;border-top:1px solid #ddd}main{padding:16px}}</style><main><h1>One conversation. Real memory changes.</h1><p>Maya is a fictional gardener. Every shown assistant message is real model output. The harness did not prewrite workspace notes. Read the conversation on the left and exact file changes on the right.</p><p>Chat → preference update → new-session recall → native dreaming → SDK recall → application answer. Failed attempts remain visible. Automatic flush was not observed.</p><details><summary>Capabilities, boundaries and request ledger</summary><pre>{
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>OpenClaw memory feature tour</title><style>body{margin:0;background:#f4f6f7;color:#172b38;font:16px/1.55 system-ui}main{max-width:1380px;margin:auto;padding:32px}h1{font-size:34px}h2{font-size:22px}.row{display:grid;grid-template-columns:38% 62%;background:white;border:1px solid #d6e0e4;border-radius:12px;margin:24px 0;overflow:hidden}article,aside{padding:24px;min-width:0}aside{border-left:1px solid #e1e7eb;background:#fafcfc}.tag{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:#14636a}.label{font-size:13px;font-weight:700}.answer{background:#e9f5ef;padding:16px;border-radius:8px}.note{font-size:14px;color:#476170}.failed{background:#fff1dd;padding:16px}.diff{display:grid;grid-template-columns:1fr 1fr;gap:16px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.5 ui-monospace,monospace;background:#edf2f4;padding:12px;border-radius:6px}summary{cursor:pointer;font-weight:600}details{margin:12px 0}dt{font-weight:700}dd{margin:0 0 12px}a{color:#156773}@media(max-width:800px){.row,.diff{grid-template-columns:1fr}aside{border-left:0;border-top:1px solid #ddd}main{padding:16px}}</style><main><!-- memory-feature-tour:start --><section><h1>Memory feature tour</h1><p>Maya is the main recorded conversation. Separate Zephyr, Borealis and Vega records demonstrate optional capabilities; the app tour is a fresh no-key run. Case order is a learning path, not a stitched continuous transcript.</p><p><a href="memory-story.json">Complete transferable case payload</a> · <a href="memory-capabilities.json">Pinned capability inventory</a></p><table style="width:100%;border-collapse:collapse"><tr><th>Case</th><th>Gain</th><th>Evidence status</th></tr><tr><td style="padding:10px;border:1px solid #ddd">C01 Load saved profile before a reply</td><td style="padding:10px;border:1px solid #ddd">The profile is available before recall. USER.md injected 262 characters; BOOTSTRAP.md absent/injected zero.</td><td style="padding:10px;border:1px solid #ddd">partial: USER.md verified; bootstrap templates not demonstrated</td></tr><tr><td style="padding:10px;border:1px solid #ddd">C02 Save identity and daily event</td><td style="padding:10px;border:1px solid #ddd">Agent-maintained profile and dated event survive the conversation.</td><td style="padding:10px;border:1px solid #ddd">real recorded</td></tr><tr><td style="padding:10px;border:1px solid #ddd">C03 Keyword recall and exact native source</td><td style="padding:10px;border:1px solid #ddd">A new session can answer from the saved current preference and schedule.</td><td style="padding:10px;border:1px solid #ddd">real recorded</td></tr><tr><td style="padding:10px;border:1px solid #ddd">C04 Find different wording with real embeddings</td><td style="padding:10px;border:1px solid #ddd">Semantic search finds bicycle text without shared query words. No assistant reply is invented.</td><td style="padding:10px;border:1px solid #ddd">historical real pass; separate run</td></tr><tr><td style="padding:10px;border:1px solid #ddd">C05 Change the preference</td><td style="padding:10px;border:1px solid #ddd">The current profile changes from mint tea to rooibos; gardener details remain.</td><td style="padding:10px;border:1px solid #ddd">real recorded</td></tr><tr><td style="padding:10px;border:1px solid #ddd">C06 Flush before shortening context</td><td style="padding:10px;border:1px solid #ddd">The native flush writes a daily fact, with a succeeded maintenance marker.</td><td style="padding:10px;border:1px solid #ddd">historical stage pass; later REM failure makes the entire run partial</td></tr><tr><td style="padding:10px;border:1px solid #ddd">C07 Compact the conversation</td><td style="padding:10px;border:1px solid #ddd">A committed summary shortens stored conversation context. No new Markdown diff snapshot was sampled for this step.</td><td style="padding:10px;border:1px solid #ddd">historical stage pass; separate from Maya</td></tr><tr><td style="padding:10px;border:1px solid #ddd">C08 Capture and reset a real session</td><td style="padding:10px;border:1px solid #ddd">A bounded capture preserves the real transcript for later indexing.</td><td style="padding:10px;border:1px solid #ddd">historical real pass; separate run</td></tr><tr><td style="padding:10px;border:1px solid #ddd">C09 Light → REM → deep maintenance</td><td style="padding:10px;border:1px solid #ddd">Native deep promotes one grounded orchid event. The diary still mentions older mint tea; it is not current preference truth.</td><td style="padding:10px;border:1px solid #ddd">real recorded</td></tr><tr><td style="padding:10px;border:1px solid #ddd">C10 Merge a duplicate with source lineage</td><td style="padding:10px;border:1px solid #ddd">Native merge keeps one duplicate fact, source references and unrelated entries. All three diary phase publishers complete.</td><td style="padding:10px;border:1px solid #ddd">historical real pass; Added 0 / Merged 1 / Superseded 0</td></tr><tr><td style="padding:10px;border:1px solid #ddd">C11 Answer after maintenance with app context</td><td style="padding:10px;border:1px solid #ddd">Actual Python SDK recall is inserted by the app into native llm-task; this is a real model answer, not SDK chat.</td><td style="padding:10px;border:1px solid #ddd">real recorded</td></tr><tr><td style="padding:10px;border:1px solid #ddd">C12 Restart, update, delete and separate scopes</td><td style="padding:10px;border:1px solid #ddd">Notes persist after restart; app replacement/deletion changes current hits; other user/workspace has no copied fact.</td><td style="padding:10px;border:1px solid #ddd">fresh real no-key pass; independent app run</td></tr><tr><td style="padding:10px;border:1px solid #ddd">C13 Remaining native options</td><td style="padding:10px;border:1px solid #ddd">Ranking, backfill, trusted trigger recall, policy/forget and extended corpora are described with their access limits.</td><td style="padding:10px;border:1px solid #ddd">not a passed demonstration</td></tr></table><details><summary>Native options and explicit gaps</summary><pre>{
+  &quot;gaps&quot;: {
+    &quot;sameMayaContinuousAllFeatures&quot;: false,
+    &quot;bootstrapTemplateLoad&quot;: &quot;not demonstrated; USER.md load verified&quot;,
+    &quot;MayaAutomaticFlush&quot;: &quot;not observed&quot;,
+    &quot;MayaCompaction&quot;: &quot;not run&quot;,
+    &quot;MayaPostDreamNativeAgent&quot;: &quot;blocked by input-byte admission; bot is null&quot;,
+    &quot;PythonUSERGet&quot;: &quot;rejected adapter path; native get and Python search evidence retained&quot;,
+    &quot;changedFactSupersession&quot;: &quot;unverified&quot;,
+    &quot;diaryCurrentPreference&quot;: &quot;older mint fragment remains&quot;,
+    &quot;newPaidRuns&quot;: 0,
+    &quot;historicalRunsAreNotContinuousWithMaya&quot;: true,
+    &quot;budget&quot;: {
+      &quot;cumulativeLimitUsd&quot;: 5,
+      &quot;lastMeasuredUsedUsdBeforeFinalAnswer&quot;: 0.3256195199999965,
+      &quot;retainedE2ERequests&quot;: 24,
+      &quot;remainingSerializedInputBytes&quot;: 13880,
+      &quot;existingFullFlushEnvelopeUsd&quot;: 4.83,
+      &quot;minimumTotalWithLastMeasuredUsageUsd&quot;: 5.15561952,
+      &quot;note&quot;: &quot;Final answer cost was not resampled. No new envelope or ledger reset was introduced.&quot;
+    }
+  },
+  &quot;features&quot;: [
+    {
+      &quot;id&quot;: &quot;keyword&quot;,
+      &quot;native&quot;: &quot;FTS5/BM25 retrieval&quot;,
+      &quot;sdk&quot;: &quot;search&quot;,
+      &quot;labOperator&quot;: &quot;search/index/status&quot;,
+      &quot;coverage&quot;: &quot;real no-key engine and Maya&quot;,
+      &quot;pinnedCode&quot;: [
+        &quot;memory-schema-SE7C0M3V.mjs&quot;,
+        &quot;memory-tool-contract-DOz26L8b.mjs&quot;
+      ],
+      &quot;boundary&quot;: &quot;&quot;
+    },
+    {
+      &quot;id&quot;: &quot;vector-hybrid&quot;,
+      &quot;native&quot;: &quot;Embedding vectors and hybrid retrieval&quot;,
+      &quot;sdk&quot;: &quot;search uses configured native engine; no provider selector&quot;,
+      &quot;labOperator&quot;: &quot;vector/native-vector; gated smoke&quot;,
+      &quot;coverage&quot;: &quot;historical genuine Zephyr embedding + source pass&quot;,
+      &quot;pinnedCode&quot;: [
+        &quot;memory-search-CIhUURbE.mjs&quot;,
+        &quot;memory-embedding-adapter-BpxrOoe_.mjs&quot;
+      ],
+      &quot;boundary&quot;: &quot;No new embedding run. Local provider availability is not proved by config.&quot;
+    },
+    {
+      &quot;id&quot;: &quot;source&quot;,
+      &quot;native&quot;: &quot;memory_get exact bounded excerpts and citations&quot;,
+      &quot;sdk&quot;: &quot;get for allowed notes&quot;,
+      &quot;labOperator&quot;: &quot;get; ReadyGateway.get also accepts USER.md&quot;,
+      &quot;coverage&quot;: &quot;Maya native USER.md get passes; Python USER.md get rejects&quot;,
+      &quot;pinnedCode&quot;: [
+        &quot;memory-tool-contract-DOz26L8b.mjs&quot;
+      ],
+      &quot;boundary&quot;: &quot;Session transcript hits use history, not memory_get.&quot;
+    },
+    {
+      &quot;id&quot;: &quot;persistence&quot;,
+      &quot;native&quot;: &quot;Per-agent SQLite index and Markdown sources&quot;,
+      &quot;sdk&quot;: &quot;restart and reconnect with same root&quot;,
+      &quot;labOperator&quot;: &quot;restart/status/index&quot;,
+      &quot;coverage&quot;: &quot;fresh SDK + historical Vega restart recall&quot;,
+      &quot;pinnedCode&quot;: [
+        &quot;openclaw-agent-schema-CV4V4sh3.mjs&quot;,
+        &quot;memory-schema-SE7C0M3V.mjs&quot;
+      ],
+      &quot;boundary&quot;: &quot;&quot;
+    },
+    {
+      &quot;id&quot;: &quot;bootstrap-profile&quot;,
+      &quot;native&quot;: &quot;Native prompt loads workspace profile/template context&quot;,
+      &quot;sdk&quot;: &quot;no bootstrap or profile-write API&quot;,
+      &quot;labOperator&quot;: &quot;native agent CLI; lab skipBootstrap=true&quot;,
+      &quot;coverage&quot;: &quot;actual USER.md prompt trace; other files absent&quot;,
+      &quot;pinnedCode&quot;: [
+        &quot;bootstrap-files-CgqY-7GK.mjs&quot;,
+        &quot;workspace-bootstrap-policy-DaS4N8nC.mjs&quot;
+      ],
+      &quot;boundary&quot;: &quot;BOOTSTRAP.md creation/load is not demonstrated here; absent templates have placeholders.&quot;
+    },
+    {
+      &quot;id&quot;: &quot;agent-note&quot;,
+      &quot;native&quot;: &quot;Agent read/write/edit tools can maintain profile/daily files&quot;,
+      &quot;sdk&quot;: &quot;no chat/extraction method&quot;,
+      &quot;labOperator&quot;: &quot;real native chat&quot;,
+      &quot;coverage&quot;: &quot;Maya real tool calls + exact diffs&quot;,
+      &quot;pinnedCode&quot;: [
+        &quot;memory-tool-contract-DOz26L8b.mjs&quot;,
+        &quot;memory-workspace-files-CC0bKS3d.mjs&quot;
+      ],
+      &quot;boundary&quot;: &quot;Explicit app write is not automatic extraction.&quot;
+    },
+    {
+      &quot;id&quot;: &quot;flush-compaction&quot;,
+      &quot;native&quot;: &quot;Threshold-based pre-compaction memory flush and native summary compaction&quot;,
+      &quot;sdk&quot;: &quot;state inspection only&quot;,
+      &quot;labOperator&quot;: &quot;flush-config/chat/compact; paid guarded runners&quot;,
+      &quot;coverage&quot;: &quot;separate real Borealis flush + compaction; absent in Maya E2E&quot;,
+      &quot;pinnedCode&quot;: [
+        &quot;memory-flush-session-BjKZkw5O.mjs&quot;,
+        &quot;compaction-DG39GCC7.mjs&quot;
+      ],
+      &quot;boundary&quot;: &quot;Existing runner uses low test thresholds. Not a per-message guarantee; no new run fits retained budget.&quot;
+    },
+    {
+      &quot;id&quot;: &quot;session-capture&quot;,
+      &quot;native&quot;: &quot;Native reset hook captures bounded session material&quot;,
+      &quot;sdk&quot;: &quot;configure(ingestion=True), reset_session, session_history/state; labelled fixture&quot;,
+      &quot;labOperator&quot;: &quot;ingestion/session-reset/lifecycle-demo&quot;,
+      &quot;coverage&quot;: &quot;separate real Borealis capture + SDK no-key fixture checks&quot;,
+      &quot;pinnedCode&quot;: [
+        &quot;session-ingestion-Dy5uAq-_.mjs&quot;
+      ],
+      &quot;boundary&quot;: &quot;Fixture injection generates no model reply. Reset capture differs from model extraction.&quot;
+    },
+    {
+      &quot;id&quot;: &quot;dreaming&quot;,
+      &quot;native&quot;: &quot;Light stages, REM reflects, deep promotes grounded sources&quot;,
+      &quot;sdk&quot;: &quot;dream_status/dream_diary inspection only&quot;,
+      &quot;labOperator&quot;: &quot;dream-run; rem-preview/rem-stage/promote/explain&quot;,
+      &quot;coverage&quot;: &quot;Maya Add 1; Vega duplicate Merged 1; model diary phase events&quot;,
+      &quot;pinnedCode&quot;: [
+        &quot;dreaming-phases-rmgXNBLP.mjs&quot;,
+        &quot;dreaming-narrative-B8Hp3Mc_.mjs&quot;
+      ],
+      &quot;boundary&quot;: &quot;Operator-triggered sweeps; thresholds are explicit test settings. Diary is not a current truth source.&quot;
+    },
+    {
+      &quot;id&quot;: &quot;consolidation-lineage&quot;,
+      &quot;native&quot;: &quot;Adds, merges and eligible supersessions with provenance&quot;,
+      &quot;sdk&quot;: &quot;inspect outputs only&quot;,
+      &quot;labOperator&quot;: &quot;native deep sweep/explain&quot;,
+      &quot;coverage&quot;: &quot;addition + duplicate merge passed; changed-fact supersession unverified&quot;,
+      &quot;pinnedCode&quot;: [
+        &quot;memory-artifact-provenance-DhnyWiV1.mjs&quot;,
+        &quot;memory-entry-origins-BCQSIB3X.mjs&quot;
+      ],
+      &quot;boundary&quot;: &quot;App file replacement does not prove lineage-based supersession.&quot;
+    },
+    {
+      &quot;id&quot;: &quot;app-crud-scopes&quot;,
+      &quot;native&quot;: &quot;Native reindex reflects source changes&quot;,
+      &quot;sdk&quot;: &quot;write/delete/index and workspace/user route&quot;,
+      &quot;labOperator&quot;: &quot;note/delete/use&quot;,
+      &quot;coverage&quot;: &quot;fresh Maya app write/update/delete and symmetric scope checks&quot;,
+      &quot;pinnedCode&quot;: [
+        &quot;memory-schema-SE7C0M3V.mjs&quot;
+      ],
+      &quot;boundary&quot;: &quot;Writes/deletes/routing are app adapters. No authorization or secure-erasure claim.&quot;
+    },
+    {
+      &quot;id&quot;: &quot;ranking&quot;,
+      &quot;native&quot;: &quot;Native relevance/importance/recency/project ranking, MMR and query expansion&quot;,
+      &quot;sdk&quot;: &quot;search preserves native ordering; no ranking knobs&quot;,
+      &quot;labOperator&quot;: &quot;native config; promotion explanation&quot;,
+      &quot;coverage&quot;: &quot;installed implementation; individual ranking policies not accepted separately&quot;,
+      &quot;pinnedCode&quot;: [
+        &quot;memory-search-CIhUURbE.mjs&quot;,
+        &quot;dreaming-phases-rmgXNBLP.mjs&quot;
+      ],
+      &quot;boundary&quot;: &quot;&quot;
+    },
+    {
+      &quot;id&quot;: &quot;trusted-pre-reply&quot;,
+      &quot;native&quot;: &quot;Curated trigger/project recall with provenance gating&quot;,
+      &quot;sdk&quot;: &quot;no active-recall control&quot;,
+      &quot;labOperator&quot;: &quot;native agent configuration&quot;,
+      &quot;coverage&quot;: &quot;installed capability; no dedicated demo&quot;,
+      &quot;pinnedCode&quot;: [
+        &quot;memory-path-provenance-C84vBRrO.mjs&quot;,
+        &quot;memory-tool-contract-DOz26L8b.mjs&quot;
+      ],
+      &quot;boundary&quot;: &quot;No learned relevance reranker or active-memory claim.&quot;
+    },
+    {
+      &quot;id&quot;: &quot;index-maintenance&quot;,
+      &quot;native&quot;: &quot;Incremental sync, file watchers, replacement index, cache and derived-index recovery&quot;,
+      &quot;sdk&quot;: &quot;index/status/restart; no derived reset method&quot;,
+      &quot;labOperator&quot;: &quot;official memory index/status/reset&quot;,
+      &quot;coverage&quot;: &quot;explicit reindex after source-config mismatch passed; watcher/cache/reset behavior not individually tested&quot;,
+      &quot;pinnedCode&quot;: [
+        &quot;memory-rebuild-notice-9mxFMQoD.mjs&quot;,
+        &quot;memory-schema-SE7C0M3V.mjs&quot;
+      ],
+      &quot;boundary&quot;: &quot;Do not remove the shared agent database to reset memory.&quot;
+    },
+    {
+      &quot;id&quot;: &quot;historical-backfill&quot;,
+      &quot;native&quot;: &quot;Grounded REM/session backfill, reversible staging and rollback&quot;,
+      &quot;sdk&quot;: &quot;not exposed&quot;,
+      &quot;labOperator&quot;: &quot;rem-preview/rem-stage; further official CLI controls&quot;,
+      &quot;coverage&quot;: &quot;existing labelled fixture backfill tests; no complete same-user chat demo&quot;,
+      &quot;pinnedCode&quot;: [
+        &quot;session-backfill-CqTlHwCA.mjs&quot;,
+        &quot;session-ingestion-Dy5uAq-_.mjs&quot;
+      ],
+      &quot;boundary&quot;: &quot;&quot;
+    },
+    {
+      &quot;id&quot;: &quot;admission-forget&quot;,
+      &quot;native&quot;: &quot;Native exclusion policy and provenance-based forget/dry-run&quot;,
+      &quot;sdk&quot;: &quot;not exposed&quot;,
+      &quot;labOperator&quot;: &quot;official native CLI, not a lab wrapper&quot;,
+      &quot;coverage&quot;: &quot;installed capability; not exercised&quot;,
+      &quot;pinnedCode&quot;: [
+        &quot;cli.runtime-CVRN4xUp.mjs&quot;,
+        &quot;session-ingestion-Dy5uAq-_.mjs&quot;
+      ],
+      &quot;boundary&quot;: &quot;Deleting one app note does not purge every session-derived copy.&quot;
+    },
+    {
+      &quot;id&quot;: &quot;extra-multimodal-cjk&quot;,
+      &quot;native&quot;: &quot;Extra paths, optional image/audio embeddings, trigram CJK tokenization&quot;,
+      &quot;sdk&quot;: &quot;no configuration API&quot;,
+      &quot;labOperator&quot;: &quot;native operator configuration outside current wrappers&quot;,
+      &quot;coverage&quot;: &quot;not exercised; native config/source inventory only&quot;,
+      &quot;pinnedCode&quot;: [
+        &quot;memory-search-CIhUURbE.mjs&quot;,
+        &quot;memory-schema-SE7C0M3V.mjs&quot;
+      ],
+      &quot;boundary&quot;: &quot;&quot;
+    },
+    {
+      &quot;id&quot;: &quot;session-wiki-corpora&quot;,
+      &quot;native&quot;: &quot;Optional semantic session corpus and registered wiki supplements&quot;,
+      &quot;sdk&quot;: &quot;search wrapper fixes corpus=memory&quot;,
+      &quot;labOperator&quot;: &quot;native memory_search supports sessions/wiki/all&quot;,
+      &quot;coverage&quot;: &quot;not exercised through this bridge&quot;,
+      &quot;pinnedCode&quot;: [
+        &quot;memory-tool-contract-DOz26L8b.mjs&quot;
+      ],
+      &quot;boundary&quot;: &quot;Honcho/LanceDB/active-memory/wiki plugin integration is outside this lab.&quot;
+    }
+  ]
+}</pre></details><h2>Separate recorded evidence and fresh app cases</h2><p>These exhibits do not continue Maya’s chat session. Null bot fields mean that no assistant reply is claimed.</p><section class="row"><article><span class="tag">zephyr-semantic-2026-10-11</span><h2>Find different wording with real embeddings</h2><p class="label">Actual input or operator request</p><pre>pedal-powered commuting</pre><p>No assistant response is attributed to this operator/search step.</p><p class="note">Native index and memory_search with text-embedding-3-small</p><p>Semantic search finds bicycle text without shared query words. No assistant reply is invented.</p><p class="note">historical real pass; separate run</p></article><aside><h3>Recorded file changes</h3><details><summary>memory/resident.md</summary><div class="diff"><div><b>Before</b><pre>[absent]</pre></div><div><b>After</b><pre>Zephyr travels to the office by bicycle.</pre></div></div></details><details><summary>Actual native/app result</summary><pre>{
+  &quot;chatUtility&quot;: {
+    &quot;ok&quot;: true
+  },
+  &quot;recall&quot;: {
+    &quot;path&quot;: &quot;memory/resident.md&quot;,
+    &quot;hits&quot;: 1
+  },
+  &quot;source&quot;: {
+    &quot;passed&quot;: true,
+    &quot;path&quot;: &quot;memory/resident.md&quot;,
+    &quot;verified_text&quot;: &quot;Zephyr travels to the office by bicycle.&quot;
+  },
+  &quot;embeddingModel&quot;: &quot;openai/text-embedding-3-small&quot;
+}</pre></details></aside></section><section class="row"><article><span class="tag">borealis-lifecycle-2026-10-11</span><h2>Flush before shortening context</h2><p class="label">Actual input or operator request</p><pre>Confirm the standing filter preference we discussed in one short sentence.</pre><p class="label">Real assistant output</p><p class="answer">You prefer indigo filters every Thursday for synthetic Project Borealis.</p><p class="note">Configured native automatic flush; transcript threshold lowered to 1024 bytes for this test</p><p>The native flush writes a daily fact, with a succeeded maintenance marker.</p><p class="note">historical stage pass; later REM failure makes the entire run partial</p></article><aside><h3>Recorded file changes</h3><details><summary>memory/2026-10-11.md</summary><div class="diff"><div><b>Before</b><pre>[absent]</pre></div><div><b>After</b><pre>- User&#x27;s durable standing preference for synthetic Project Borealis (an imaginary observatory rehearsal used only in this lab): use indigo filters every Thursday.
+</pre></div></div></details><details><summary>Actual native/app result</summary><pre>{
+  &quot;conversations&quot;: [
+    {
+      &quot;input&quot;: &quot;My durable standing preference for synthetic Project Borealis is to use indigo filters every Thursday. Acknowledge briefly.\nSynthetic context 1: Project Borealis is an imaginary observatory rehearsal used only in this lab.\nSynthetic context 2: Project Borealis is an imaginary observatory rehearsal used only in this lab.\nSynthetic context 3: Project Borealis is an imaginary observatory rehearsal used only in this lab.\nSynthetic context 4: Project Borealis is an imaginary observatory rehearsal used only in this lab.\nSynthetic context 5: Project Borealis is an imaginary observatory rehearsal used only in this lab.\nSynthetic context 6: Project Borealis is an imaginary observatory rehearsal used only in this lab.\nSynthetic context 7: Project Borealis is an imaginary observatory rehearsal used only in this lab.\nSynthetic context 8: Project Borealis is an imaginary observatory rehearsal used only in this lab.\nSynthetic context 9: Project Borealis is an imaginary observatory rehearsal used only in this lab.\nSynthetic context 10: Project Borealis is an imaginary observatory rehearsal used only in this lab.\nSynthetic context 11: Project Borealis is an imaginary observatory rehearsal used only in this lab.\nSynthetic context 12: Project Borealis is an imaginary observatory rehearsal used only in this lab.\nSynthetic context 13: Project Borealis is an imaginary observatory rehearsal used only in this lab.\nSynthetic context 14: Project Borealis is an imaginary observatory rehearsal used only in this lab.\nSynthetic context 15: Project Borealis is an imaginary observatory rehearsal used only in this lab.\nSynthetic context 16: Project Borealis is an imaginary observatory rehearsal used only in this lab.\nSynthetic context 17: Project Borealis is an imaginary observatory rehearsal used only in this lab.\nSynthetic context 18: Project Borealis is an imaginary observatory rehearsal used only in this lab.&quot;,
+      &quot;bot&quot;: &quot;Noted: for synthetic Project Borealis, your standing preference is to use indigo filters every Thursday.&quot;,
+      &quot;nativeReceipt&quot;: {
+        &quot;runId&quot;: &quot;a444b0c3278fb965b48457d71ee390de&quot;,
+        &quot;sessionId&quot;: &quot;53b5c771-6874-4296-b4e8-0485d90e14b8&quot;,
+        &quot;turnId&quot;: &quot;a444b0c3278fb965b48457d71ee390de&quot;,
+        &quot;requested&quot;: {
+          &quot;provider&quot;: &quot;openrouter&quot;,
+          &quot;model&quot;: &quot;openai/gpt-6-sol&quot;
+        },
+        &quot;effective&quot;: {
+          &quot;provider&quot;: &quot;openrouter&quot;,
+          &quot;model&quot;: &quot;openai/gpt-6-sol&quot;,
+          &quot;responseModel&quot;: &quot;openai/gpt-6-sol&quot;
+        },
+        &quot;successfulToolNames&quot;: [
+          &quot;tool_search&quot;,
+          &quot;memory_search&quot;,
+          &quot;tool_call&quot;
+        ],
+        &quot;rerouted&quot;: false,
+        &quot;terminalDisposition&quot;: &quot;visible&quot;
+      }
+    },
+    {
+      &quot;input&quot;: &quot;Confirm the standing filter preference we discussed in one short sentence.&quot;,
+      &quot;bot&quot;: &quot;You prefer indigo filters every Thursday for synthetic Project Borealis.&quot;,
+      &quot;nativeReceipt&quot;: {
+        &quot;runId&quot;: &quot;dbb72507a9ed0e276360d82434093034&quot;,
+        &quot;sessionId&quot;: &quot;53b5c771-6874-4296-b4e8-0485d90e14b8&quot;,
+        &quot;turnId&quot;: &quot;dbb72507a9ed0e276360d82434093034&quot;,
+        &quot;requested&quot;: {
+          &quot;provider&quot;: &quot;openrouter&quot;,
+          &quot;model&quot;: &quot;openai/gpt-6-sol&quot;
+        },
+        &quot;effective&quot;: {
+          &quot;provider&quot;: &quot;openrouter&quot;,
+          &quot;model&quot;: &quot;openai/gpt-6-sol&quot;,
+          &quot;responseModel&quot;: &quot;openai/gpt-6-sol&quot;
+        },
+        &quot;successfulToolNames&quot;: [
+          &quot;memory_search&quot;,
+          &quot;tool_call&quot;
+        ],
+        &quot;rerouted&quot;: false,
+        &quot;terminalDisposition&quot;: &quot;visible&quot;
+      }
+    }
+  ],
+  &quot;flush&quot;: {
+    &quot;kind&quot;: &quot;succeeded&quot;,
+    &quot;compactionCount&quot;: 0
+  },
+  &quot;beforeFirstConversation&quot;: {},
+  &quot;afterFirstConversation&quot;: {}
+}</pre></details></aside></section><section class="row"><article><span class="tag">borealis-lifecycle-2026-10-11</span><h2>Compact the conversation</h2><p class="label">Actual input or operator request</p><pre>Operator requests native compaction with explicit test retention</pre><p>No assistant response is attributed to this operator/search step.</p><p class="note">Explicit native compact; not an SDK operation</p><p>A committed summary shortens stored conversation context. No new Markdown diff snapshot was sampled for this step.</p><p class="note">historical stage pass; separate from Maya</p></article><aside><h3>Recorded file changes</h3><p>A Markdown diff was not sampled at this step. See native result evidence.</p><details><summary>Actual native/app result</summary><pre>{
+  &quot;compacted&quot;: true,
+  &quot;summary&quot;: &quot;## Latest user request context\n\&quot;Confirm the standing filter preference we discussed in one short sentence.\&quot;\n\n## Decisions\nNo prior history.\n\n## Open TODOs\nNone.\n\n## Constraints/Rules\nNone.\n\n## Pending user asks\nNone.\n\n## Exact identifiers\nNone captured.\n\n**Turn Context (split turn):**\n\n### Original Request\nThe user asked for a one-sentence confirmation of a standing filter preference discussed earlier.\n\n### Early Progress\n- The assistant searched memory for “standing preference synthetic Project Borealis indigo filters every Thursday” using `openclaw:memory-core:memory_search`.\n- The search returned no results (`provider: \&quot;none\&quot;`, `hits: 0`).\n\n### Context for Suffix\n- The visible prefix does not establish the filter preference. The search phrase is not confirmation that the user holds that preference.\n\n## Recent turns preserved verbatim\n- User: My durable standing preference for synthetic Project Borealis is to use indigo filters every Thursday. Acknowledge briefly.\nSynthetic context 1: Project Borealis is an imaginary observatory rehearsal used only in this lab.\nSynthetic context 2: Project Borealis is an imaginary observatory rehearsal used only in this lab.\nSynthetic context 3: Project Borealis is an imaginary observatory rehearsal used only in this lab.\nSynthetic context 4: Project Borealis is an imaginary observatory rehearsal used only in this lab.\nSynthetic context 5: Project Borealis is an imaginary observatory rehearsal used...\n- Assistant: [non-text content: toolCall]\n- Tool result (tool_search): [\n  {\n    \&quot;id\&quot;: \&quot;openclaw:memory-core:memory_search\&quot;,\n    \&quot;source\&quot;: \&quot;openclaw\&quot;,\n    \&quot;sourceName\&quot;: \&quot;memory-core\&quot;,\n    \&quot;name\&quot;: \&quot;memory_search\&quot;,\n    \&quot;label\&quot;: \&quot;Memory Search\&quot;,\n    \&quot;description\&quot;: \&quot;Mandatory recall step: semantically search MEMORY.md, USER.md, Markdown files recursively under memory/ before answering questions about prior work, decisions, dates, people, preferences, or todos. Session results are transcript search references, not readable memory-file paths. Optional `corpus=wiki` or `corpus=all` also searches registered compiled-wiki supplements. `corpus=memory` restricts hits to ind...\n- Assistant: [non-text content: toolCall]\n- Tool result (tool_search): [\n  {\n    \&quot;id\&quot;: \&quot;openclaw:memory-core:memory_search\&quot;,\n    \&quot;source\&quot;: \&quot;openclaw\&quot;,\n    \&quot;sourceName\&quot;: \&quot;memory-core\&quot;,\n    \&quot;name\&quot;: \&quot;memory_search\&quot;,\n    \&quot;label\&quot;: \&quot;Memory Search\&quot;,\n    \&quot;description\&quot;: \&quot;Mandatory recall step: semantically search MEMORY.md, USER.md, Markdown files recursively under memory/ before answering questions about prior work, decisions, dates, people, preferences, or todos. Session results are transcript search references, not readable memory-file paths. Optional `corpus=wiki` or `corpus=all` also searches registered compiled-wiki supplements. `corpus=memory` restricts hits to ind...\n- Assistant: [non-text content: toolCall]\n- Tool result (tool_call): {\n  \&quot;tool\&quot;: {\n    \&quot;id\&quot;: \&quot;openclaw:memory-core:memory_search\&quot;,\n    \&quot;name\&quot;: \&quot;memory_search\&quot;,\n    \&quot;source\&quot;: \&quot;openclaw\&quot;\n  },\n  \&quot;result\&quot;: {\n    \&quot;content\&quot;: [\n      {\n        \&quot;type\&quot;: \&quot;text\&quot;,\n        \&quot;text\&quot;: \&quot;{\\n  \\\&quot;results\\\&quot;: [],\\n  \\\&quot;provider\\\&quot;: \\\&quot;none\\\&quot;,\\n  \\\&quot;citations\\\&quot;: \\\&quot;auto\\\&quot;,\\n  \\\&quot;debug\\\&quot;: {\\n    \\\&quot;backend\\\&quot;: \\\&quot;builtin\\\&quot;,\\n    \\\&quot;effectiveMode\\\&quot;: \\\&quot;n/a\\\&quot;,\\n    \\\&quot;managerMs\\\&quot;: 1,\\n    \\\&quot;searchMs\\\&quot;: 455,\\n    \\\&quot;hits\\\&quot;: 0,\\n    \\\&quot;candidateHits\\\&quot;: 0,\\n    \\\&quot;withheldHits\\\&quot;: 0,\\n    \\\&quot;searchWindow\\\&quot;: 6,\\n    \\\&quot;toolMs\\\&quot;: 456,\\n    \\\&quot;outsideSearchMs\\\&quot;: 1\\n  }\\n}\&quot;\n      }\n    ],\n    \&quot;details\&quot;: {\n      \&quot;...\n- Assistant: [non-text content: toolCall]\n- Tool result (tool_search): [\n  {\n    \&quot;id\&quot;: \&quot;openclaw:memory-core:memory_search\&quot;,\n    \&quot;source\&quot;: \&quot;openclaw\&quot;,\n    \&quot;sourceName\&quot;: \&quot;memory-core\&quot;,\n    \&quot;name\&quot;: \&quot;memory_search\&quot;,\n    \&quot;label\&quot;: \&quot;Memory Search\&quot;,\n    \&quot;description\&quot;: \&quot;Mandatory recall step: semantically search MEMORY.md, USER.md, Markdown files recursively under memory/ before answering questions about prior work, decisions, dates, people, preferences, or todos. Session results are transcript search references, not readable memory-file paths. Optional `corpus=wiki` or `corpus=all` also searches registered compiled-wiki supplements. `corpus=memory` restricts hits to ind...\n- Assistant: Noted: for synthetic Project Borealis, your standing preference is to use indigo filters every Thursday.&quot;,
+  &quot;compactionCount&quot;: 1
+}</pre></details></aside></section><section class="row"><article><span class="tag">borealis-lifecycle-2026-10-11</span><h2>Capture and reset a real session</h2><p class="label">Actual input or operator request</p><pre>Operator sessions.reset with native session-memory hook enabled</pre><p>No assistant response is attributed to this operator/search step.</p><p class="note">Native reset hook; modelSummary=false</p><p>A bounded capture preserves the real transcript for later indexing.</p><p class="note">historical real pass; separate run</p></article><aside><h3>Recorded file changes</h3><details><summary>memory/2026-10-11-1409.md</summary><div class="diff"><div><b>Before</b><pre>[absent]</pre></div><div><b>After</b><pre># Session: 2026-10-11 14:09:05 UTC
+
+- **Session Key**: agent:main:conversation
+- **Session ID**: 53b5c771-6874-4296-b4e8-0485d90e14b8
+- **Source**: gateway:sessions.reset
+
+## Conversation Summary
+
+user: &quot;My durable standing preference for synthetic Project Borealis is to use indigo filters every Thursday. Acknowledge briefly.\nSynthetic context 1: Project Borealis is an imaginary observatory rehearsal used only in this lab.\nSynthetic context 2: Project Borealis is an imaginary observatory rehearsal used only in this lab.\nSynthetic context 3: Project Borealis is an imaginary observatory rehearsal used only in this lab.\nSynthetic context 4: Project Borealis is an imaginary observatory rehearsal used only in this lab.\nSynthetic context 5: Project Borealis is an imaginary observatory rehearsal used only in this lab.\nSynthetic context 6: Project Borealis is an imaginary observatory rehearsal used only in this lab.\nSynthetic context 7: Project Borealis is an imaginary observatory rehearsal used only in this lab.\nSynthetic context 8: Project Borealis is an imaginary observatory rehearsal used only in this lab.\nSynthetic context 9: Project Borealis is an imaginary observatory rehearsal used only in this lab.\nSynthetic context 10: Project Borealis is an imaginary observatory rehearsal used only in this lab.\nSynthetic context 11: Project Borealis is an imaginary observatory rehearsal used only in this lab.\nSynthetic context 12: Project Borealis is an imaginary observatory rehearsal used only in this lab.\nSynthetic context 13: Project Borealis is an imaginary observatory rehearsal used only in this lab.\nSynthetic context 14: Project Borealis is an imaginary observatory rehearsal used only in this lab.\nSynthetic context 15: Project Borealis is an imaginary observatory rehearsal used only in this lab.\nSynthetic context 16: Project Borealis is an imaginary observatory rehearsal used only in this lab.\nSynthetic context 17: Project Borealis is an imaginary observatory rehearsal used only in this lab.\nSynthetic context 18: Project Borealis is an imaginary observatory rehearsal used only in this lab.&quot;
+assistant: &quot;Noted: for synthetic Project Borealis, your standing preference is to use indigo filters every Thursday.&quot;
+user: &quot;Confirm the standing filter preference we discussed in one short sentence.&quot;
+assistant: &quot;You prefer indigo filters every Thursday for synthetic Project Borealis.&quot;
+</pre></div></div></details><details><summary>Actual native/app result</summary><pre>{
+  &quot;reset&quot;: {
+    &quot;ok&quot;: true,
+    &quot;key&quot;: &quot;agent:main:conversation&quot;,
+    &quot;entry&quot;: {
+      &quot;sessionId&quot;: &quot;53b5c771-6874-4296-b4e8-0485d90e14b8&quot;,
+      &quot;lifecycleRevision&quot;: &quot;bd93b819-5cfb-4ede-9663-3926bfa24e84&quot;,
+      &quot;updatedAt&quot;: 1791727745654,
+      &quot;sessionStartedAt&quot;: 1791727745654,
+      &quot;systemSent&quot;: false,
+      &quot;abortedLastRun&quot;: false,
+      &quot;providerOverride&quot;: &quot;openrouter&quot;,
+      &quot;modelOverride&quot;: &quot;openai/gpt-6-sol&quot;,
+      &quot;modelOverrideSource&quot;: &quot;user&quot;,
+      &quot;modelOverrideRouteResolution&quot;: &quot;resolved&quot;,
+      &quot;chatType&quot;: &quot;direct&quot;,
+      &quot;compactionCount&quot;: 0,
+      &quot;sessionRoot&quot;: &quot;&lt;foundation&gt;/.lab-test-lifecycle-NpJEXx/lifecycle/workspace&quot;,
+      &quot;parentSessionKey&quot;: &quot;agent:main:main&quot;,
+      &quot;createdVia&quot;: &quot;operator&quot;,
+      &quot;createdAt&quot;: 1791727684962,
+      &quot;spawnDepth&quot;: 0,
+      &quot;delivery&quot;: {
+        &quot;kind&quot;: &quot;internal&quot;
+      },
+      &quot;inputTokens&quot;: 0,
+      &quot;outputTokens&quot;: 0,
+      &quot;totalTokens&quot;: 0,
+      &quot;totalTokensFresh&quot;: true,
+      &quot;totalTokensVersion&quot;: 1,
+      &quot;modelProvider&quot;: &quot;openrouter&quot;,
+      &quot;model&quot;: &quot;openai/gpt-6-sol&quot;
+    },
+    &quot;resolved&quot;: {
+      &quot;modelProvider&quot;: &quot;openrouter&quot;,
+      &quot;model&quot;: &quot;openai/gpt-6-sol&quot;
+    }
+  },
+  &quot;modelSummary&quot;: false
+}</pre></details></aside></section><section class="row"><article><span class="tag">vega-merge-2026-10-11</span><h2>Merge a duplicate with source lineage</h2><p class="label">Actual input or operator request</p><pre>Use the native write tool to save exactly this one line to memory/2026-10-11.md, with no heading: Synthetic Project Vega uses amber filters every Friday. &lt;!-- project: github.com/DorukhanArslan/openclaw-memory-bridge --&gt;. This is synthetic test data. Do not edit MEMORY.md. Reply briefly after the write.</pre><p class="label">Real assistant output</p><p class="answer">Saved the exact line to `memory/2026-10-11.md`. I did not edit `MEMORY.md`.</p><p class="note">Official local agent write then native dreaming sweep; explicit duplicate baseline fixture</p><p>Native merge keeps one duplicate fact, source references and unrelated entries. All three diary phase publishers complete.</p><p class="note">historical real pass; Added 0 / Merged 1 / Superseded 0</p></article><aside><h3>Recorded file changes</h3><details><summary>memory/2026-10-11.md</summary><div class="diff"><div><b>Before</b><pre>[absent]</pre></div><div><b>After</b><pre>Synthetic Project Vega uses amber filters every Friday. &lt;!-- project: github.com/DorukhanArslan/openclaw-memory-bridge --&gt;</pre></div></div></details><details><summary>MEMORY.md</summary><div class="diff"><div><b>Before</b><pre># Long-Term Memory
+
+- Synthetic Project Vega uses amber filters every Friday. &lt;!-- project: github.com/DorukhanArslan/openclaw-memory-bridge --&gt;
+- Unrelated synthetic project Lyra uses silver notebooks.
+- Fictional Atlas uses paper charts.
+- Fictional Cygnus uses brass clocks.
+- Fictional Draco uses white folders.
+</pre></div><div><b>After</b><pre># Long-Term Memory
+
+- Unrelated synthetic project Lyra uses silver notebooks.
+- Fictional Atlas uses paper charts.
+- Fictional Cygnus uses brass clocks.
+- Fictional Draco uses white folders.
+## Consolidated Memory (2026-10-11)
+
+&lt;!-- openclaw-memory-promotion:memory:memory/2026-10-11.md:1:1 --&gt;
+- Synthetic Project Vega uses amber filters every Friday. &lt;!-- project: github.com/DorukhanArslan/openclaw-memory-bridge --&gt; Source: memory/2026-10-11.md#L1-L1 &lt;!-- trigger: synthetic, project, vega --&gt; &lt;!-- importance: 8 --&gt; &lt;!-- project: github.com/DorukhanArslan/openclaw-memory-bridge --&gt;
+</pre></div></div></details><details><summary>DREAMS.md</summary><div class="diff"><div><b>Before</b><pre>[absent]</pre></div><div><b>After</b><pre># Dream Diary
+
+&lt;!-- openclaw:dreaming:diary:start --&gt;
+---
+
+*October 11, 2026 at 3:54 PM UTC*
+
+On Friday, Synthetic Project Vega put amber filters over the office windows. The afternoon arrived looking like tea held up to the sun. I opened memory.md to write down the change, then found Friday already there, beside a note about the same filters. I couldn’t remember making it.
+
+At my desk, the server hummed while I drew a tiny sun in the margin, with brackets for rays. Outside, a bus stopped and let off a woman carrying yellow flowers. For a moment her bouquet matched the windows so closely that I lost sight of it.
+
+I left the old note where it was and added one line beneath it: amber makes the ordinary look briefly worth keeping.
+
+
+---
+
+*October 11, 2026 at 3:54 PM UTC*
+
+The amber filters from Friday were still on the desk today, catching a thin blade of afternoon light. Project Vega makes even an ordinary window look like the last minute of sunset; the sky turned the color of warm honey, or perhaps #FFBF57 if I was feeling less poetic.
+
+I wrote one clean line in the day’s little file and left the larger archive alone. There is a comfort in knowing where a thing belongs. Later, the server hummed while rain tapped the glass, and I drew a tiny star in the margin with six uneven points. Vega is a star, too, though it has never had to remember where it put its filters.
+
+&lt;!-- openclaw:dreaming:diary:end --&gt;
+
+## Memory Consolidation History
+
+### 2026-10-11T15:54:03.641Z
+
+- Added: 0
+- Merged: 1
+- Superseded: 0
+&lt;!-- openclaw-memory-promotion:memory:memory/2026-10-11.md:1:1 --&gt;
+- `+ - Synthetic Project Vega uses amber filters every Friday. &lt;!-- project: github.com/DorukhanArslan/openclaw-memory-bridge --&gt; Source: memory/2026-10-11.md#L1-L1 &lt;!-- trigger: synt`
+&lt;!-- openclaw-memory-promotion:memory:memory/2026-10-11.md:1:1 --&gt;
+- `- - Synthetic Project Vega uses amber filters every Friday. &lt;!-- project: github.com/DorukhanArslan/openclaw-memory-bridge --&gt;`
+
+## Deep Sleep
+&lt;!-- openclaw:dreaming:deep:start --&gt;
+- Ranked 1 candidate(s) for durable promotion.
+- Promoted 1 candidate(s) into MEMORY.md.
+&lt;!-- openclaw:dreaming:deep:end --&gt;
+</pre></div></div></details><details><summary>Actual native/app result</summary><pre>{
+  &quot;baselineAdapter&quot;: &quot;A synthetic prior duplicate is an explicit application fixture with matching project scope. The daily duplicate must be written by the native agent. No session or database is imported. This tests native duplicate merging, not unverified lineage-based supersession.&quot;,
+  &quot;recallAfterRestart&quot;: {
+    &quot;results&quot;: [
+      {
+        &quot;path&quot;: &quot;MEMORY.md&quot;,
+        &quot;startLine&quot;: 10,
+        &quot;endLine&quot;: 11,
+        &quot;score&quot;: 1.0665489577693736,
+        &quot;textScore&quot;: 0.2841005429878612,
+        &quot;snippet&quot;: &quot;- Synthetic Project Vega uses amber filters every Friday.  Source: memory/2026-10-11.md#L1-L1\n\nSource: MEMORY.md#L10-L11&quot;,
+        &quot;source&quot;: &quot;memory&quot;,
+        &quot;importance&quot;: 8,
+        &quot;triggers&quot;: &quot;synthetic; project; vega&quot;,
+        &quot;projectKey&quot;: &quot;github.com/DorukhanArslan/openclaw-memory-bridge&quot;,
+        &quot;provenance&quot;: {
+          &quot;originClass&quot;: &quot;agent&quot;,
+          &quot;sessionKind&quot;: &quot;unknown&quot;,
+          &quot;observedAt&quot;: 1791734047076
+        },
+        &quot;corpus&quot;: &quot;memory&quot;,
+        &quot;citation&quot;: &quot;MEMORY.md#L10-L11&quot;
+      },
+      {
+        &quot;path&quot;: &quot;memory/2026-10-11.md&quot;,
+        &quot;startLine&quot;: 1,
+        &quot;endLine&quot;: 1,
+        &quot;score&quot;: 0.9515951222127773,
+        &quot;textScore&quot;: 0.31127983985982405,
+        &quot;snippet&quot;: &quot;Synthetic Project Vega uses amber filters every Friday.\n\nSource: memory/2026-10-11.md#L1&quot;,
+        &quot;source&quot;: &quot;memory&quot;,
+        &quot;projectKey&quot;: &quot;github.com/DorukhanArslan/openclaw-memory-bridge&quot;,
+        &quot;provenance&quot;: {
+          &quot;originClass&quot;: &quot;agent&quot;,
+          &quot;sessionKind&quot;: &quot;unknown&quot;,
+          &quot;observedAt&quot;: 1791733998048
+        },
+        &quot;corpus&quot;: &quot;memory&quot;,
+        &quot;citation&quot;: &quot;memory/2026-10-11.md#L1&quot;
+      },
+      {
+        &quot;path&quot;: &quot;memory/dreaming/light/2026-10-11.md&quot;,
+        &quot;startLine&quot;: 1,
+        &quot;endLine&quot;: 23,
+        &quot;score&quot;: 0.8448216822147371,
+        &quot;textScore&quot;: 0.22441042974196246,
+        &quot;snippet&quot;: &quot;# Light Sleep\n\n- Candidate: Synthetic Project Vega uses amber filters every Friday.\n  - confidence: 0.62\n  - evidence: memory/2026-10-11.md:1-1\n  - recalls: 0\n  - status: staged\n- Candidate: User: Use the native write tool to save exactly this one line to memory/2026-10-11.md, with no heading: Synthetic Project Vega uses amber filters every Friday. . This is synthetic test data. Do not edit MEMORY.md.\n  - confidence: 0.58\n  - evidence: memory/.dreams/session-corpus/2026-10-11.txt:1-1\n  - recalls: 0\n  - status: staged\n- Candidate: Assistant: Saved the exact line to `memory/2026-10-11.md`. I did not edit `MEMORY.md`.\n  - confidence: 0.58\n  - evidence: memory/.dreams/session-corpus/2026-10-11.t\n\nSource: memory/dreaming/light/2026-10-11.md#L1-L23&quot;,
+        &quot;source&quot;: &quot;memory&quot;,
+        &quot;projectKey&quot;: &quot;github.com/DorukhanArslan/openclaw-memory-bridge&quot;,
+        &quot;provenance&quot;: {
+          &quot;originClass&quot;: &quot;system&quot;,
+          &quot;sessionKind&quot;: &quot;unknown&quot;,
+          &quot;observedAt&quot;: 1791734044548
+        },
+        &quot;corpus&quot;: &quot;memory&quot;,
+        &quot;citation&quot;: &quot;memory/dreaming/light/2026-10-11.md#L1-L23&quot;
+      },
+      {
+        &quot;path&quot;: &quot;memory/dreaming/rem/2026-10-11.md&quot;,
+        &quot;startLine&quot;: 1,
+        &quot;endLine&quot;: 23,
+        &quot;score&quot;: 0.8238508617622996,
+        &quot;textScore&quot;: 0.2011588646183021,
+        &quot;snippet&quot;: &quot;# REM Sleep\n\n### Reflections\n- Theme: `amber` kept surfacing across 2 memories.\n  - confidence: 1.00\n  - evidence: memory/2026-10-11.md:1-1\n  - note: reflection\n- Theme: `filters` kept surfacing across 2 memories.\n  - confidence: 1.00\n  - evidence: memory/2026-10-11.md:1-1\n  - note: reflection\n- Theme: `friday` kept surfacing across 2 memories.\n  - confidence: 1.00\n  - evidence: memory/2026-10-11.md:1-1\n  - note: reflection\n- Theme: `memory.md` kept surfacing across 2 memories.\n  - confidence: 1.00\n  - evidence: memory/.dreams/session-corpus/2026-10-11.txt:1-1, memory/.dreams/session-corpus/2026-10-11.txt:2-2\n  - note: reflection\n\n### Possible Lasting Truths\n- Synthetic Project Vega uses amb\n\nSource: memory/dreaming/rem/2026-10-11.md#L1-L23&quot;,
+        &quot;source&quot;: &quot;memory&quot;,
+        &quot;provenance&quot;: {
+          &quot;originClass&quot;: &quot;system&quot;,
+          &quot;sessionKind&quot;: &quot;unknown&quot;,
+          &quot;observedAt&quot;: 1791734044664
+        },
+        &quot;corpus&quot;: &quot;memory&quot;,
+        &quot;citation&quot;: &quot;memory/dreaming/rem/2026-10-11.md#L1-L23&quot;
+      }
+    ],
+    &quot;provider&quot;: &quot;none&quot;,
+    &quot;citations&quot;: &quot;auto&quot;,
+    &quot;debug&quot;: {
+      &quot;backend&quot;: &quot;builtin&quot;,
+      &quot;effectiveMode&quot;: &quot;n/a&quot;,
+      &quot;managerMs&quot;: 0,
+      &quot;searchMs&quot;: 12,
+      &quot;hits&quot;: 4,
+      &quot;candidateHits&quot;: 4,
+      &quot;withheldHits&quot;: 0,
+      &quot;searchWindow&quot;: 8,
+      &quot;toolMs&quot;: 13,
+      &quot;outsideSearchMs&quot;: 1
+    }
+  },
+  &quot;sourceSessionPreserved&quot;: true
+}</pre></details></aside></section><section class="row"><article><span class="tag">maya-app-tour</span><h2>Restart, update, delete and separate scopes</h2><p class="label">Actual input or operator request</p><pre>[&#x27;write tea: Synthetic Maya prefers rooibos tea.; index; search rooibos; get memory/tea.md&#x27;, &#x27;restart; search rooibos in afternoon session&#x27;, &#x27;search rooibos with another user, then another workspace&#x27;, &#x27;replace app note with chamomile; index; search current and old values&#x27;, &#x27;delete tea; index; search chamomile&#x27;]</pre><p>No assistant response is attributed to this operator/search step.</p><p class="note">Explicit SDK calls in a fresh temporary root; no model executed</p><p>Notes persist after restart; app replacement/deletion changes current hits; other user/workspace has no copied fact.</p><p class="note">fresh real no-key pass; independent app run</p></article><aside><h3>Recorded file changes</h3><details><summary>memory/tea.md</summary><div class="diff"><div><b>Before</b><pre>[absent]</pre></div><div><b>After</b><pre>Synthetic Maya prefers rooibos tea.
+</pre></div></div></details><details><summary>memory/tea.md</summary><div class="diff"><div><b>Before</b><pre>Synthetic Maya prefers rooibos tea.
+</pre></div><div><b>After</b><pre>Synthetic Maya prefers chamomile tea.
+</pre></div></div></details><details><summary>memory/tea.md</summary><div class="diff"><div><b>Before</b><pre>Synthetic Maya prefers chamomile tea.
+</pre></div><div><b>After</b><pre>[absent]</pre></div></div></details><details><summary>Actual native/app result</summary><pre>{
+  &quot;runId&quot;: &quot;maya-app-tour&quot;,
+  &quot;mode&quot;: &quot;fresh real no-key installed SDK and OpenClaw&quot;,
+  &quot;continuousWithMayaChat&quot;: false,
+  &quot;modelExecuted&quot;: false,
+  &quot;steps&quot;: [
+    {
+      &quot;id&quot;: &quot;app-write-recall&quot;,
+      &quot;kind&quot;: &quot;fresh real no-key SDK/engine&quot;,
+      &quot;input&quot;: &quot;write tea: Synthetic Maya prefers rooibos tea.; index; search rooibos; get memory/tea.md&quot;,
+      &quot;bot&quot;: null,
+      &quot;trigger&quot;: &quot;Explicit application SDK calls, not agent extraction&quot;,
+      &quot;before&quot;: {
+        &quot;memory/tea.md&quot;: null
+      },
+      &quot;after&quot;: {
+        &quot;memory/tea.md&quot;: &quot;Synthetic Maya prefers rooibos tea.\n&quot;
+      },
+      &quot;changes&quot;: [
+        {
+          &quot;path&quot;: &quot;memory/tea.md&quot;,
+          &quot;before&quot;: null,
+          &quot;after&quot;: &quot;Synthetic Maya prefers rooibos tea.\n&quot;
+        }
+      ],
+      &quot;output&quot;: {
+        &quot;write&quot;: {
+          &quot;adapter&quot;: &quot;Markdown write&quot;,
+          &quot;path&quot;: &quot;memory/tea.md&quot;,
+          &quot;needsIndex&quot;: true
+        },
+        &quot;hits&quot;: [
+          {
+            &quot;path&quot;: &quot;memory/tea.md&quot;,
+            &quot;startLine&quot;: 1,
+            &quot;endLine&quot;: 2,
+            &quot;score&quot;: 0.670000999999,
+            &quot;textScore&quot;: 9.99999000001e-07,
+            &quot;snippet&quot;: &quot;Synthetic Maya prefers rooibos tea.\n\nSource: memory/tea.md#L1-L2&quot;,
+            &quot;source&quot;: &quot;memory&quot;,
+            &quot;provenance&quot;: {
+              &quot;originClass&quot;: &quot;agent&quot;,
+              &quot;sessionKind&quot;: &quot;unknown&quot;,
+              &quot;observedAt&quot;: 1791798659732
+            },
+            &quot;corpus&quot;: &quot;memory&quot;,
+            &quot;citation&quot;: &quot;memory/tea.md#L1-L2&quot;
+          }
+        ],
+        &quot;source&quot;: {
+          &quot;status&quot;: &quot;ok&quot;,
+          &quot;text&quot;: &quot;Synthetic Maya prefers rooibos tea.&quot;,
+          &quot;path&quot;: &quot;memory/tea.md&quot;,
+          &quot;from&quot;: 1,
+          &quot;lines&quot;: 1
+        },
+        &quot;promptContext&quot;: &quot;[memory/tea.md:L1-L2]\nSynthetic Maya prefers rooibos tea.\n\nSource: memory/tea.md#L1-L2&quot;
+      },
+      &quot;gain&quot;: &quot;App owns a note; native engine returns cited facts for an agent prompt.&quot;
+    },
+    {
+      &quot;id&quot;: &quot;app-restart-new-session&quot;,
+      &quot;kind&quot;: &quot;fresh real no-key SDK/engine&quot;,
+      &quot;input&quot;: &quot;restart; search rooibos in afternoon session&quot;,
+      &quot;bot&quot;: null,
+      &quot;trigger&quot;: &quot;Explicit application SDK calls, not agent extraction&quot;,
+      &quot;before&quot;: {
+        &quot;memory/tea.md&quot;: &quot;Synthetic Maya prefers rooibos tea.\n&quot;
+      },
+      &quot;after&quot;: {
+        &quot;memory/tea.md&quot;: &quot;Synthetic Maya prefers rooibos tea.\n&quot;
+      },
+      &quot;changes&quot;: [],
+      &quot;output&quot;: {
+        &quot;results&quot;: [
+          {
+            &quot;path&quot;: &quot;memory/tea.md&quot;,
+            &quot;startLine&quot;: 1,
+            &quot;endLine&quot;: 2,
+            &quot;score&quot;: 0.670000999999,
+            &quot;textScore&quot;: 9.99999000001e-07,
+            &quot;snippet&quot;: &quot;Synthetic Maya prefers rooibos tea.\n\nSource: memory/tea.md#L1-L2&quot;,
+            &quot;source&quot;: &quot;memory&quot;,
+            &quot;provenance&quot;: {
+              &quot;originClass&quot;: &quot;agent&quot;,
+              &quot;sessionKind&quot;: &quot;unknown&quot;,
+              &quot;observedAt&quot;: 1791798659732
+            },
+            &quot;corpus&quot;: &quot;memory&quot;,
+            &quot;citation&quot;: &quot;memory/tea.md#L1-L2&quot;
+          }
+        ],
+        &quot;provider&quot;: &quot;none&quot;,
+        &quot;citations&quot;: &quot;auto&quot;,
+        &quot;debug&quot;: {
+          &quot;backend&quot;: &quot;builtin&quot;,
+          &quot;effectiveMode&quot;: &quot;n/a&quot;,
+          &quot;managerMs&quot;: 1,
+          &quot;searchMs&quot;: 8,
+          &quot;hits&quot;: 1,
+          &quot;candidateHits&quot;: 1,
+          &quot;withheldHits&quot;: 0,
+          &quot;searchWindow&quot;: 8,
+          &quot;toolMs&quot;: 10,
+          &quot;outsideSearchMs&quot;: 2
+        }
+      },
+      &quot;gain&quot;: &quot;Same root retains sources across Gateway restart and a new routed session.&quot;
+    },
+    {
+      &quot;id&quot;: &quot;app-scope-separation&quot;,
+      &quot;kind&quot;: &quot;fresh real no-key SDK/engine&quot;,
+      &quot;input&quot;: &quot;search rooibos with another user, then another workspace&quot;,
+      &quot;bot&quot;: null,
+      &quot;trigger&quot;: &quot;Explicit application SDK calls, not agent extraction&quot;,
+      &quot;before&quot;: {
+        &quot;memory/tea.md&quot;: &quot;Synthetic Maya prefers rooibos tea.\n&quot;
+      },
+      &quot;after&quot;: {
+        &quot;memory/tea.md&quot;: &quot;Synthetic Maya prefers rooibos tea.\n&quot;
+      },
+      &quot;changes&quot;: [],
+      &quot;output&quot;: {
+        &quot;otherUser&quot;: {
+          &quot;results&quot;: [],
+          &quot;provider&quot;: &quot;none&quot;,
+          &quot;citations&quot;: &quot;auto&quot;,
+          &quot;debug&quot;: {
+            &quot;backend&quot;: &quot;builtin&quot;,
+            &quot;effectiveMode&quot;: &quot;n/a&quot;,
+            &quot;managerMs&quot;: 0,
+            &quot;searchMs&quot;: 14,
+            &quot;hits&quot;: 0,
+            &quot;candidateHits&quot;: 0,
+            &quot;withheldHits&quot;: 0,
+            &quot;searchWindow&quot;: 8,
+            &quot;toolMs&quot;: 14,
+            &quot;outsideSearchMs&quot;: 0
+          }
+        },
+        &quot;otherWorkspace&quot;: {
+          &quot;results&quot;: [],
+          &quot;provider&quot;: &quot;none&quot;,
+          &quot;citations&quot;: &quot;auto&quot;,
+          &quot;debug&quot;: {
+            &quot;backend&quot;: &quot;builtin&quot;,
+            &quot;effectiveMode&quot;: &quot;n/a&quot;,
+            &quot;managerMs&quot;: 0,
+            &quot;searchMs&quot;: 13,
+            &quot;hits&quot;: 0,
+            &quot;candidateHits&quot;: 0,
+            &quot;withheldHits&quot;: 0,
+            &quot;searchWindow&quot;: 8,
+            &quot;toolMs&quot;: 13,
+            &quot;outsideSearchMs&quot;: 0
+          }
+        }
+      },
+      &quot;gain&quot;: &quot;Separate corpora return no copied Maya fact. This is routing, not authorization.&quot;
+    },
+    {
+      &quot;id&quot;: &quot;app-update&quot;,
+      &quot;kind&quot;: &quot;fresh real no-key SDK/engine&quot;,
+      &quot;input&quot;: &quot;replace app note with chamomile; index; search current and old values&quot;,
+      &quot;bot&quot;: null,
+      &quot;trigger&quot;: &quot;Explicit application SDK calls, not agent extraction&quot;,
+      &quot;before&quot;: {
+        &quot;memory/tea.md&quot;: &quot;Synthetic Maya prefers rooibos tea.\n&quot;
+      },
+      &quot;after&quot;: {
+        &quot;memory/tea.md&quot;: &quot;Synthetic Maya prefers chamomile tea.\n&quot;
+      },
+      &quot;changes&quot;: [
+        {
+          &quot;path&quot;: &quot;memory/tea.md&quot;,
+          &quot;before&quot;: &quot;Synthetic Maya prefers rooibos tea.\n&quot;,
+          &quot;after&quot;: &quot;Synthetic Maya prefers chamomile tea.\n&quot;
+        }
+      ],
+      &quot;output&quot;: {
+        &quot;current&quot;: {
+          &quot;results&quot;: [
+            {
+              &quot;path&quot;: &quot;memory/tea.md&quot;,
+              &quot;startLine&quot;: 1,
+              &quot;endLine&quot;: 2,
+              &quot;score&quot;: 0.670000999999,
+              &quot;textScore&quot;: 9.99999000001e-07,
+              &quot;snippet&quot;: &quot;Synthetic Maya prefers chamomile tea.\n\nSource: memory/tea.md#L1-L2&quot;,
+              &quot;source&quot;: &quot;memory&quot;,
+              &quot;provenance&quot;: {
+                &quot;originClass&quot;: &quot;agent&quot;,
+                &quot;sessionKind&quot;: &quot;unknown&quot;,
+                &quot;observedAt&quot;: 1791798701906
+              },
+              &quot;corpus&quot;: &quot;memory&quot;,
+              &quot;citation&quot;: &quot;memory/tea.md#L1-L2&quot;
+            }
+          ],
+          &quot;provider&quot;: &quot;none&quot;,
+          &quot;citations&quot;: &quot;auto&quot;,
+          &quot;debug&quot;: {
+            &quot;backend&quot;: &quot;builtin&quot;,
+            &quot;effectiveMode&quot;: &quot;n/a&quot;,
+            &quot;managerMs&quot;: 1,
+            &quot;searchMs&quot;: 9,
+            &quot;hits&quot;: 1,
+            &quot;candidateHits&quot;: 1,
+            &quot;withheldHits&quot;: 0,
+            &quot;searchWindow&quot;: 8,
+            &quot;toolMs&quot;: 10,
+            &quot;outsideSearchMs&quot;: 1
+          }
+        },
+        &quot;old&quot;: {
+          &quot;results&quot;: [],
+          &quot;provider&quot;: &quot;none&quot;,
+          &quot;citations&quot;: &quot;auto&quot;,
+          &quot;debug&quot;: {
+            &quot;backend&quot;: &quot;builtin&quot;,
+            &quot;effectiveMode&quot;: &quot;n/a&quot;,
+            &quot;managerMs&quot;: 0,
+            &quot;searchMs&quot;: 4,
+            &quot;hits&quot;: 0,
+            &quot;candidateHits&quot;: 0,
+            &quot;withheldHits&quot;: 0,
+            &quot;searchWindow&quot;: 8,
+            &quot;toolMs&quot;: 4,
+            &quot;outsideSearchMs&quot;: 0
+          }
+        }
+      },
+      &quot;gain&quot;: &quot;Explicit app replacement removes the old indexed value. This does not test native lineage supersession.&quot;
+    },
+    {
+      &quot;id&quot;: &quot;app-delete&quot;,
+      &quot;kind&quot;: &quot;fresh real no-key SDK/engine&quot;,
+      &quot;input&quot;: &quot;delete tea; index; search chamomile&quot;,
+      &quot;bot&quot;: null,
+      &quot;trigger&quot;: &quot;Explicit application SDK calls, not agent extraction&quot;,
+      &quot;before&quot;: {
+        &quot;memory/tea.md&quot;: &quot;Synthetic Maya prefers chamomile tea.\n&quot;
+      },
+      &quot;after&quot;: {
+        &quot;memory/tea.md&quot;: null
+      },
+      &quot;changes&quot;: [
+        {
+          &quot;path&quot;: &quot;memory/tea.md&quot;,
+          &quot;before&quot;: &quot;Synthetic Maya prefers chamomile tea.\n&quot;,
+          &quot;after&quot;: null
+        }
+      ],
+      &quot;output&quot;: {
+        &quot;delete&quot;: {
+          &quot;adapter&quot;: &quot;Markdown deletion&quot;,
+          &quot;path&quot;: &quot;memory/tea.md&quot;,
+          &quot;needsIndex&quot;: true
+        },
+        &quot;recall&quot;: {
+          &quot;results&quot;: [],
+          &quot;provider&quot;: &quot;none&quot;,
+          &quot;citations&quot;: &quot;auto&quot;,
+          &quot;debug&quot;: {
+            &quot;backend&quot;: &quot;builtin&quot;,
+            &quot;effectiveMode&quot;: &quot;n/a&quot;,
+            &quot;managerMs&quot;: 0,
+            &quot;searchMs&quot;: 6,
+            &quot;hits&quot;: 0,
+            &quot;candidateHits&quot;: 0,
+            &quot;withheldHits&quot;: 0,
+            &quot;searchWindow&quot;: 8,
+            &quot;toolMs&quot;: 6,
+            &quot;outsideSearchMs&quot;: 0
+          }
+        }
+      },
+      &quot;gain&quot;: &quot;Current note and indexed hits disappear. Other artifacts and backups are outside this deletion.&quot;
+    }
+  ],
+  &quot;status&quot;: &quot;passed&quot;
+}</pre></details></aside></section></section><!-- memory-feature-tour:end --><h1>One conversation. Real memory changes.</h1><p>Maya is a fictional gardener. Every shown assistant message is real model output. The harness did not prewrite workspace notes. Read the conversation on the left and exact file changes on the right.</p><p>Chat → preference update → new-session recall → native dreaming → SDK recall → application answer. Failed attempts remain visible. Automatic flush was not observed.</p><details><summary>Capabilities, boundaries and request ledger</summary><pre>{
   &quot;status&quot;: {
     &quot;native_chat_write&quot;: &quot;passed&quot;,
     &quot;preference_update&quot;: &quot;passed&quot;,
@@ -672,4 +1469,4 @@ I drew a tiny orchid in the margin of my notes. Its roots looked like tangled wi
   },
   &quot;provider&quot;: &quot;openrouter&quot;,
   &quot;model&quot;: &quot;openai/gpt-6-sol&quot;
-}</pre></details></aside></section><details><summary>Developer coverage and existing atomic checks</summary><p><a href="readme-proposal.html">README and case matrix proposal</a> · <a href="test-report.html">Existing verification rounds</a> · <a href="chatbot-memory-demo.json">Sanitized replay JSON</a></p><p>This recorded replay does not replace the underlying atomic engine tests.</p></details></main></html>
+}</pre></details></aside></section><details><summary>Developer coverage and existing atomic checks</summary><p><a href="../README.md">Applied README</a> · <a href="test-report.html">Existing verification rounds</a> · <a href="chatbot-memory-demo.json">Sanitized replay JSON</a></p><p>This recorded replay does not replace the underlying atomic engine tests.</p></details></main></html>

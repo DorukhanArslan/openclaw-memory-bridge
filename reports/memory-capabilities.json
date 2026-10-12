@@ -1,0 +1,226 @@
+{
+  "engine": "OpenClaw 2026.9.9",
+  "runtime": "Node 24.16.0",
+  "scope": "Installed builtin Memory Core and current bridge access; not every OpenClaw plugin or option is a tested demo.",
+  "sourceNote": "Pinned package code and bundled docs were inspected. Online docs may describe newer behavior. No internal engine module is imported by the bridge.",
+  "repositoryAccess": [
+    "src/lab.ts",
+    "src/stdio.ts",
+    "src/gateway.ts",
+    "python/src/openclaw_memory_bridge/client.py"
+  ],
+  "features": [
+    {
+      "id": "keyword",
+      "native": "FTS5/BM25 retrieval",
+      "sdk": "search",
+      "labOperator": "search/index/status",
+      "coverage": "real no-key engine and Maya",
+      "pinnedCode": [
+        "memory-schema-SE7C0M3V.mjs",
+        "memory-tool-contract-DOz26L8b.mjs"
+      ],
+      "boundary": ""
+    },
+    {
+      "id": "vector-hybrid",
+      "native": "Embedding vectors and hybrid retrieval",
+      "sdk": "search uses configured native engine; no provider selector",
+      "labOperator": "vector/native-vector; gated smoke",
+      "coverage": "historical genuine Zephyr embedding + source pass",
+      "pinnedCode": [
+        "memory-search-CIhUURbE.mjs",
+        "memory-embedding-adapter-BpxrOoe_.mjs"
+      ],
+      "boundary": "No new embedding run. Local provider availability is not proved by config."
+    },
+    {
+      "id": "source",
+      "native": "memory_get exact bounded excerpts and citations",
+      "sdk": "get for allowed notes",
+      "labOperator": "get; ReadyGateway.get also accepts USER.md",
+      "coverage": "Maya native USER.md get passes; Python USER.md get rejects",
+      "pinnedCode": [
+        "memory-tool-contract-DOz26L8b.mjs"
+      ],
+      "boundary": "Session transcript hits use history, not memory_get."
+    },
+    {
+      "id": "persistence",
+      "native": "Per-agent SQLite index and Markdown sources",
+      "sdk": "restart and reconnect with same root",
+      "labOperator": "restart/status/index",
+      "coverage": "fresh SDK + historical Vega restart recall",
+      "pinnedCode": [
+        "openclaw-agent-schema-CV4V4sh3.mjs",
+        "memory-schema-SE7C0M3V.mjs"
+      ],
+      "boundary": ""
+    },
+    {
+      "id": "bootstrap-profile",
+      "native": "Native prompt loads workspace profile/template context",
+      "sdk": "no bootstrap or profile-write API",
+      "labOperator": "native agent CLI; lab skipBootstrap=true",
+      "coverage": "actual USER.md prompt trace; other files absent",
+      "pinnedCode": [
+        "bootstrap-files-CgqY-7GK.mjs",
+        "workspace-bootstrap-policy-DaS4N8nC.mjs"
+      ],
+      "boundary": "BOOTSTRAP.md creation/load is not demonstrated here; absent templates have placeholders."
+    },
+    {
+      "id": "agent-note",
+      "native": "Agent read/write/edit tools can maintain profile/daily files",
+      "sdk": "no chat/extraction method",
+      "labOperator": "real native chat",
+      "coverage": "Maya real tool calls + exact diffs",
+      "pinnedCode": [
+        "memory-tool-contract-DOz26L8b.mjs",
+        "memory-workspace-files-CC0bKS3d.mjs"
+      ],
+      "boundary": "Explicit app write is not automatic extraction."
+    },
+    {
+      "id": "flush-compaction",
+      "native": "Threshold-based pre-compaction memory flush and native summary compaction",
+      "sdk": "state inspection only",
+      "labOperator": "flush-config/chat/compact; paid guarded runners",
+      "coverage": "separate real Borealis flush + compaction; absent in Maya E2E",
+      "pinnedCode": [
+        "memory-flush-session-BjKZkw5O.mjs",
+        "compaction-DG39GCC7.mjs"
+      ],
+      "boundary": "Existing runner uses low test thresholds. Not a per-message guarantee; no new run fits retained budget."
+    },
+    {
+      "id": "session-capture",
+      "native": "Native reset hook captures bounded session material",
+      "sdk": "configure(ingestion=True), reset_session, session_history/state; labelled fixture",
+      "labOperator": "ingestion/session-reset/lifecycle-demo",
+      "coverage": "separate real Borealis capture + SDK no-key fixture checks",
+      "pinnedCode": [
+        "session-ingestion-Dy5uAq-_.mjs"
+      ],
+      "boundary": "Fixture injection generates no model reply. Reset capture differs from model extraction."
+    },
+    {
+      "id": "dreaming",
+      "native": "Light stages, REM reflects, deep promotes grounded sources",
+      "sdk": "dream_status/dream_diary inspection only",
+      "labOperator": "dream-run; rem-preview/rem-stage/promote/explain",
+      "coverage": "Maya Add 1; Vega duplicate Merged 1; model diary phase events",
+      "pinnedCode": [
+        "dreaming-phases-rmgXNBLP.mjs",
+        "dreaming-narrative-B8Hp3Mc_.mjs"
+      ],
+      "boundary": "Operator-triggered sweeps; thresholds are explicit test settings. Diary is not a current truth source."
+    },
+    {
+      "id": "consolidation-lineage",
+      "native": "Adds, merges and eligible supersessions with provenance",
+      "sdk": "inspect outputs only",
+      "labOperator": "native deep sweep/explain",
+      "coverage": "addition + duplicate merge passed; changed-fact supersession unverified",
+      "pinnedCode": [
+        "memory-artifact-provenance-DhnyWiV1.mjs",
+        "memory-entry-origins-BCQSIB3X.mjs"
+      ],
+      "boundary": "App file replacement does not prove lineage-based supersession."
+    },
+    {
+      "id": "app-crud-scopes",
+      "native": "Native reindex reflects source changes",
+      "sdk": "write/delete/index and workspace/user route",
+      "labOperator": "note/delete/use",
+      "coverage": "fresh Maya app write/update/delete and symmetric scope checks",
+      "pinnedCode": [
+        "memory-schema-SE7C0M3V.mjs"
+      ],
+      "boundary": "Writes/deletes/routing are app adapters. No authorization or secure-erasure claim."
+    },
+    {
+      "id": "ranking",
+      "native": "Native relevance/importance/recency/project ranking, MMR and query expansion",
+      "sdk": "search preserves native ordering; no ranking knobs",
+      "labOperator": "native config; promotion explanation",
+      "coverage": "installed implementation; individual ranking policies not accepted separately",
+      "pinnedCode": [
+        "memory-search-CIhUURbE.mjs",
+        "dreaming-phases-rmgXNBLP.mjs"
+      ],
+      "boundary": ""
+    },
+    {
+      "id": "trusted-pre-reply",
+      "native": "Curated trigger/project recall with provenance gating",
+      "sdk": "no active-recall control",
+      "labOperator": "native agent configuration",
+      "coverage": "installed capability; no dedicated demo",
+      "pinnedCode": [
+        "memory-path-provenance-C84vBRrO.mjs",
+        "memory-tool-contract-DOz26L8b.mjs"
+      ],
+      "boundary": "No learned relevance reranker or active-memory claim."
+    },
+    {
+      "id": "index-maintenance",
+      "native": "Incremental sync, file watchers, replacement index, cache and derived-index recovery",
+      "sdk": "index/status/restart; no derived reset method",
+      "labOperator": "official memory index/status/reset",
+      "coverage": "explicit reindex after source-config mismatch passed; watcher/cache/reset behavior not individually tested",
+      "pinnedCode": [
+        "memory-rebuild-notice-9mxFMQoD.mjs",
+        "memory-schema-SE7C0M3V.mjs"
+      ],
+      "boundary": "Do not remove the shared agent database to reset memory."
+    },
+    {
+      "id": "historical-backfill",
+      "native": "Grounded REM/session backfill, reversible staging and rollback",
+      "sdk": "not exposed",
+      "labOperator": "rem-preview/rem-stage; further official CLI controls",
+      "coverage": "existing labelled fixture backfill tests; no complete same-user chat demo",
+      "pinnedCode": [
+        "session-backfill-CqTlHwCA.mjs",
+        "session-ingestion-Dy5uAq-_.mjs"
+      ],
+      "boundary": ""
+    },
+    {
+      "id": "admission-forget",
+      "native": "Native exclusion policy and provenance-based forget/dry-run",
+      "sdk": "not exposed",
+      "labOperator": "official native CLI, not a lab wrapper",
+      "coverage": "installed capability; not exercised",
+      "pinnedCode": [
+        "cli.runtime-CVRN4xUp.mjs",
+        "session-ingestion-Dy5uAq-_.mjs"
+      ],
+      "boundary": "Deleting one app note does not purge every session-derived copy."
+    },
+    {
+      "id": "extra-multimodal-cjk",
+      "native": "Extra paths, optional image/audio embeddings, trigram CJK tokenization",
+      "sdk": "no configuration API",
+      "labOperator": "native operator configuration outside current wrappers",
+      "coverage": "not exercised; native config/source inventory only",
+      "pinnedCode": [
+        "memory-search-CIhUURbE.mjs",
+        "memory-schema-SE7C0M3V.mjs"
+      ],
+      "boundary": ""
+    },
+    {
+      "id": "session-wiki-corpora",
+      "native": "Optional semantic session corpus and registered wiki supplements",
+      "sdk": "search wrapper fixes corpus=memory",
+      "labOperator": "native memory_search supports sessions/wiki/all",
+      "coverage": "not exercised through this bridge",
+      "pinnedCode": [
+        "memory-tool-contract-DOz26L8b.mjs"
+      ],
+      "boundary": "Honcho/LanceDB/active-memory/wiki plugin integration is outside this lab."
+    }
+  ]
+}

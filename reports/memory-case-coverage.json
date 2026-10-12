@@ -1,0 +1,157 @@
+{
+  "scope": "Installed builtin Memory Core and current bridge access; not every OpenClaw plugin or option is a tested demo.",
+  "cases": [
+    {
+      "id": "C01",
+      "title": "Load saved profile before a reply",
+      "runId": "maya-chat-2026-10-12",
+      "status": "partial: USER.md verified; bootstrap templates not demonstrated",
+      "featureIds": [
+        "bootstrap-profile"
+      ]
+    },
+    {
+      "id": "C02",
+      "title": "Save identity and daily event",
+      "runId": "maya-chat-2026-10-12",
+      "status": "real recorded",
+      "featureIds": [
+        "agent-note"
+      ]
+    },
+    {
+      "id": "C03",
+      "title": "Keyword recall and exact native source",
+      "runId": "maya-chat-2026-10-12",
+      "status": "real recorded",
+      "featureIds": [
+        "keyword",
+        "source"
+      ]
+    },
+    {
+      "id": "C04",
+      "title": "Find different wording with real embeddings",
+      "runId": "zephyr-semantic-2026-10-11",
+      "status": "historical real pass; separate run",
+      "featureIds": [
+        "vector-hybrid",
+        "source"
+      ]
+    },
+    {
+      "id": "C05",
+      "title": "Change the preference",
+      "runId": "maya-chat-2026-10-12",
+      "status": "real recorded",
+      "featureIds": [
+        "agent-note",
+        "consolidation-lineage"
+      ]
+    },
+    {
+      "id": "C06",
+      "title": "Flush before shortening context",
+      "runId": "borealis-lifecycle-2026-10-11",
+      "status": "historical stage pass; later REM failure makes the entire run partial",
+      "featureIds": [
+        "flush-compaction",
+        "agent-note"
+      ]
+    },
+    {
+      "id": "C07",
+      "title": "Compact the conversation",
+      "runId": "borealis-lifecycle-2026-10-11",
+      "status": "historical stage pass; separate from Maya",
+      "featureIds": [
+        "flush-compaction"
+      ]
+    },
+    {
+      "id": "C08",
+      "title": "Capture and reset a real session",
+      "runId": "borealis-lifecycle-2026-10-11",
+      "status": "historical real pass; separate run",
+      "featureIds": [
+        "session-capture"
+      ]
+    },
+    {
+      "id": "C09",
+      "title": "Light \u2192 REM \u2192 deep maintenance",
+      "runId": "maya-chat-2026-10-12",
+      "status": "real recorded",
+      "featureIds": [
+        "dreaming",
+        "consolidation-lineage"
+      ]
+    },
+    {
+      "id": "C10",
+      "title": "Merge a duplicate with source lineage",
+      "runId": "vega-merge-2026-10-11",
+      "status": "historical real pass; Added 0 / Merged 1 / Superseded 0",
+      "featureIds": [
+        "dreaming",
+        "consolidation-lineage"
+      ]
+    },
+    {
+      "id": "C11",
+      "title": "Answer after maintenance with app context",
+      "runId": "maya-chat-2026-10-12",
+      "status": "real recorded",
+      "featureIds": [
+        "keyword",
+        "source"
+      ]
+    },
+    {
+      "id": "C12",
+      "title": "Restart, update, delete and separate scopes",
+      "runId": "maya-app-tour",
+      "status": "fresh real no-key pass; independent app run",
+      "featureIds": [
+        "persistence",
+        "app-crud-scopes"
+      ]
+    },
+    {
+      "id": "C13",
+      "title": "Remaining native options",
+      "runId": "inventory-only",
+      "status": "not a passed demonstration",
+      "featureIds": [
+        "ranking",
+        "trusted-pre-reply",
+        "index-maintenance",
+        "historical-backfill",
+        "admission-forget",
+        "extra-multimodal-cjk",
+        "session-wiki-corpora"
+      ]
+    }
+  ],
+  "gaps": {
+    "sameMayaContinuousAllFeatures": false,
+    "bootstrapTemplateLoad": "not demonstrated; USER.md load verified",
+    "MayaAutomaticFlush": "not observed",
+    "MayaCompaction": "not run",
+    "MayaPostDreamNativeAgent": "blocked by input-byte admission; bot is null",
+    "PythonUSERGet": "rejected adapter path; native get and Python search evidence retained",
+    "changedFactSupersession": "unverified",
+    "diaryCurrentPreference": "older mint fragment remains",
+    "newPaidRuns": 0,
+    "historicalRunsAreNotContinuousWithMaya": true,
+    "budget": {
+      "cumulativeLimitUsd": 5,
+      "lastMeasuredUsedUsdBeforeFinalAnswer": 0.3256195199999965,
+      "retainedE2ERequests": 24,
+      "remainingSerializedInputBytes": 13880,
+      "existingFullFlushEnvelopeUsd": 4.83,
+      "minimumTotalWithLastMeasuredUsageUsd": 5.15561952,
+      "note": "Final answer cost was not resampled. No new envelope or ledger reset was introduced."
+    }
+  }
+}
