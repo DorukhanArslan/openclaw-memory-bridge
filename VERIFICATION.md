@@ -1,3 +1,25 @@
+# Latest verification: native merge and installed Python SDK
+
+The current feature branch verifies real native duplicate consolidation, complete model Dream Diary generation, and a minimal installed Python client. See [test rounds](reports/test-report.html), [sanitized native evidence](reports/native-acceptance-summary.json), and [SDK setup](python/README.md).
+
+Native acceptance passed all six stages: daily agent write, model consolidation, one durable duplicate merge, source reference, complete model diary publication, and durable recall after restart. Native counts are Added 0 / Merged 1 / Superseded 0. Source-session identity was preserved. Unrelated facts remained. This does not verify changed-fact supersession, which requires matching native lineage.
+
+The clean Python 3.12 venv installed the built wheel. A separate app ran with `-I` and passed eleven actual no-key OpenClaw checks: recall, source reads, updates, prompt context insertion, Gateway restart, scope isolation, native reset-hook capture from a labelled fixture, native lifecycle inspection, structured errors, reconnect persistence, and deletion. Three additional Python protocol fixture tests passed; those fixtures test client errors and do not prove model extraction. Syntax, TypeScript, and Biome checks passed. The final serial Node suite completed in 382.18 seconds: **77 tests, 73 passed, 0 failed, 4 skipped, 0 cancelled**. Skipped optional checks are not counted as new model or vector passes. Raw output is local in `evidence/sdk-acceptance/node-tests.log`.
+
+The sampled cumulative provider counter after the successful native test was about 0.22686 USD, below the approved 5 USD ceiling at measurement. No key was manually read or displayed. No credential or account setting changed. The utility output adapter only adds an explicit finite token ceiling; it does not alter native memory semantics. No push, merge, deployment, or package publication occurred for this branch.
+
+## Narrow review follow-up
+
+Both PR #1 findings apply to the local feature branch. The old checkpoint selector rejected a valid prior-day artifact just after UTC midnight. The old request recorder followed a ledger symlink and changed a temporary synthetic target. Both behaviors were reproduced before fixing them; no user file, secret, or network request was involved.
+
+Commit `735f245` selects exactly one verified dated note from the checkpoint itself and preserves its source date. It rejects invalid dates, ambiguous records, and failed evidence. Ledger reads and writes now open with `O_NOFOLLOW`, check the opened descriptor for a regular file, and truncate only after validation. All acceptance entry points and the native budget recorder use that reader. Admission and denial tests leave linked targets byte-identical. Regular-file counters remain intact.
+
+Eight targeted checks passed. TypeScript and Biome passed. The full serial regression ran once at this commit and passed in 384.65 seconds: **81 tests, 77 passed, 0 failed, 4 skipped, 0 cancelled**. Local raw evidence is `evidence/review-regression/full-regression.log`. No paid acceptance, SDK rebuild, push, or merge is part of this follow-up. Earlier genuine model results remain historical evidence; they are not claimed as rerun by these file-access tests. See the [round-by-round HTML report](reports/test-report.html) and `tests/review-regression.test.ts`.
+
+## Historical verification records
+
+The records below describe earlier checkpoints. Their then-pending consolidation status is superseded by the current result above; their failures remain failures.
+
 # Verification record
 
 ## Current closed checkpoint — 2026-10-11

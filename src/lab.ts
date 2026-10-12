@@ -22,8 +22,13 @@ import {
   assertNativeOperationAllowed,
   PAID_SELECTION,
 } from "./budget-preflight.ts";
+import { consolidationCheckpoint } from "./consolidation-checkpoint.ts";
 import { ReadyGateway } from "./gateway.ts";
-import { LIFECYCLE_LIMITS } from "./lifecycle-request-budget.ts";
+import {
+  CONSOLIDATION_LIMITS,
+  LIFECYCLE_LIMITS,
+  readLifecycleLedger,
+} from "./lifecycle-request-budget.ts";
 import {
   confirmSmoke,
   fixtureEndpoint,
@@ -1045,9 +1050,7 @@ export class Lab {
         result.nativeConsolidationLog = [];
       }
       result.finalMarkdown = await snapshot();
-      result.requestLedger = JSON.parse(
-        await readFile(this.lifecycleLedger, "utf8"),
-      );
+      result.requestLedger = readLifecycleLedger(this.lifecycleLedger);
       this.lifecycleLedger = undefined;
       this.settings = { provider: "none" };
       await this.provision();
@@ -1093,17 +1096,7 @@ export class Lab {
         "utf8",
       ),
     );
-    const day = new Date().toISOString().slice(0, 10);
-    const note = checkpoint.afterFlush?.[`memory/${day}.md`];
-    if (
-      checkpoint.stages?.flush !== "pass" ||
-      checkpoint.stages?.extraction !== "pass" ||
-      typeof note !== "string" ||
-      Buffer.byteLength(note) > 1000 ||
-      !/indigo filters every Thursday/i.test(note) ||
-      !/synthetic Project Borealis/i.test(note)
-    )
-      throw new Error("Verified synthetic model-note checkpoint is required.");
+    const { day, note } = consolidationCheckpoint(checkpoint);
     this.lifecycleLedger = resolve(ledgerPath);
     this.settings = {
       provider: "none",
@@ -1183,9 +1176,7 @@ export class Lab {
       } catch {
         result.costMeasurement = "unavailable";
       }
-      result.requestLedger = JSON.parse(
-        await readFile(this.lifecycleLedger, "utf8"),
-      );
+      result.requestLedger = readLifecycleLedger(this.lifecycleLedger);
       try {
         result.nativeDiagnostics = this.redact(
           await readFile(join(this.directory, "openclaw.log"), "utf8"),
@@ -1200,6 +1191,219 @@ export class Lab {
       } catch {
         result.nativeDiagnostics = [];
       }
+      this.lifecycleLedger = undefined;
+      this.settings = { provider: "none" };
+      await this.provision();
+    }
+    return result;
+  }
+
+  /** One fixed real-model scenario. The source session stays in this workspace. */
+  async boundedProvenanceAcceptance(ledgerPath: string) {
+    await verifySmokeRuntime();
+    requireEnvironment([PAID_SELECTION.keyEnv]);
+    if (
+      this.lifecycleLedger ||
+      this.settings.textModel ||
+      (await this.listNotes()).length
+    )
+      throw new Error("Provenance acceptance needs a fresh workspace.");
+    this.lifecycleLedger = resolve(ledgerPath);
+    this.settings = {
+      provider: "none",
+      dreaming: true,
+      flush: "normal",
+      sessionMemory: true,
+      textModel: nativeModel(PAID_SELECTION.chat, PAID_SELECTION.keyEnv),
+    };
+    const result: Record<string, unknown> = {
+      mode: "real-provider/native-provenance-consolidation",
+      outputAdapter:
+        "For native utility calls that omit an output-token limit, the test transport adds max_completion_tokens=2048. It preserves model, prompt, tools, and memory semantics. This is an application budget adapter, not a native dreaming capability.",
+      stages: {},
+      limits: CONSOLIDATION_LIMITS,
+      testThresholds: { minScore: 0, minRecallCount: 1, minUniqueQueries: 1 },
+      baselineAdapter:
+        "A synthetic prior duplicate is an explicit application fixture with matching project scope. The daily duplicate must be written by the native agent. No session or database is imported. This tests native duplicate merging, not unverified lineage-based supersession.",
+    };
+    const stages = result.stages as Record<string, string>;
+    const snapshot = async () => {
+      const files: Record<string, string> = {};
+      for (const name of await this.listNotes())
+        files[`memory/${name}`] = await readFile(
+          join(this.notes, name),
+          "utf8",
+        );
+      for (const name of ["MEMORY.md", "DREAMS.md"]) {
+        try {
+          files[name] = await readFile(
+            join(this.directory, "workspace", name),
+            "utf8",
+          );
+        } catch (error) {
+          if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+        }
+      }
+      return files;
+    };
+    try {
+      await this.provision();
+      await this.validateConfig();
+      const before = smokeBudget(await this.providerUsage(), {
+        keyLimit: true,
+        prices: SMOKE.prices,
+        providerLimitUsd: 50,
+      });
+      result.beforeBudget = before;
+      if (before.usedUsd + CONSOLIDATION_LIMITS.estimatedUsd > 5)
+        throw new Error(
+          "Consolidation envelope exceeds the cumulative 5 USD test ceiling.",
+        );
+      const prior =
+        "# Long-Term Memory\n\n- Synthetic Project Vega uses amber filters every Friday. <!-- project: github.com/DorukhanArslan/openclaw-memory-bridge -->\n- Unrelated synthetic project Lyra uses silver notebooks.\n- Fictional Atlas uses paper charts.\n- Fictional Cygnus uses brass clocks.\n- Fictional Draco uses white folders.\n";
+      await writeFile(join(this.directory, "workspace", "MEMORY.md"), prior, {
+        mode: 0o600,
+        flag: "wx",
+      });
+      result.before = await snapshot();
+      const day = new Date().toISOString().slice(0, 10);
+      // The official embedded CLI is local operator input. Generic gateway
+      // call requests only method-minimal scopes and cannot attest owner input.
+      // No scope, security policy, or stored provenance is changed here.
+      await this.stop();
+      result.conversation = JSON.parse(
+        await this.native(
+          [
+            "agent",
+            "--local",
+            "--agent",
+            "main",
+            "--session-key",
+            "agent:main:main",
+            "--message",
+            `Use the native write tool to save exactly this one line to memory/${day}.md, with no heading: Synthetic Project Vega uses amber filters every Friday. <!-- project: github.com/DorukhanArslan/openclaw-memory-bridge -->. This is synthetic test data. Do not edit MEMORY.md. Reply briefly after the write.`,
+            "--thinking",
+            "off",
+            "--timeout",
+            "120",
+            "--json",
+          ],
+          150000,
+          false,
+          true,
+        ),
+      );
+      result.inputOrigin =
+        "Official agent --local operator CLI; native ownership classification, no manual provenance edits";
+      result.sourceHistory = await this.sessionHistory("main");
+      result.sourceSession = await this.sessionState("main");
+      result.afterConversation = await snapshot();
+      const daily =
+        (result.afterConversation as Record<string, string>)[
+          `memory/${day}.md`
+        ] ?? "";
+      stages.nativeDailyWrite =
+        /amber/i.test(daily) && /Friday/i.test(daily) ? "pass" : "fail";
+      if (stages.nativeDailyWrite !== "pass")
+        throw new Error(
+          "Native agent did not produce the expected daily source.",
+        );
+      await this.index();
+      result.recalls = [];
+      for (const query of ["amber", "Vega amber", "Friday"])
+        (result.recalls as unknown[]).push(await this.search(query, "main"));
+      result.beforeSweepStatus = await this.dreamStatus();
+      result.beforeSweepExplanation = await this.explain("amber");
+      result.sweep = await this.dreamRun();
+      // Cron completion can precede detached native diary calls. Observe the
+      // native publication log; do not manufacture text or accept a fallback.
+      const deadline = Date.now() + 150000;
+      while (Date.now() < deadline) {
+        const log = this.redact(
+          await readFile(join(this.directory, "openclaw.log"), "utf8"),
+        );
+        const completed = (log.match(/dream diary entry written for/g) ?? [])
+          .length;
+        const degraded = /narrative generation (?:failed|used fallback)/.test(
+          log,
+        );
+        if (
+          completed >= 3 ||
+          degraded ||
+          /candidates=0, applied=0.*narrativesPending=0/.test(log)
+        )
+          break;
+        await delay(1000);
+      }
+      result.after = await snapshot();
+      result.diary = await this.dreamDiary();
+      result.afterSweepStatus = await this.dreamStatus();
+      const files = result.after as Record<string, string>;
+      const memory = files["MEMORY.md"] ?? "";
+      const dreams = files["DREAMS.md"] ?? "";
+      const log = this.redact(
+        await readFile(join(this.directory, "openclaw.log"), "utf8"),
+      );
+      result.nativeDiagnostics = log
+        .split("\n")
+        .filter((line) =>
+          /consolidat|promotion|rewrite|fallback|degraded|dream diary|Finite lifecycle/i.test(
+            line,
+          ),
+        )
+        .slice(-60);
+      stages.modelConsolidation =
+        /(?:Merged|Superseded): [1-9]/.test(dreams) &&
+        !/consolidation .*fallback/i.test(log)
+          ? "pass"
+          : "fail";
+      stages.durableMerge =
+        /amber/i.test(memory) &&
+        /Friday/i.test(memory) &&
+        !/indigo/i.test(memory) &&
+        /silver notebooks/i.test(memory) &&
+        (
+          memory.match(
+            /Synthetic Project Vega uses amber filters every Friday/g,
+          ) ?? []
+        ).length === 1 &&
+        /Consolidated Memory/.test(memory)
+          ? "pass"
+          : "fail";
+      stages.sourceReference = new RegExp(
+        `(?:source=|Source: )memory/${day}`,
+      ).test(memory)
+        ? "pass"
+        : "fail";
+      stages.modelDiary =
+        (log.match(/dream diary entry written for/g) ?? []).length >= 3 &&
+        !/narrative generation (?:failed|used fallback)/.test(log) &&
+        dreams.length > 100
+          ? "pass"
+          : "fail";
+      await this.index();
+      await this.restart();
+      result.recallAfterRestart = await this.search("amber", "later-session");
+      stages.persistenceRecall = (
+        result.recallAfterRestart as SearchResult
+      ).results.some((hit) => hit.path === "MEMORY.md")
+        ? "pass"
+        : "fail";
+      result.sessionAfterRestart = await this.sessionState("main");
+    } catch (error) {
+      result.error = this.redact((error as Error).message);
+    } finally {
+      await this.stop();
+      try {
+        result.afterBudget = smokeBudget(await this.providerUsage(), {
+          keyLimit: true,
+          prices: SMOKE.prices,
+          providerLimitUsd: 50,
+        });
+      } catch {
+        result.costMeasurement = "unavailable";
+      }
+      result.requestLedger = readLifecycleLedger(this.lifecycleLedger);
       this.lifecycleLedger = undefined;
       this.settings = { provider: "none" };
       await this.provision();

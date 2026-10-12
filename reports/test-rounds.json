@@ -1,0 +1,145 @@
+[
+  {
+    "Round": "1. Native contract and budget supervision",
+    "Test goal": "Find why the previous consolidation test had no eligible recall signal.",
+    "What we did": "Read the pinned native recall and dreaming code. Run the native transport and request budget tests.",
+    "Expected result": "Recall recording requires dreaming to be on. All paid requests have a finite output and total limit.",
+    "Actual result": "Three budget tests passed. Two native HTTP tests passed. Type checks passed. The native code records recall only while dreaming is on. The new finite profile admits at most 16 requests, 180000 input bytes, and 40000 output tokens.",
+    "What this means for your app": "Turn dreaming on before recall. Keep the source session in the same native workspace.",
+    "Status": "PASS",
+    "Evidence": "tests/lifecycle-budget.test.ts; tests/native-bootstrap.test.ts",
+    "Commit": "1ce744d"
+  },
+  {
+    "Round": "2. Retained-session real model acceptance",
+    "Test goal": "Update a prior durable preference with native consolidation and create a model Dream Diary.",
+    "What we did": "Keep the real source session in one workspace. Ask GPT-6 Sol to write an updated daily note. Search it and run the native dreaming sweep.",
+    "Expected result": "A sourced durable update replaces the prior preference. The model writes the diary.",
+    "Actual result": "The native agent wrote the daily note. The sweep reported zero candidates. No durable update or model diary was accepted. Six bounded requests were admitted. The provider usage counter rose from about 0.16523 USD to 0.18909 USD.",
+    "What this means for your app": "A saved daily note alone does not prove consolidation. Investigate native indexing and recall eligibility before relying on an automatic durable update.",
+    "Status": "FAIL",
+    "Evidence": "evidence/provenance-acceptance/acceptance.json (local, ignored); retained synthetic source session in the test workspace",
+    "Commit": "1ce744d"
+  },
+  {
+    "Round": "3. Installed Python wheel and separate app",
+    "Test goal": "Use the installed Python client with the real TypeScript bridge and native memory.",
+    "What we did": "Build a wheel and source archive. Install the wheel in a clean Python 3.12 virtual environment. Run a separate Python app in isolated mode.",
+    "Expected result": "Recall and sources work. Updates and deletion affect recall. Memory survives restarts. Other users and workspaces do not recall this note.",
+    "Actual result": "All eleven integration checks passed with the native no-key engine. Native reset capture passed from an explicit synthetic fixture. The fixture was not a model reply. The app inserted recalled content into its prompt.",
+    "What this means for your app": "Your app can supply its scope and notes through the installed client. Index after each file change. Installing the wheel alone creates no memory notes. Automatic consolidation is not guaranteed.",
+    "Status": "PASS",
+    "Evidence": "examples/sdk_app.py; evidence/sdk-acceptance/result.json (local, ignored); python/dist/openclaw_memory_bridge-0.1.0-py3-none-any.whl (local build)",
+    "Commit": "35b1e1a"
+  },
+  {
+    "Round": "4. Native owner source with explicit local agent CLI",
+    "Test goal": "Use a genuine owner source without changing security or stored provenance.",
+    "What we did": "Run the official agent --local command. Keep its session and daily note. Run native recall and dreaming.",
+    "Expected result": "A trusted native source can enter consolidation and model diary generation.",
+    "Actual result": "The native owner source was admitted. Daily write, source reference, and durable recall after restart passed. Utility model requests omitted an output-token limit. The guard rejected them before dispatch. Native append-only fallback occurred. It was not accepted as consolidation or a model diary.",
+    "What this means for your app": "The source path matters. An append-only fallback is not a model update. A finite budget adapter must bound native utility requests in this pinned release.",
+    "Status": "FAIL",
+    "Evidence": "evidence/provenance-owner-acceptance/acceptance.json (local, ignored)",
+    "Commit": "727e655"
+  },
+  {
+    "Round": "5. Utility output bound and Python transport errors",
+    "Test goal": "Bound utility requests before dispatch and handle uncertain client outcomes.",
+    "What we did": "Run four finite-request tests. Run three Python transport tests with a labelled protocol fixture.",
+    "Expected result": "Only the approved model receives an added output ceiling. Messages and memory semantics stay intact. A client timeout prevents automatic retry.",
+    "Actual result": "All seven checks passed. Missing native utility limits receive an explicit 2048-token ceiling. Existing limits and other requests stay unchanged. Malformed replies and timeouts require client closure.",
+    "What this means for your app": "This is a transport budget adapter. It does not implement memory or prove real model consolidation. Protocol fixtures verify errors only.",
+    "Status": "PASS",
+    "Evidence": "tests/lifecycle-budget.test.ts; python/tests/test_client.py",
+    "Commit": "bde6cd2"
+  },
+  {
+    "Round": "6. Real bounded utility model calls",
+    "Test goal": "Run actual consolidation and diary model calls within the finite envelope.",
+    "What we did": "Use a real owner session and the utility output adapter. Keep the original source workspace.",
+    "Expected result": "The model chooses a valid native consolidation plan. Detached diary calls finish before restart.",
+    "Actual result": "Model requests ran with explicit token limits. Native consolidation rejected a plan that crossed project groups. One REM model diary was written. The test stopped the Gateway too early after the consolidation rejection, so two detached diary calls used fallback. Consolidation and complete diary acceptance failed.",
+    "What this means for your app": "Native validation protects project groups and lineage. Keep the Gateway running until all native diary publications finish. A correction without matching lineage cannot be claimed as a verified supersession.",
+    "Status": "FAIL",
+    "Evidence": "evidence/provenance-bounded-acceptance/acceptance.json (local, ignored)",
+    "Commit": "bde6cd2"
+  },
+  {
+    "Round": "7. Real native duplicate merge and complete model Dream Diary",
+    "Test goal": "Merge a duplicate memory with the native model and keep its source. Complete all model diary calls.",
+    "What we did": "Use the official local operator CLI. Preserve its native session. Write a daily duplicate with matching project scope. Record recall. Run native dreaming and wait for all three diary publications. Restart and recall the durable source.",
+    "Expected result": "The native validated writer merges one duplicate. Unrelated facts remain. The durable entry cites the daily source. All three diary phases write real model text.",
+    "Actual result": "All six acceptance stages passed. The native model reported Added: 0, Merged: 1, Superseded: 0. MEMORY.md contains one Vega fact with its source and native promotion marker. All four unrelated facts remain. Light, REM, and deep diary publications completed without fallback. Durable recall passed after restart. Six requests used 39479 input bytes and reserved 10240 output tokens. The sampled cumulative provider counter is about 0.22686 USD.",
+    "What this means for your app": "Native duplicate consolidation and model diary generation work in this bounded scenario. The app must preserve provenance, match project scope, and wait for diary completion. Changed-fact supersession still needs matching native lineage and is not verified by this test.",
+    "Status": "PASS",
+    "Evidence": "evidence/provenance-merge-acceptance/acceptance.json (local, ignored); reports/native-acceptance-summary.json",
+    "Commit": "57dc69e"
+  },
+  {
+    "Round": "8. Final SDK and regression checks",
+    "Test goal": "Verify the final installed SDK and check existing bridge behavior.",
+    "What we did": "Rebuild and reinstall the wheel in the clean venv. Repeat the separate real-engine app with a fresh root. Run the full serial Node test suite, Python transport tests, TypeScript, Biome, and whitespace checks.",
+    "Expected result": "All applicable checks pass. Optional model checks remain explicitly skipped.",
+    "Actual result": "The final installed SDK passed all eleven real-engine checks again. Node: 77 tests, 73 passed, zero failed, four skipped. Three Python protocol tests passed. TypeScript, Biome, whitespace, and report portability checks passed.",
+    "What this means for your app": "The installed client and existing bridge work together with the pinned engine. Mocks test transport failures only. Skipped tests are not claimed as new model or vector passes.",
+    "Status": "PASS",
+    "Evidence": "evidence/sdk-acceptance/final-result.json; evidence/sdk-acceptance/node-tests.log; python/tests/test_client.py (raw evidence local, ignored)",
+    "Commit": "57dc69e"
+  },
+  {
+    "Round": "9a. Checkpoint date review reproduction",
+    "Test goal": "Check a valid prior-day checkpoint just after UTC midnight.",
+    "What we did": "Freeze the test clock at the next UTC day. Use a synthetic verified daily artifact from the prior day.",
+    "Expected result": "Select the date stored in the checkpoint artifact.",
+    "Actual result": "The existing selector rejected the valid prior-day artifact. The review finding applies to this branch.",
+    "What this means for your app": "The continuation could fail after midnight even when its checkpoint is valid.",
+    "Status": "FAIL",
+    "Evidence": "tests/review-regression.test.ts; evidence/review-regression/red.log (local, ignored)",
+    "Commit": "d9c8220 baseline; reproduced before behavior fix"
+  },
+  {
+    "Round": "9b. Ledger symlink review reproduction",
+    "Test goal": "Check whether ledger recording can overwrite a symlink target.",
+    "What we did": "Create a ledger symlink to a temporary synthetic JSON fixture. Admit one bounded request without making a network call.",
+    "Expected result": "Reject the link and leave the target byte-identical.",
+    "Actual result": "The existing recorder followed the link and changed the temporary target. The review finding applies to this branch. No user file or secret was involved.",
+    "What this means for your app": "Validate and open ledger files without following links before reading or writing them.",
+    "Status": "FAIL",
+    "Evidence": "tests/review-regression.test.ts; evidence/review-regression/red.log (local, ignored)",
+    "Commit": "d9c8220 baseline; reproduced before behavior fix"
+  },
+  {
+    "Round": "10a. Checkpoint date review fix",
+    "Test goal": "Use the date of the verified checkpoint artifact.",
+    "What we did": "Select one valid dated note from afterFlush. Reject ambiguous, invalid-date, or unverified records. Test the prior-day note after UTC midnight.",
+    "Expected result": "A valid prior-day artifact remains usable. Invalid evidence is rejected.",
+    "Actual result": "The targeted checks passed after reproducing the original failure. Selection no longer depends on the current UTC day.",
+    "What this means for your app": "A valid continuation no longer fails only because midnight passed. The selected source keeps its recorded date.",
+    "Status": "PASS",
+    "Evidence": "src/consolidation-checkpoint.ts; tests/review-regression.test.ts; evidence/review-regression/green.log (local, ignored)",
+    "Commit": "735f245"
+  },
+  {
+    "Round": "10b. Ledger symlink review fix",
+    "Test goal": "Reject symbolic links and nonregular ledger files before recording requests.",
+    "What we did": "Use O_NOFOLLOW and check the opened file descriptor. Use this reader in all acceptance entry points and the native request recorder. Test valid, linked, dangling, and directory fixtures.",
+    "Expected result": "Reject unsafe paths. Keep linked targets unchanged. Preserve regular-file counters.",
+    "Actual result": "All targeted checks passed. Both admitted-request and denial-record paths rejected the symlink. The temporary target stayed byte-identical. Regular ledgers retained their counters.",
+    "What this means for your app": "The recorder does not follow a ledger symlink when it reads or writes the final path component. This is a narrow file-access fix.",
+    "Status": "PASS",
+    "Evidence": "src/lifecycle-request-budget.ts; tests/review-regression.test.ts; evidence/review-regression/green.log (local, ignored)",
+    "Commit": "735f245"
+  },
+  {
+    "Round": "11. Full regression after both narrow review fixes",
+    "Test goal": "Check existing bridge behavior after the date and ledger fixes.",
+    "What we did": "Run the full serial Node suite once at commit 735f245. Keep paid and optional model gates closed.",
+    "Expected result": "Applicable tests pass. The new review regressions pass. Optional checks stay explicitly skipped.",
+    "Actual result": "81 tests completed in 384.65 seconds. 77 passed, zero failed, four skipped, zero cancelled. Both review regressions passed. Eight targeted checks, TypeScript, Biome, and whitespace checks also passed.",
+    "What this means for your app": "The two fixes preserve tested bridge behavior. This follow-up made no paid model requests and does not claim new paid acceptance or SDK package validation.",
+    "Status": "PASS",
+    "Evidence": "tests/review-regression.test.ts; evidence/review-regression/full-regression.log (local, ignored)",
+    "Commit": "735f245"
+  }
+]

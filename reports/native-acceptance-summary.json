@@ -1,0 +1,62 @@
+{
+  "testedCommit": "57dc69e",
+  "engine": "OpenClaw 2026.9.9",
+  "mode": "real-provider/native-provenance-consolidation",
+  "stages": {
+    "nativeDailyWrite": "pass",
+    "modelConsolidation": "pass",
+    "durableMerge": "pass",
+    "sourceReference": "pass",
+    "modelDiary": "pass",
+    "persistenceRecall": "pass"
+  },
+  "adapter": "For native utility calls that omit an output-token limit, the test transport adds max_completion_tokens=2048. It preserves model, prompt, tools, and memory semantics. This is an application budget adapter, not a native dreaming capability.",
+  "baselineAdapter": "A synthetic prior duplicate is an explicit application fixture with matching project scope. The daily duplicate must be written by the native agent. No session or database is imported. This tests native duplicate merging, not unverified lineage-based supersession.",
+  "dailyBefore": {},
+  "dailyAfter": {
+    "memory/2026-10-11.md": "Synthetic Project Vega uses amber filters every Friday. <!-- project: github.com/DorukhanArslan/openclaw-memory-bridge -->"
+  },
+  "durableBefore": "# Long-Term Memory\n\n- Synthetic Project Vega uses amber filters every Friday. <!-- project: github.com/DorukhanArslan/openclaw-memory-bridge -->\n- Unrelated synthetic project Lyra uses silver notebooks.\n- Fictional Atlas uses paper charts.\n- Fictional Cygnus uses brass clocks.\n- Fictional Draco uses white folders.\n",
+  "durableAfter": "# Long-Term Memory\n\n- Unrelated synthetic project Lyra uses silver notebooks.\n- Fictional Atlas uses paper charts.\n- Fictional Cygnus uses brass clocks.\n- Fictional Draco uses white folders.\n## Consolidated Memory (2026-10-11)\n\n<!-- openclaw-memory-promotion:memory:memory/2026-10-11.md:1:1 -->\n- Synthetic Project Vega uses amber filters every Friday. <!-- project: github.com/DorukhanArslan/openclaw-memory-bridge --> Source: memory/2026-10-11.md#L1-L1 <!-- trigger: synthetic, project, vega --> <!-- importance: 8 --> <!-- project: github.com/DorukhanArslan/openclaw-memory-bridge -->\n",
+  "sourceSessionPreserved": true,
+  "recallProvenance": {
+    "originClass": "agent",
+    "sessionKind": "unknown",
+    "observedAt": 1791733988711
+  },
+  "recallAfterRestart": [
+    {
+      "path": "MEMORY.md",
+      "startLine": 10,
+      "endLine": 11
+    },
+    {
+      "path": "memory/2026-10-11.md",
+      "startLine": 1,
+      "endLine": 1
+    },
+    {
+      "path": "memory/dreaming/light/2026-10-11.md",
+      "startLine": 1,
+      "endLine": 23
+    },
+    {
+      "path": "memory/dreaming/rem/2026-10-11.md",
+      "startLine": 1,
+      "endLine": 23
+    }
+  ],
+  "modelDiaryPublications": [
+    "light",
+    "rem",
+    "deep"
+  ],
+  "requestLedger": {
+    "profile": "consolidation",
+    "requests": 6,
+    "inputBytes": 39479,
+    "outputTokens": 10240
+  },
+  "sampledCumulativeUsd": 0.22686305999999945,
+  "supersession": "NOT TESTED: this scenario verifies duplicate merging. Changed facts require matching native lineage."
+}

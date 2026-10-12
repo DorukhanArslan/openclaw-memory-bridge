@@ -13,3 +13,6 @@ evidence/
 comparison-data/
 __pycache__/
 *.pyc
+python/build/
+python/dist/
+python/src/*.egg-info/

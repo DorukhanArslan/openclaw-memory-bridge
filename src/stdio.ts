@@ -13,6 +13,13 @@ const operations = new Set([
   "status",
   "restart",
   "shutdown",
+  "configure",
+  "fixture",
+  "session_history",
+  "session_state",
+  "session_reset",
+  "dream_status",
+  "dream_diary",
 ]);
 const rl = createInterface({ input: process.stdin, crlfDelay: Infinity });
 
@@ -38,6 +45,25 @@ async function dispatch(
     labs.set(workspace, lab);
   }
   switch (op) {
+    case "configure":
+      if (typeof args.ingestion !== "boolean")
+        throw new Error("Supply ingestion as a boolean.");
+      return lab.configureIngestion(args.ingestion);
+    case "fixture":
+      return lab.injectFixture(
+        string(args.session, "session"),
+        string(args.text, "text"),
+      );
+    case "session_history":
+      return lab.sessionHistory(string(args.session, "session"));
+    case "session_state":
+      return lab.sessionState(string(args.session, "session"));
+    case "session_reset":
+      return lab.resetSession(string(args.session, "session"));
+    case "dream_status":
+      return lab.dreamStatus();
+    case "dream_diary":
+      return lab.dreamDiary();
     case "write":
       return lab.writeNote(
         string(args.noteId, "noteId"),

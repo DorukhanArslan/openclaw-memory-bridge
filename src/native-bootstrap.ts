@@ -1,5 +1,8 @@
 import { createRequire } from "node:module";
-import { admitLifecycleRequest } from "./lifecycle-request-budget.ts";
+import {
+  admitLifecycleRequest,
+  boundConsolidationUtilityRequest,
+} from "./lifecycle-request-budget.ts";
 
 // OpenClaw supplies Undici dispatchers. Node 24's older built-in fetch cannot
 // use their handler/options contract. Keep fetch and dispatchers in one runtime.
@@ -19,8 +22,9 @@ const ledger = process.env.OPENCLAW_LAB_LIFECYCLE_LEDGER;
 if (ledger) {
   const nativeFetch = globalThis.fetch;
   globalThis.fetch = (input, init) => {
-    admitLifecycleRequest(ledger, input, init);
-    return nativeFetch(input, init);
+    const bounded = boundConsolidationUtilityRequest(ledger, input, init);
+    admitLifecycleRequest(ledger, input, bounded);
+    return nativeFetch(input, bounded);
   };
   // Native guarded model transport loads this same prepared runtime snapshot.
   nativeRequire("undici/index.js").fetch = globalThis.fetch;
