@@ -76,6 +76,20 @@ function writeLifecycleLedger(path: string, value: unknown) {
   });
 }
 
+function recordLifecycleDenial(path: string, lastDenial: unknown) {
+  const lock = `${path}.lock`;
+  const fd = openSync(lock, "wx", 0o600);
+  try {
+    // Another child may have admitted a request after the profile snapshot.
+    // Preserve its counters by rereading under the same admission lock.
+    const ledger = readLifecycleLedger(path);
+    writeLifecycleLedger(path, { ...ledger, lastDenial });
+  } finally {
+    closeSync(fd);
+    unlinkSync(lock);
+  }
+}
+
 export function createLifecycleLedger(
   path: string,
   profile?: "consolidation" | "conversation",
@@ -147,10 +161,7 @@ export function admitLifecycleRequest(
     ledgerProfile.profile === "conversation" &&
     Buffer.byteLength(text) > E2E_LIMITS.inputBytesPerRequest
   ) {
-    writeLifecycleLedger(path, {
-      ...ledgerProfile,
-      lastDenial: "request_input_bytes",
-    });
+    recordLifecycleDenial(path, "request_input_bytes");
     throw new Error("Finite conversation per-request input budget exhausted.");
   }
   const body = JSON.parse(text) as {
@@ -168,14 +179,11 @@ export function admitLifecycleRequest(
     output < 1 ||
     output > limits.outputPerRequest
   ) {
-    writeLifecycleLedger(path, {
-      ...ledgerProfile,
-      lastDenial: {
-        reason: "model_output",
-        modelMatches: body.model === "openai/gpt-6-sol",
-        completionTokens: body.max_completion_tokens ?? null,
-        maxTokens: body.max_tokens ?? null,
-      },
+    recordLifecycleDenial(path, {
+      reason: "model_output",
+      modelMatches: body.model === "openai/gpt-6-sol",
+      completionTokens: body.max_completion_tokens ?? null,
+      maxTokens: body.max_tokens ?? null,
     });
     throw new Error("Finite lifecycle model/output bound denied.");
   }
