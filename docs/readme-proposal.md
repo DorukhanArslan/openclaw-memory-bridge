@@ -8,6 +8,8 @@ Your app can save a fact, recall it later, and inspect its source. It can put th
 
 The Python package is a client for the existing TypeScript bridge. OpenClaw does the indexing, search, and source reads. The bridge writes application notes and runs a private local Gateway. A Gateway is the OpenClaw process that serves native tools.
 
+An index is the engine's searchable representation of note content. A source is the file and line range behind a recalled fact. An embedding represents text as numbers for meaning-based search. Lineage is a native link between a replacement fact and an earlier memory.
+
 The SDK does not run your language model. It does not save every chat message or extract facts from your external agent by itself. Your app supplies the memory content and decides when to recall it.
 
 ## Start without a model key — SDK-00 and SDK-01

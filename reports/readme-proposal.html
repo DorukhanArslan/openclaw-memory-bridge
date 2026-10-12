@@ -3,6 +3,7 @@
 <h2>What your agent gains</h2>
 <p>Your app can save a fact, recall it later, and inspect its source. It can put that fact into an agent prompt. The fact can survive a process restart. Your app can also update or remove its own notes.</p>
 <p>The Python package is a client for the existing TypeScript bridge. OpenClaw does the indexing, search, and source reads. The bridge writes application notes and runs a private local Gateway. A Gateway is the OpenClaw process that serves native tools.</p>
+<p>An index is the engine&#39;s searchable representation of note content. A source is the file and line range behind a recalled fact. An embedding represents text as numbers for meaning-based search. Lineage is a native link between a replacement fact and an earlier memory.</p>
 <p>The SDK does not run your language model. It does not save every chat message or extract facts from your external agent by itself. Your app supplies the memory content and decides when to recall it.</p>
 <h2>Start without a model key — SDK-00 and SDK-01</h2>
 <p>Use Python 3.10 or newer. The commands below use Python 3.12. The runtime is pinned to Node 24.16.0 and OpenClaw 2026.9.9. A fresh foundation install needs npm. Run these commands from the foundation repository:</p>
