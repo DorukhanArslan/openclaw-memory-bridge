@@ -1422,13 +1422,14 @@ export class Lab {
   async boundedConversationDemo(
     ledgerPath: string,
     checkpoint: (value: Record<string, unknown>) => Promise<void>,
+    previous?: Record<string, unknown>,
   ) {
     await verifySmokeRuntime();
     requireEnvironment([PAID_SELECTION.keyEnv]);
     if (
       this.lifecycleLedger ||
       this.settings.textModel ||
-      (await this.listNotes()).length
+      (!previous && (await this.listNotes()).length)
     )
       throw new Error(
         "Conversation demo requires a fresh synthetic workspace.",
@@ -1443,27 +1444,38 @@ export class Lab {
       textModel: nativeModel(PAID_SELECTION.chat, PAID_SELECTION.keyEnv),
     };
     const workspace = join(this.directory, "workspace");
-    const result: Record<string, unknown> = {
-      mode: "real-provider/chatbot-memory-conversation",
-      model: PAID_SELECTION.chat,
-      limits: E2E_LIMITS,
-      harness: {
-        skipBootstrap: true,
-        thinking: "off",
-        outputPerAgentCall: 512,
-        codeMode: false,
-        toolSearch: false,
-        memoryFlushTranscriptBytes: 1024,
-        dreamingSchedule: "0 0 1 1 *",
-        manualDreamingTrigger: true,
-        workspaceFileWrites:
-          "None by the harness. Model tools and native lifecycle may write.",
-        chatAdapter:
-          "Official agent --local; optional post-turn maintenance may be deferred. No Python SDK chat API.",
-      },
-      steps: [],
-      stages: {},
-    };
+    const result: Record<string, unknown> = previous
+      ? {
+          ...previous,
+          priorAttempt: previous,
+          limits: E2E_LIMITS,
+          steps: [...(previous.steps as Array<Record<string, unknown>>)],
+          stages: {},
+          error: undefined,
+          continuation:
+            "Same workspace and aggregate ledger; counters not reset or renamed. Per-request byte ceiling proves short-context pricing; framing allowance included.",
+        }
+      : {
+          mode: "real-provider/chatbot-memory-conversation",
+          model: PAID_SELECTION.chat,
+          limits: E2E_LIMITS,
+          harness: {
+            skipBootstrap: true,
+            thinking: "off",
+            outputPerAgentCall: 512,
+            codeMode: false,
+            toolSearch: false,
+            memoryFlushTranscriptBytes: 1024,
+            dreamingSchedule: "0 0 1 1 *",
+            manualDreamingTrigger: true,
+            workspaceFileWrites:
+              "None by the harness. Model tools and native lifecycle may write.",
+            chatAdapter:
+              "Official agent --local; optional post-turn maintenance may be deferred. No Python SDK chat API.",
+          },
+          steps: [],
+          stages: {},
+        };
     const steps = result.steps as Array<Record<string, unknown>>;
     const stages = result.stages as Record<string, string>;
     const snapshot = async () => {
@@ -1527,12 +1539,13 @@ export class Lab {
         prices: SMOKE.prices,
         providerLimitUsd: 50,
       });
-      result.beforeBudget = budget;
+      if (previous) result.continuationBudget = budget;
+      else result.beforeBudget = budget;
       if (budget.usedUsd + E2E_LIMITS.estimatedUsd > 5)
         throw new Error(
           "The fixed conversation envelope does not fit the remaining cumulative 5 USD budget.",
         );
-      result.initialWorkspace = await snapshot();
+      if (!previous) result.initialWorkspace = await snapshot();
       await safeCheckpoint();
       const turns = [
         {
@@ -1644,8 +1657,70 @@ export class Lab {
         await safeCheckpoint();
         return step;
       };
-      for (const turn of turns) await doTurn(turn);
+      if (previous) {
+        if (
+          previous.mode !== "real-provider/chatbot-memory-conversation" ||
+          steps.length !== 2 ||
+          steps[0]?.id !== "turn-1" ||
+          steps[1]?.id !== "turn-2"
+        )
+          throw new Error(
+            "Continuation must match the retained two-turn partial fixture.",
+          );
+        const ledger = readLifecycleLedger(this.lifecycleLedger);
+        if (
+          ledger.profile !== "conversation" ||
+          ledger.requests !== 11 ||
+          ledger.inputBytes !== 199505 ||
+          ledger.outputTokens !== 5632
+        )
+          throw new Error(
+            "Continuation ledger does not match the real partial run; counters must not be reset.",
+          );
+        if (ledger.inputBytes + ledger.requests * 1024 >= 272000)
+          throw new Error(
+            "Prior input cannot be proven below the native long-context tier.",
+          );
+        const now = await snapshot();
+        if (JSON.stringify(now) !== JSON.stringify(previous.finalWorkspace))
+          throw new Error(
+            "Retained workspace changed after the partial run; preserve it and stop.",
+          );
+        const history = await this.sessionHistory("main");
+        const priorSecond = steps[1] as {
+          after: Record<string, string | null>;
+        };
+        steps.push({
+          id: "turn-3-blocked",
+          kind: "chat",
+          session: "main",
+          user: turns[2]?.user,
+          bot: null,
+          before: priorSecond.after,
+          after: now,
+          changes: changes(priorSecond.after, now),
+          historyAtFailure: history,
+          failure: previous.error,
+          eventTrigger:
+            "Original real user preference change; request denied before dispatch by the first finite input allocation.",
+          writeActor: "No file change observed; no bot response is invented.",
+        });
+        await safeCheckpoint();
+        await doTurn({
+          id: "turn-3-continuation",
+          session: "main",
+          user: "Please finish the preference update I just requested: my current morning drink is rooibos tea, not mint tea. Keep the existing gardener details and orchid schedule.",
+        });
+        const later = turns[3];
+        if (later) await doTurn(later);
+      } else {
+        for (const turn of turns) await doTurn(turn);
+      }
       await this.index();
+      result.wateringSourcesBeforeDreaming = await this.search(
+        "orchids",
+        "later-before-dream",
+      );
       result.sourcesBeforeDreaming = await this.search(
         "rooibos",
         "later-before-dream",

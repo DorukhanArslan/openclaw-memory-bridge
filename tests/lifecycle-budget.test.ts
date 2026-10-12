@@ -210,7 +210,7 @@ test("Conversation profile stays inside its separate finite ceiling without rese
     const bounded = boundConsolidationUtilityRequest(path, url, init);
     admitLifecycleRequest(path, url, bounded);
     assert.equal(JSON.parse(await readFile(path, "utf8")).outputTokens, 2048);
-    assert.equal(E2E_LIMITS.estimatedUsd, 4.56);
+    assert.equal(E2E_LIMITS.estimatedUsd, 4.39648);
     assert.ok(E2E_LIMITS.estimatedUsd + 0.23909542 < 5);
     assert.throws(
       () =>
@@ -223,6 +223,19 @@ test("Conversation profile stays inside its separate finite ceiling without rese
         }),
       /bound denied/,
     );
+    assert.throws(
+      () =>
+        admitLifecycleRequest(path, url, {
+          method: "POST",
+          body: JSON.stringify({
+            model: "openai/gpt-6-sol",
+            max_completion_tokens: 512,
+            messages: [{ role: "user", content: "x".repeat(100000) }],
+          }),
+        }),
+      /per-request input budget/,
+    );
+    assert.equal(JSON.parse(await readFile(path, "utf8")).requests, 1);
     assert.throws(() => createLifecycleLedger(path, "conversation"), /EEXIST/);
   } finally {
     await rm(root, { recursive: true, force: true });

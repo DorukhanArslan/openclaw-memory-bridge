@@ -25,11 +25,13 @@ export const CONSOLIDATION_LIMITS = Object.freeze({
   estimatedUsd: (180000 * 18 + 40000 * 30) / 1e6,
 });
 export const E2E_LIMITS = Object.freeze({
-  requests: 20,
-  inputBytes: 210000,
+  requests: 30,
+  inputBytes: 400000,
+  inputBytesPerRequest: 100000,
+  inputFramingTokensPerRequest: 1024,
   outputPerRequest: 2048,
   outputTokens: 26000,
-  estimatedUsd: (210000 * 18 + 26000 * 30) / 1e6,
+  estimatedUsd: ((400000 + 30 * 1024) * 9 + 26000 * 20) / 1e6,
 });
 type Ledger = {
   requests: number;
@@ -141,6 +143,16 @@ export function admitLifecycleRequest(
       : ledgerProfile.profile === "consolidation"
         ? CONSOLIDATION_LIMITS
         : LIFECYCLE_LIMITS;
+  if (
+    ledgerProfile.profile === "conversation" &&
+    Buffer.byteLength(text) > E2E_LIMITS.inputBytesPerRequest
+  ) {
+    writeLifecycleLedger(path, {
+      ...ledgerProfile,
+      lastDenial: "request_input_bytes",
+    });
+    throw new Error("Finite conversation per-request input budget exhausted.");
+  }
   const body = JSON.parse(text) as {
     model?: string;
     max_completion_tokens?: number;
