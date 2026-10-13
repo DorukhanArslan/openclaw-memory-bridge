@@ -190,3 +190,94 @@ test("Consolidation utility adapter adds only the finite output bound; ordinary 
     await rm(root, { recursive: true, force: true });
   }
 });
+
+test("Conversation profile stays inside its separate finite ceiling without resetting prior ledgers", async () => {
+  const { E2E_LIMITS, boundConsolidationUtilityRequest } = await import(
+    "../src/lifecycle-request-budget.ts"
+  );
+  const root = await mkdtemp(join(tmpdir(), "e2e-budget-"));
+  const path = join(root, "ledger.json");
+  try {
+    createLifecycleLedger(path, "conversation");
+    const url = "https://openrouter.ai/api/v1/chat/completions";
+    const init = {
+      method: "POST",
+      body: JSON.stringify({
+        model: "openai/gpt-6-sol",
+        messages: [{ role: "user", content: "Synthetic conversation" }],
+      }),
+    };
+    const bounded = boundConsolidationUtilityRequest(path, url, init);
+    admitLifecycleRequest(path, url, bounded);
+    assert.equal(JSON.parse(await readFile(path, "utf8")).outputTokens, 2048);
+    assert.equal(E2E_LIMITS.estimatedUsd, 4.39648);
+    assert.ok(E2E_LIMITS.estimatedUsd + 0.23909542 < 5);
+    assert.throws(
+      () =>
+        admitLifecycleRequest(path, url, {
+          method: "POST",
+          body: JSON.stringify({
+            model: "openai/gpt-6-sol",
+            max_completion_tokens: 2049,
+          }),
+        }),
+      /bound denied/,
+    );
+    assert.throws(
+      () =>
+        admitLifecycleRequest(path, url, {
+          method: "POST",
+          body: JSON.stringify({
+            model: "openai/gpt-6-sol",
+            max_completion_tokens: 512,
+            messages: [{ role: "user", content: "x".repeat(100000) }],
+          }),
+        }),
+      /per-request input budget/,
+    );
+    assert.equal(JSON.parse(await readFile(path, "utf8")).requests, 1);
+    assert.throws(() => createLifecycleLedger(path, "conversation"), /EEXIST/);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("Fixed maintenance continuation retains finite admission and permits no ordinary paid scope", async () => {
+  const { MAINTENANCE_LIMITS, boundConsolidationUtilityRequest } = await import(
+    "../src/lifecycle-request-budget.ts"
+  );
+  const root = await mkdtemp(join(tmpdir(), "maintenance-budget-"));
+  const path = join(root, "new-linked-phase.json");
+  try {
+    createLifecycleLedger(path, "maintenance");
+    assert.equal(MAINTENANCE_LIMITS.estimatedUsd, 30.49728);
+    assert.ok(MAINTENANCE_LIMITS.estimatedUsd + 0.32561952 < 50);
+    const endpoint = "https://openrouter.ai/api/v1/chat/completions";
+    const init = {
+      method: "POST",
+      body: JSON.stringify({
+        model: "openai/gpt-6-sol",
+        messages: [{ role: "user", content: "Synthetic Maya" }],
+      }),
+    };
+    const bounded = boundConsolidationUtilityRequest(path, endpoint, init);
+    admitLifecycleRequest(path, endpoint, bounded);
+    assert.equal(JSON.parse(await readFile(path, "utf8")).outputTokens, 2048);
+    assert.throws(
+      () =>
+        admitLifecycleRequest(path, endpoint, {
+          method: "POST",
+          body: JSON.stringify({
+            model: "openai/gpt-6-sol",
+            max_tokens: 512,
+            messages: [{ role: "user", content: "x".repeat(100000) }],
+          }),
+        }),
+      /per-request input budget/,
+    );
+    assert.equal(JSON.parse(await readFile(path, "utf8")).requests, 1);
+    assert.throws(() => createLifecycleLedger(path, "maintenance"), /EEXIST/);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});

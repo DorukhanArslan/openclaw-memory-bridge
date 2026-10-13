@@ -1,0 +1,282 @@
+{
+  "runId": "maya-app-tour",
+  "mode": "fresh real no-key installed SDK and OpenClaw",
+  "continuousWithMayaChat": false,
+  "modelExecuted": false,
+  "steps": [
+    {
+      "id": "app-write-recall",
+      "kind": "fresh real no-key SDK/engine",
+      "input": "write tea: Synthetic Maya prefers rooibos tea.; index; search rooibos; get memory/tea.md",
+      "bot": null,
+      "trigger": "Explicit application SDK calls, not agent extraction",
+      "before": {
+        "memory/tea.md": null
+      },
+      "after": {
+        "memory/tea.md": "Synthetic Maya prefers rooibos tea.\n"
+      },
+      "changes": [
+        {
+          "path": "memory/tea.md",
+          "before": null,
+          "after": "Synthetic Maya prefers rooibos tea.\n"
+        }
+      ],
+      "output": {
+        "write": {
+          "adapter": "Markdown write",
+          "path": "memory/tea.md",
+          "needsIndex": true
+        },
+        "hits": [
+          {
+            "path": "memory/tea.md",
+            "startLine": 1,
+            "endLine": 2,
+            "score": 0.670000999999,
+            "textScore": 9.99999000001e-07,
+            "snippet": "Synthetic Maya prefers rooibos tea.\n\nSource: memory/tea.md#L1-L2",
+            "source": "memory",
+            "provenance": {
+              "originClass": "agent",
+              "sessionKind": "unknown",
+              "observedAt": 1791798659732
+            },
+            "corpus": "memory",
+            "citation": "memory/tea.md#L1-L2"
+          }
+        ],
+        "source": {
+          "status": "ok",
+          "text": "Synthetic Maya prefers rooibos tea.",
+          "path": "memory/tea.md",
+          "from": 1,
+          "lines": 1
+        },
+        "promptContext": "[memory/tea.md:L1-L2]\nSynthetic Maya prefers rooibos tea.\n\nSource: memory/tea.md#L1-L2"
+      },
+      "gain": "App owns a note; native engine returns cited facts for an agent prompt."
+    },
+    {
+      "id": "app-restart-new-session",
+      "kind": "fresh real no-key SDK/engine",
+      "input": "restart; search rooibos in afternoon session",
+      "bot": null,
+      "trigger": "Explicit application SDK calls, not agent extraction",
+      "before": {
+        "memory/tea.md": "Synthetic Maya prefers rooibos tea.\n"
+      },
+      "after": {
+        "memory/tea.md": "Synthetic Maya prefers rooibos tea.\n"
+      },
+      "changes": [],
+      "output": {
+        "results": [
+          {
+            "path": "memory/tea.md",
+            "startLine": 1,
+            "endLine": 2,
+            "score": 0.670000999999,
+            "textScore": 9.99999000001e-07,
+            "snippet": "Synthetic Maya prefers rooibos tea.\n\nSource: memory/tea.md#L1-L2",
+            "source": "memory",
+            "provenance": {
+              "originClass": "agent",
+              "sessionKind": "unknown",
+              "observedAt": 1791798659732
+            },
+            "corpus": "memory",
+            "citation": "memory/tea.md#L1-L2"
+          }
+        ],
+        "provider": "none",
+        "citations": "auto",
+        "debug": {
+          "backend": "builtin",
+          "effectiveMode": "n/a",
+          "managerMs": 1,
+          "searchMs": 8,
+          "hits": 1,
+          "candidateHits": 1,
+          "withheldHits": 0,
+          "searchWindow": 8,
+          "toolMs": 10,
+          "outsideSearchMs": 2
+        }
+      },
+      "gain": "Same root retains sources across Gateway restart and a new routed session."
+    },
+    {
+      "id": "app-scope-separation",
+      "kind": "fresh real no-key SDK/engine",
+      "input": "search rooibos with another user, then another workspace",
+      "bot": null,
+      "trigger": "Explicit application SDK calls, not agent extraction",
+      "before": {
+        "memory/tea.md": "Synthetic Maya prefers rooibos tea.\n"
+      },
+      "after": {
+        "memory/tea.md": "Synthetic Maya prefers rooibos tea.\n"
+      },
+      "changes": [],
+      "output": {
+        "otherUser": {
+          "results": [],
+          "provider": "none",
+          "citations": "auto",
+          "debug": {
+            "backend": "builtin",
+            "effectiveMode": "n/a",
+            "managerMs": 0,
+            "searchMs": 14,
+            "hits": 0,
+            "candidateHits": 0,
+            "withheldHits": 0,
+            "searchWindow": 8,
+            "toolMs": 14,
+            "outsideSearchMs": 0
+          }
+        },
+        "otherWorkspace": {
+          "results": [],
+          "provider": "none",
+          "citations": "auto",
+          "debug": {
+            "backend": "builtin",
+            "effectiveMode": "n/a",
+            "managerMs": 0,
+            "searchMs": 13,
+            "hits": 0,
+            "candidateHits": 0,
+            "withheldHits": 0,
+            "searchWindow": 8,
+            "toolMs": 13,
+            "outsideSearchMs": 0
+          }
+        }
+      },
+      "gain": "Separate corpora return no copied Maya fact. This is routing, not authorization."
+    },
+    {
+      "id": "app-update",
+      "kind": "fresh real no-key SDK/engine",
+      "input": "replace app note with chamomile; index; search current and old values",
+      "bot": null,
+      "trigger": "Explicit application SDK calls, not agent extraction",
+      "before": {
+        "memory/tea.md": "Synthetic Maya prefers rooibos tea.\n"
+      },
+      "after": {
+        "memory/tea.md": "Synthetic Maya prefers chamomile tea.\n"
+      },
+      "changes": [
+        {
+          "path": "memory/tea.md",
+          "before": "Synthetic Maya prefers rooibos tea.\n",
+          "after": "Synthetic Maya prefers chamomile tea.\n"
+        }
+      ],
+      "output": {
+        "current": {
+          "results": [
+            {
+              "path": "memory/tea.md",
+              "startLine": 1,
+              "endLine": 2,
+              "score": 0.670000999999,
+              "textScore": 9.99999000001e-07,
+              "snippet": "Synthetic Maya prefers chamomile tea.\n\nSource: memory/tea.md#L1-L2",
+              "source": "memory",
+              "provenance": {
+                "originClass": "agent",
+                "sessionKind": "unknown",
+                "observedAt": 1791798701906
+              },
+              "corpus": "memory",
+              "citation": "memory/tea.md#L1-L2"
+            }
+          ],
+          "provider": "none",
+          "citations": "auto",
+          "debug": {
+            "backend": "builtin",
+            "effectiveMode": "n/a",
+            "managerMs": 1,
+            "searchMs": 9,
+            "hits": 1,
+            "candidateHits": 1,
+            "withheldHits": 0,
+            "searchWindow": 8,
+            "toolMs": 10,
+            "outsideSearchMs": 1
+          }
+        },
+        "old": {
+          "results": [],
+          "provider": "none",
+          "citations": "auto",
+          "debug": {
+            "backend": "builtin",
+            "effectiveMode": "n/a",
+            "managerMs": 0,
+            "searchMs": 4,
+            "hits": 0,
+            "candidateHits": 0,
+            "withheldHits": 0,
+            "searchWindow": 8,
+            "toolMs": 4,
+            "outsideSearchMs": 0
+          }
+        }
+      },
+      "gain": "Explicit app replacement removes the old indexed value. This does not test native lineage supersession."
+    },
+    {
+      "id": "app-delete",
+      "kind": "fresh real no-key SDK/engine",
+      "input": "delete tea; index; search chamomile",
+      "bot": null,
+      "trigger": "Explicit application SDK calls, not agent extraction",
+      "before": {
+        "memory/tea.md": "Synthetic Maya prefers chamomile tea.\n"
+      },
+      "after": {
+        "memory/tea.md": null
+      },
+      "changes": [
+        {
+          "path": "memory/tea.md",
+          "before": "Synthetic Maya prefers chamomile tea.\n",
+          "after": null
+        }
+      ],
+      "output": {
+        "delete": {
+          "adapter": "Markdown deletion",
+          "path": "memory/tea.md",
+          "needsIndex": true
+        },
+        "recall": {
+          "results": [],
+          "provider": "none",
+          "citations": "auto",
+          "debug": {
+            "backend": "builtin",
+            "effectiveMode": "n/a",
+            "managerMs": 0,
+            "searchMs": 6,
+            "hits": 0,
+            "candidateHits": 0,
+            "withheldHits": 0,
+            "searchWindow": 8,
+            "toolMs": 6,
+            "outsideSearchMs": 0
+          }
+        }
+      },
+      "gain": "Current note and indexed hits disappear. Other artifacts and backups are outside this deletion."
+    }
+  ],
+  "status": "passed"
+}

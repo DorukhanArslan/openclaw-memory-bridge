@@ -24,11 +24,31 @@ export const CONSOLIDATION_LIMITS = Object.freeze({
   outputTokens: 40000,
   estimatedUsd: (180000 * 18 + 40000 * 30) / 1e6,
 });
+export const E2E_LIMITS = Object.freeze({
+  requests: 30,
+  inputBytes: 400000,
+  inputBytesPerRequest: 100000,
+  inputFramingTokensPerRequest: 1024,
+  outputPerRequest: 2048,
+  outputTokens: 26000,
+  estimatedUsd: ((400000 + 30 * 1024) * 9 + 26000 * 20) / 1e6,
+});
+// Fixed continuation only. Conservative maximum prompt + cache-write prices,
+// framing allowance, and output rates cover all advertised context tiers.
+export const MAINTENANCE_LIMITS = Object.freeze({
+  requests: 40,
+  inputBytes: 1600000,
+  inputBytesPerRequest: 100000,
+  inputFramingTokensPerRequest: 1024,
+  outputPerRequest: 2048,
+  outputTokens: 32000,
+  estimatedUsd: ((1600000 + 40 * 1024) * 18 + 32000 * 30) / 1e6,
+});
 type Ledger = {
   requests: number;
   inputBytes: number;
   outputTokens: number;
-  profile?: "consolidation";
+  profile?: "consolidation" | "conversation" | "maintenance";
 };
 // Open the final ledger component without following a link. Verify the opened
 // descriptor, not a path checked earlier. Never truncate before this check.
@@ -67,7 +87,24 @@ function writeLifecycleLedger(path: string, value: unknown) {
   });
 }
 
-export function createLifecycleLedger(path: string, profile?: "consolidation") {
+function recordLifecycleDenial(path: string, lastDenial: unknown) {
+  const lock = `${path}.lock`;
+  const fd = openSync(lock, "wx", 0o600);
+  try {
+    // Another child may have admitted a request after the profile snapshot.
+    // Preserve its counters by rereading under the same admission lock.
+    const ledger = readLifecycleLedger(path);
+    writeLifecycleLedger(path, { ...ledger, lastDenial });
+  } finally {
+    closeSync(fd);
+    unlinkSync(lock);
+  }
+}
+
+export function createLifecycleLedger(
+  path: string,
+  profile?: "consolidation" | "conversation" | "maintenance",
+) {
   const fd = openSync(path, "wx", 0o600);
   try {
     writeFileSync(
@@ -121,13 +158,29 @@ export function admitLifecycleRequest(
   const ledgerProfile = readLifecycleLedger(path);
   if (
     ledgerProfile.profile !== undefined &&
-    ledgerProfile.profile !== "consolidation"
+    ledgerProfile.profile !== "consolidation" &&
+    ledgerProfile.profile !== "conversation" &&
+    ledgerProfile.profile !== "maintenance"
   )
     throw new Error("Invalid finite lifecycle profile.");
   const limits =
-    ledgerProfile.profile === "consolidation"
-      ? CONSOLIDATION_LIMITS
-      : LIFECYCLE_LIMITS;
+    ledgerProfile.profile === "maintenance"
+      ? MAINTENANCE_LIMITS
+      : ledgerProfile.profile === "conversation"
+        ? E2E_LIMITS
+        : ledgerProfile.profile === "consolidation"
+          ? CONSOLIDATION_LIMITS
+          : LIFECYCLE_LIMITS;
+  const inputLimit =
+    ledgerProfile.profile === "maintenance"
+      ? MAINTENANCE_LIMITS.inputBytesPerRequest
+      : ledgerProfile.profile === "conversation"
+        ? E2E_LIMITS.inputBytesPerRequest
+        : undefined;
+  if (inputLimit && Buffer.byteLength(text) > inputLimit) {
+    recordLifecycleDenial(path, "request_input_bytes");
+    throw new Error("Finite lifecycle per-request input budget exhausted.");
+  }
   const body = JSON.parse(text) as {
     model?: string;
     max_completion_tokens?: number;
@@ -143,14 +196,11 @@ export function admitLifecycleRequest(
     output < 1 ||
     output > limits.outputPerRequest
   ) {
-    writeLifecycleLedger(path, {
-      ...ledgerProfile,
-      lastDenial: {
-        reason: "model_output",
-        modelMatches: body.model === "openai/gpt-6-sol",
-        completionTokens: body.max_completion_tokens ?? null,
-        maxTokens: body.max_tokens ?? null,
-      },
+    recordLifecycleDenial(path, {
+      reason: "model_output",
+      modelMatches: body.model === "openai/gpt-6-sol",
+      completionTokens: body.max_completion_tokens ?? null,
+      maxTokens: body.max_tokens ?? null,
     });
     throw new Error("Finite lifecycle model/output bound denied.");
   }
@@ -202,7 +252,12 @@ export function boundConsolidationUtilityRequest(
   init?: RequestInit,
 ): RequestInit | undefined {
   const ledger = readLifecycleLedger(path);
-  if (ledger.profile !== "consolidation") return init;
+  if (
+    ledger.profile !== "consolidation" &&
+    ledger.profile !== "conversation" &&
+    ledger.profile !== "maintenance"
+  )
+    return init;
   const url = new URL(
     typeof input === "string"
       ? input

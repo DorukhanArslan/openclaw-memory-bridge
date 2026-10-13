@@ -1,0 +1,249 @@
+{
+  "scope": "Installed builtin Memory Core and current bridge access; not every OpenClaw plugin or option is a tested demo.",
+  "cases": [
+    {
+      "id": "C01",
+      "title": "Load saved profile before a reply",
+      "runId": "maya-chat-2026-10-12",
+      "status": "partial: USER.md verified; bootstrap templates not demonstrated",
+      "featureIds": [
+        "bootstrap-profile"
+      ]
+    },
+    {
+      "id": "C02",
+      "title": "Save identity and daily event",
+      "runId": "maya-chat-2026-10-12",
+      "status": "real recorded",
+      "featureIds": [
+        "agent-note"
+      ]
+    },
+    {
+      "id": "C03",
+      "title": "Keyword recall and exact native source",
+      "runId": "maya-chat-2026-10-12",
+      "status": "real recorded",
+      "featureIds": [
+        "keyword",
+        "source"
+      ]
+    },
+    {
+      "id": "C04",
+      "title": "Find different wording with real embeddings",
+      "runId": "zephyr-semantic-2026-10-11",
+      "status": "historical real pass; separate run",
+      "featureIds": [
+        "vector-hybrid",
+        "source"
+      ]
+    },
+    {
+      "id": "C05",
+      "title": "Change the preference",
+      "runId": "maya-chat-2026-10-12",
+      "status": "real recorded",
+      "featureIds": [
+        "agent-note",
+        "consolidation-lineage"
+      ]
+    },
+    {
+      "id": "C06",
+      "title": "Flush before shortening context",
+      "runId": "borealis-lifecycle-2026-10-11",
+      "status": "historical stage pass; later REM failure makes the entire run partial",
+      "featureIds": [
+        "flush-compaction",
+        "agent-note"
+      ]
+    },
+    {
+      "id": "C07",
+      "title": "Compact the conversation",
+      "runId": "borealis-lifecycle-2026-10-11",
+      "status": "historical stage pass; separate from Maya",
+      "featureIds": [
+        "flush-compaction"
+      ]
+    },
+    {
+      "id": "C08",
+      "title": "Capture and reset a real session",
+      "runId": "borealis-lifecycle-2026-10-11",
+      "status": "historical real pass; separate run",
+      "featureIds": [
+        "session-capture"
+      ]
+    },
+    {
+      "id": "C09",
+      "title": "Light \u2192 REM \u2192 deep maintenance",
+      "runId": "maya-chat-2026-10-12",
+      "status": "real recorded",
+      "featureIds": [
+        "dreaming",
+        "consolidation-lineage"
+      ]
+    },
+    {
+      "id": "C10",
+      "title": "Merge a duplicate with source lineage",
+      "runId": "vega-merge-2026-10-11",
+      "status": "historical real pass; Added 0 / Merged 1 / Superseded 0",
+      "featureIds": [
+        "dreaming",
+        "consolidation-lineage"
+      ]
+    },
+    {
+      "id": "C11",
+      "title": "Answer after maintenance with app context",
+      "runId": "maya-chat-2026-10-12",
+      "status": "real recorded",
+      "featureIds": [
+        "keyword",
+        "source"
+      ]
+    },
+    {
+      "id": "C12",
+      "title": "Restart, update, delete and separate scopes",
+      "runId": "maya-app-tour",
+      "status": "fresh real no-key pass; independent app run",
+      "featureIds": [
+        "persistence",
+        "app-crud-scopes"
+      ]
+    },
+    {
+      "id": "C13",
+      "title": "Remaining native options",
+      "runId": "inventory-only",
+      "status": "not a passed demonstration",
+      "featureIds": [
+        "ranking",
+        "trusted-pre-reply",
+        "index-maintenance",
+        "historical-backfill",
+        "admission-forget",
+        "extra-multimodal-cjk",
+        "session-wiki-corpora"
+      ]
+    },
+    {
+      "id": "C14",
+      "title": "Native chat and flush",
+      "runId": "maya-maintenance-2026-10-13",
+      "status": "real continuation pass",
+      "featureIds": [
+        "flush-compaction"
+      ]
+    },
+    {
+      "id": "C15",
+      "title": "Observe native flush",
+      "runId": "maya-maintenance-2026-10-13",
+      "status": "real continuation pass",
+      "featureIds": [
+        "flush-compaction"
+      ]
+    },
+    {
+      "id": "C16",
+      "title": "Native compaction",
+      "runId": "maya-maintenance-2026-10-13",
+      "status": "real continuation pass",
+      "featureIds": [
+        "flush-compaction"
+      ]
+    },
+    {
+      "id": "C17",
+      "title": "Recall after compaction",
+      "runId": "maya-maintenance-2026-10-13",
+      "status": "real continuation pass",
+      "featureIds": [
+        "flush-compaction"
+      ]
+    },
+    {
+      "id": "C18",
+      "title": "Native dreaming",
+      "runId": "maya-maintenance-2026-10-13",
+      "status": "real continuation pass",
+      "featureIds": [
+        "dreaming",
+        "persistence",
+        "source"
+      ]
+    },
+    {
+      "id": "C19",
+      "title": "New session after dream and restart",
+      "runId": "maya-maintenance-2026-10-13",
+      "status": "real continuation pass",
+      "featureIds": [
+        "dreaming",
+        "persistence",
+        "source"
+      ]
+    }
+  ],
+  "gaps": {
+    "sameMayaContinuousAllFeatures": false,
+    "bootstrapTemplateLoad": "not demonstrated; USER.md load verified",
+    "MayaAutomaticFlush": "native succeeded marker observed in linked continuation; no distinct flush-only file write isolated",
+    "MayaCompaction": "committed; 9447 \u2192 1182 tokens; summary contains older state",
+    "MayaPostDreamNativeAgent": "passed in new session after restart; historical blocked call retained",
+    "PythonUSERGet": "rejected adapter path; native get and Python search evidence retained",
+    "changedFactSupersession": "unverified",
+    "diaryCurrentPreference": "older mint fragment remains",
+    "newPaidRuns": 1,
+    "historicalRunsAreNotContinuousWithMaya": true,
+    "budget": {
+      "approvedCumulativeUsd": 50,
+      "before": {
+        "limitUsd": 50,
+        "usedUsd": 0.3261975200000009,
+        "remainingUsd": 49.67380248
+      },
+      "after": {
+        "limitUsd": 50,
+        "usedUsd": 0.4250189199999994,
+        "remainingUsd": 49.57498108
+      },
+      "measurement": "Read-only provider key counter snapshots; delayed billing/concurrent use are not isolated per-generation charges.",
+      "phaseLimits": {
+        "requests": 40,
+        "inputBytes": 1600000,
+        "inputBytesPerRequest": 100000,
+        "inputFramingTokensPerRequest": 1024,
+        "outputPerRequest": 2048,
+        "outputTokens": 32000,
+        "estimatedUsd": 30.49728
+      },
+      "phaseLedger": {
+        "profile": "maintenance",
+        "requests": 20,
+        "inputBytes": 493518,
+        "outputTokens": 12953
+      },
+      "priorLedger": {
+        "profile": "conversation",
+        "requests": 24,
+        "inputBytes": 386120,
+        "outputTokens": 18432
+      },
+      "priorLedgerAfter": {
+        "profile": "conversation",
+        "requests": 24,
+        "inputBytes": 386120,
+        "outputTokens": 18432
+      },
+      "priorLedgerIntegrity": "pass"
+    },
+    "continuation": "Same retained Maya main session and workspace, across a later linked phase; other optional feature runs remain separate."
+  }
+}
