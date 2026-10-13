@@ -52,7 +52,28 @@
       },
       &quot;priorLedgerIntegrity&quot;: &quot;pass&quot;
     },
-    &quot;continuation&quot;: &quot;Same retained Maya main session and workspace, across a later linked phase; other optional feature runs remain separate.&quot;
+    &quot;continuation&quot;: &quot;Same retained Maya main session and workspace, across a later linked phase; other optional feature runs remain separate.&quot;,
+    &quot;independentPythonHost&quot;: {
+      &quot;checks&quot;: {
+        &quot;realAgentWriteAndUpdate&quot;: true,
+        &quot;freshHostRecall&quot;: true,
+        &quot;nativeRunReceipt&quot;: true,
+        &quot;recallAfterMaintenanceAndRestart&quot;: true,
+        &quot;dailyPromoted&quot;: true,
+        &quot;otherUser&quot;: true,
+        &quot;otherWorkspace&quot;: true,
+        &quot;nativeDiaryPublishers&quot;: true,
+        &quot;newEventConsolidated&quot;: true,
+        &quot;continuedRecallAfterRestart&quot;: true
+      },
+      &quot;externalContext&quot;: &quot;Native flush/compaction do not manage the external host context.&quot;,
+      &quot;cumulativeBudgetSnapshot&quot;: {
+        &quot;limitUsd&quot;: 50,
+        &quot;usedUsd&quot;: 0.501274819999999,
+        &quot;remainingUsd&quot;: 49.49872518
+      },
+      &quot;diaryCorrection&quot;: &quot;Initial interruption retained; same-ledger continuation published light/REM/deep model entries.&quot;
+    }
   },
   &quot;features&quot;: [
     {
@@ -152,19 +173,19 @@
     {
       &quot;id&quot;: &quot;dreaming&quot;,
       &quot;native&quot;: &quot;Light stages, REM reflects, deep promotes grounded sources&quot;,
-      &quot;sdk&quot;: &quot;dream_status/dream_diary inspection only&quot;,
+      &quot;sdk&quot;: &quot;write_daily/configure_maintenance/run_maintenance/dream_status/dream_diary&quot;,
       &quot;labOperator&quot;: &quot;dream-run; rem-preview/rem-stage/promote/explain&quot;,
-      &quot;coverage&quot;: &quot;Maya Add 1; Vega duplicate Merged 1; model diary phase events&quot;,
+      &quot;coverage&quot;: &quot;Maya Add 1; Vega duplicate Merged 1; model diary phase events; independent Python host SDK run publishes all three model phases after an observed correction&quot;,
       &quot;pinnedCode&quot;: [
         &quot;dreaming-phases-rmgXNBLP.mjs&quot;,
         &quot;dreaming-narrative-B8Hp3Mc_.mjs&quot;
       ],
-      &quot;boundary&quot;: &quot;Operator-triggered sweeps; thresholds are explicit test settings. Diary is not a current truth source.&quot;
+      &quot;boundary&quot;: &quot;Explicit manual SDK/operator sweeps; bounded native model. Observe asynchronous publishers before shutdown. Diary is not a current truth source.&quot;
     },
     {
       &quot;id&quot;: &quot;consolidation-lineage&quot;,
       &quot;native&quot;: &quot;Adds, merges and eligible supersessions with provenance&quot;,
-      &quot;sdk&quot;: &quot;inspect outputs only&quot;,
+      &quot;sdk&quot;: &quot;run_maintenance + explain_promotion; inspect actual outputs&quot;,
       &quot;labOperator&quot;: &quot;native deep sweep/explain&quot;,
       &quot;coverage&quot;: &quot;addition + duplicate merge passed; changed-fact supersession unverified&quot;,
       &quot;pinnedCode&quot;: [
@@ -178,7 +199,7 @@
       &quot;native&quot;: &quot;Native reindex reflects source changes&quot;,
       &quot;sdk&quot;: &quot;write/delete/index and workspace/user route&quot;,
       &quot;labOperator&quot;: &quot;note/delete/use&quot;,
-      &quot;coverage&quot;: &quot;fresh Maya app write/update/delete and symmetric scope checks&quot;,
+      &quot;coverage&quot;: &quot;fresh Maya app write/update/delete and symmetric scope checks; independent primary Python agent performs real tool-driven writes/update and cross-route recall checks&quot;,
       &quot;pinnedCode&quot;: [
         &quot;memory-schema-SE7C0M3V.mjs&quot;
       ],

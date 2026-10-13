@@ -8,7 +8,7 @@ This project lets you test OpenClaw's existing memory engine through a local Typ
 
 - Native keyword search, optional semantic search, exact source reads, and persistent SQLite indexes.
 - Application note write, update, and delete. Separate workspace/user routes.
-- Native agent profile and daily notes, reset capture, flush, compaction, and light → REM → deep dreaming. The lab exposes operator controls; the Python SDK exposes memory access and lifecycle inspection.
+- Native agent profile and daily notes, reset capture, flush, compaction, and light → REM → deep dreaming. The lab exposes native agent lifecycle controls; the Python SDK exposes memory access, daily notes, manual dreaming and maintenance inspection.
 - A managed private Gateway, a sequential JSONL bridge, and a read-only client for an existing loopback Gateway.
 
 ## One memory story
@@ -77,9 +77,27 @@ with MemoryClient(BridgeConfig(Path.cwd(), Path.cwd() / ".lab" / "sdk")) as memo
 
 Call `index` after `write` or `delete`. Reuse the root for persistence. Close the client after a transport timeout before retry decisions.
 
+## Independent host-agent example
+
+[The example](examples/host_agent.py) runs a real Python model/tool loop using only the installed public SDK for memory. It writes and updates synthetic Maya’s notes, starts fresh host sessions, runs native dreaming, restarts the Gateway, and checks separate user/workspace corpora. [The latest report](reports/host-agent-memory.html) shows actual calls, source results, native receipts and the earlier diary interruption alongside its correction.
+
+From an independent directory, with Python 3.10+:
+
+```sh
+FOUNDATION=/absolute/path/to/openclaw-memory-foundation
+python3 -m venv .venv
+.venv/bin/python -m pip install "$FOUNDATION/python" python-dotenv==1.2.1
+cp "$FOUNDATION/examples/host_agent.py" agent.py
+.venv/bin/python agent.py --foundation "$FOUNDATION" --root data --report report.json
+```
+
+This paid example uses the explicitly approved foundation `.env` through a local loader, never browser code. Its host and native ledgers retain attempted requests across restarts; do not reset them to replay tests. The fixed maintenance profile checks cumulative provider usage and both finite request envelopes before dispatch. It is a developer trial, not an account-wide atomic spending reservation.
+
 ## Native, SDK, and operator scope
 
-OpenClaw owns retrieval, storage, provenance, and agent maintenance. Adapters own note writes, routing, processes, and prompt insertion. The SDK adds status/restart and session/dreaming inspection. It has no chat, flush, compaction, or consolidation trigger.
+OpenClaw owns retrieval, storage, provenance, and agent maintenance. Adapters own note writes, routing, processes, and prompt insertion. The SDK adds daily-note writes, status/restart, session/dreaming inspection, and explicit `configure_maintenance` / `run_maintenance` / `explain_promotion`. The native run stages canonical daily notes, triggers OpenClaw’s managed dreaming job, and observes its real diary publishers before shutting down. Scheduling stays manual; one retained finite request ledger is shared by the SDK root. Model configuration is currently the approved OpenRouter GPT-6 Sol lab profile.
+
+The primary agent and tool loop stay in your Python app. The SDK has no chat wrapper. Native flush and compaction manage OpenClaw-owned sessions; external Python message history remains the host’s responsibility. A daily-note write is an application checkpoint, not a native flush. Supplied scope IDs are trusted routing inputs; your host supplies authentication and deployment isolation.
 
 The [ready Gateway client](src/gateway.ts) only searches and reads an existing loopback Gateway. Use `bash scripts/install.sh --client-only` and [the example](examples/ready_gateway.ts). Supply `BRIDGE_GATEWAY_URL` and `BRIDGE_GATEWAY_TOKEN` through the authorized server environment. JSONL operations are defined in [src/stdio.ts](src/stdio.ts).
 

@@ -6,6 +6,10 @@ const root = resolve(process.argv[2] ?? join(PROJECT, ".lab"));
 const labs = new Map<string, Lab>();
 const operations = new Set([
   "write",
+  "write_daily",
+  "configure_maintenance",
+  "run_maintenance",
+  "explain_promotion",
   "delete",
   "index",
   "search",
@@ -64,6 +68,17 @@ async function dispatch(
       return lab.dreamStatus();
     case "dream_diary":
       return lab.dreamDiary();
+    case "configure_maintenance":
+      return lab.configureMaintenance(
+        Number(args.cumulativeLimitUsd),
+        Number(args.hostReserveUsd),
+      );
+    case "run_maintenance":
+      return lab.runMaintenance();
+    case "explain_promotion":
+      return lab.explain(string(args.selector, "selector"));
+    case "write_daily":
+      return lab.writeDaily(string(args.day, "day"), string(args.text, "text"));
     case "write":
       return lab.writeNote(
         string(args.noteId, "noteId"),

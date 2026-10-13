@@ -9,7 +9,7 @@ def load(path):
     return json.loads((foundation / path).read_text())
 
 def clean(value):
-    text = json.dumps(value, ensure_ascii=False).replace(str(foundation), '<foundation>')
+    text = json.dumps(value, ensure_ascii=False).replace(str(foundation), '<foundation>').replace(str(foundation.parent / 'openclaw-chatbot-consumer'), '<consumer>')
     assert '/Users/' not in text and 'sk-or-' not in text and 'Bearer ' not in text
     return json.loads(text)
 
@@ -31,8 +31,8 @@ feature('bootstrap-profile', 'Native prompt loads workspace profile/template con
 feature('agent-note', 'Agent read/write/edit tools can maintain profile/daily files', 'no chat/extraction method', 'real native chat', 'Maya real tool calls + exact diffs', ['memory-tool-contract-DOz26L8b.mjs','memory-workspace-files-CC0bKS3d.mjs'], 'Explicit app write is not automatic extraction.')
 feature('flush-compaction', 'Threshold-based pre-compaction memory flush and native summary compaction', 'state inspection only', 'flush-config/chat/compact; paid guarded runners', 'separate real Borealis flush + compaction; absent in Maya E2E', ['memory-flush-session-BjKZkw5O.mjs','compaction-DG39GCC7.mjs'], 'Existing runner uses low test thresholds. Not a per-message guarantee; no new run fits retained budget.')
 feature('session-capture', 'Native reset hook captures bounded session material', 'configure(ingestion=True), reset_session, session_history/state; labelled fixture', 'ingestion/session-reset/lifecycle-demo', 'separate real Borealis capture + SDK no-key fixture checks', ['session-ingestion-Dy5uAq-_.mjs'], 'Fixture injection generates no model reply. Reset capture differs from model extraction.')
-feature('dreaming', 'Light stages, REM reflects, deep promotes grounded sources', 'dream_status/dream_diary inspection only', 'dream-run; rem-preview/rem-stage/promote/explain', 'Maya Add 1; Vega duplicate Merged 1; model diary phase events', ['dreaming-phases-rmgXNBLP.mjs','dreaming-narrative-B8Hp3Mc_.mjs'], 'Operator-triggered sweeps; thresholds are explicit test settings. Diary is not a current truth source.')
-feature('consolidation-lineage', 'Adds, merges and eligible supersessions with provenance', 'inspect outputs only', 'native deep sweep/explain', 'addition + duplicate merge passed; changed-fact supersession unverified', ['memory-artifact-provenance-DhnyWiV1.mjs','memory-entry-origins-BCQSIB3X.mjs'], 'App file replacement does not prove lineage-based supersession.')
+feature('dreaming', 'Light stages, REM reflects, deep promotes grounded sources', 'write_daily/configure_maintenance/run_maintenance/dream_status/dream_diary', 'dream-run; rem-preview/rem-stage/promote/explain', 'Maya Add 1; Vega duplicate Merged 1; model diary phase events', ['dreaming-phases-rmgXNBLP.mjs','dreaming-narrative-B8Hp3Mc_.mjs'], 'Explicit manual SDK/operator sweeps; bounded native model. Observe asynchronous publishers before shutdown. Diary is not a current truth source.')
+feature('consolidation-lineage', 'Adds, merges and eligible supersessions with provenance', 'run_maintenance + explain_promotion; inspect actual outputs', 'native deep sweep/explain', 'addition + duplicate merge passed; changed-fact supersession unverified', ['memory-artifact-provenance-DhnyWiV1.mjs','memory-entry-origins-BCQSIB3X.mjs'], 'App file replacement does not prove lineage-based supersession.')
 feature('app-crud-scopes', 'Native reindex reflects source changes', 'write/delete/index and workspace/user route', 'note/delete/use', 'fresh Maya app write/update/delete and symmetric scope checks', ['memory-schema-SE7C0M3V.mjs'], 'Writes/deletes/routing are app adapters. No authorization or secure-erasure claim.')
 feature('ranking', 'Native relevance/importance/recency/project ranking, MMR and query expansion', 'search preserves native ordering; no ranking knobs', 'native config; promotion explanation', 'installed implementation; individual ranking policies not accepted separately', ['memory-search-CIhUURbE.mjs','dreaming-phases-rmgXNBLP.mjs'])
 feature('trusted-pre-reply', 'Curated trigger/project recall with provenance gating', 'no active-recall control', 'native agent configuration', 'installed capability; no dedicated demo', ['memory-path-provenance-C84vBRrO.mjs','memory-tool-contract-DOz26L8b.mjs'], 'No learned relevance reranker or active-memory claim.')
@@ -95,9 +95,17 @@ if maintenance:
             f['boundary']='Thresholds/retention are explicit test settings. No SDK trigger. Summary may describe older state; no separate flush-only note write was isolated.'
         if f['id']=='persistence':f['coverage']='new native Maya session after dreaming/Gateway restart passed; fresh SDK and Vega evidence also retained'
     (reports / 'memory-capabilities.json').write_text(json.dumps(inventory,indent=2)+'\n')
+host_path=reports / 'host-agent-memory.json'
+host=json.loads(host_path.read_text()) if host_path.exists() else None
+if host:
+    status['independentPythonHost']={'checks':host['checks'], 'externalContext':'Native flush/compaction do not manage the external host context.', 'cumulativeBudgetSnapshot':host['afterBudget'], 'diaryCorrection':'Initial interruption retained; same-ledger continuation published light/REM/deep model entries.'}
+    for f in capabilities:
+        if f['id']=='dreaming':f['coverage']+='; independent Python host SDK run publishes all three model phases after an observed correction'
+        if f['id']=='app-crud-scopes':f['coverage']+='; independent primary Python agent performs real tool-driven writes/update and cross-route recall checks'
+    (reports / 'memory-capabilities.json').write_text(json.dumps(inventory,indent=2)+'\n')
 coverage={'scope':inventory['scope'],'cases':[{k:c[k] for k in ['id','title','runId','status','featureIds']} for c in cases],'gaps':status}
 (reports / 'memory-case-coverage.json').write_text(json.dumps(coverage,indent=2)+'\n')
-story=clean({'title':'OpenClaw memory feature tour','narrative':'Maya is the main recorded conversation. Separate Zephyr, Borealis and Vega records demonstrate optional capabilities; the app tour is a fresh no-key run. Case order is a learning path, not a stitched continuous transcript. The October 13 maintenance is a real continuation of the retained Maya main session, with earlier failures left visible.','readmeMarkdown':(foundation / 'README.md').read_text(),'cases':cases,'runs':{'maya-chat-2026-10-12':maya, **({maintenance['runId']:maintenance} if maintenance else {})},'capabilityInventory':inventory,'gaps':status})
+story=clean({'title':'OpenClaw memory feature tour','narrative':'Maya is the main recorded conversation. Separate Zephyr, Borealis and Vega records demonstrate optional capabilities; the app tour is a fresh no-key run. Case order is a learning path, not a stitched continuous transcript. The October 13 maintenance is a real continuation of the retained Maya main session, with earlier failures left visible.','readmeMarkdown':(foundation / 'README.md').read_text(),'cases':cases,'runs':{'maya-chat-2026-10-12':maya, **({maintenance['runId']:maintenance} if maintenance else {})},'capabilityInventory':inventory,'gaps':status,'independentPythonHost':host})
 (reports / 'memory-story.json').write_text(json.dumps(story,indent=2,ensure_ascii=False)+'\n')
 print(json.dumps({'cases':len(cases),'capabilities':len(capabilities),'newPaidRuns':status['newPaidRuns']}))
 

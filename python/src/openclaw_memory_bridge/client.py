@@ -173,6 +173,22 @@ class MemoryClient(FoundationClient):
     def write(self, scope: MemoryScope, note_id: str, text: str):
         return self.call("write", scope.routing_workspace, noteId=note_id, text=text)
 
+    def write_daily(self, scope: MemoryScope, day: str, text: str):
+        """Replace an app-owned canonical daily note; index explicitly afterward."""
+        return self.call("write_daily", scope.routing_workspace, day=day, text=text)
+
+    def configure_maintenance(self, scope: MemoryScope, *, cumulative_limit_usd: float, host_reserve_usd: float):
+        """Select the approved native model and retained finite manual-run ledger."""
+        return self.call("configure_maintenance", scope.routing_workspace,
+                         cumulativeLimitUsd=cumulative_limit_usd, hostReserveUsd=host_reserve_usd)
+
+    def run_maintenance(self, scope: MemoryScope):
+        """Native grounded backfill + managed dreaming; inspect returned receipts."""
+        return self.call("run_maintenance", scope.routing_workspace)
+
+    def explain_promotion(self, scope: MemoryScope, selector: str):
+        return self.call("explain_promotion", scope.routing_workspace, selector=selector)
+
     def delete(self, scope: MemoryScope, note_id: str):
         return self.call("delete", scope.routing_workspace, noteId=note_id)
 

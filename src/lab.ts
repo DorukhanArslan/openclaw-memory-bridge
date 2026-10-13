@@ -26,6 +26,7 @@ import { consolidationCheckpoint } from "./consolidation-checkpoint.ts";
 import { ReadyGateway } from "./gateway.ts";
 import {
   CONSOLIDATION_LIMITS,
+  createLifecycleLedger,
   E2E_LIMITS,
   LIFECYCLE_LIMITS,
   MAINTENANCE_LIMITS,
@@ -121,6 +122,8 @@ type Settings = (
   textModel?: TextModel;
   sessionMemory?: boolean;
   flush?: "normal" | "test";
+  managedMaintenance?: boolean;
+  maintenanceHostReserveUsd?: number;
 };
 
 async function safeDir(path: string) {
@@ -178,6 +181,7 @@ export class Lab {
   private lifecycleLedger?: string;
   private conversationDemo = false;
   private conversationAnswerOnly = false;
+  private maintenanceRunning = false;
 
   constructor(name = "alpha", root = join(PROJECT, ".lab")) {
     this.root = resolve(root);
@@ -245,6 +249,11 @@ export class Lab {
           );
       } catch (error) {
         if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+      }
+      if (this.settings.managedMaintenance) {
+        this.lifecycleLedger = join(this.root, "sdk-maintenance-ledger.json");
+        if (readLifecycleLedger(this.lifecycleLedger).profile !== "maintenance")
+          throw new Error("Invalid retained SDK maintenance ledger.");
       }
       await this.provision();
       return this;
@@ -512,7 +521,9 @@ export class Lab {
             ],
           },
           browser: { enabled: false },
-          ...(this.smoke ? { cron: { enabled: false } } : {}),
+          ...(this.smoke || this.settings.managedMaintenance
+            ? { cron: { enabled: this.maintenanceRunning } }
+            : {}),
           update: { checkOnStart: false, auto: { enabled: false } },
           telemetry: { enabled: false },
           logging: {
@@ -538,6 +549,146 @@ export class Lab {
     )
       throw new Error("Supply a valid YYYY-MM-DD date.");
     return this.writeSource(day, text);
+  }
+
+  /** Explicit, finite native maintenance. No host chat/session ownership. */
+  async configureMaintenance(
+    cumulativeLimitUsd: number,
+    hostReserveUsd: number,
+  ) {
+    if (
+      cumulativeLimitUsd !== 50 ||
+      !Number.isFinite(hostReserveUsd) ||
+      hostReserveUsd < 0
+    )
+      throw new Error(
+        "Supply the authorized cumulative 50 USD limit and a finite host reserve.",
+      );
+    if (this.settings.provider !== "none")
+      throw new Error(
+        "The finite SDK maintenance profile requires explicit keyword mode; it does not authorize embedding requests.",
+      );
+    await this.stop();
+    const previous = this.settings;
+    const previousLedger = this.lifecycleLedger;
+    this.settings = {
+      ...this.settings,
+      provider: "none",
+      textModel: nativeModel(PAID_SELECTION.chat, "OPENROUTER_API_KEY"),
+      dreaming: true,
+      managedMaintenance: true,
+      maintenanceHostReserveUsd: hostReserveUsd,
+    };
+    const ledger = join(this.root, "sdk-maintenance-ledger.json");
+    try {
+      try {
+        createLifecycleLedger(ledger, "maintenance");
+      } catch (error) {
+        if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;
+      }
+      if (readLifecycleLedger(ledger).profile !== "maintenance")
+        throw new Error("Invalid retained SDK maintenance ledger.");
+      this.lifecycleLedger = ledger;
+      await this.saveSettings();
+      await verifySmokeRuntime();
+      await this.validateConfig();
+      const budget = smokeBudget(await this.providerUsage(), {
+        keyLimit: true,
+        prices: SMOKE.prices,
+        providerLimitUsd: 50,
+      });
+      if (
+        budget.usedUsd + MAINTENANCE_LIMITS.estimatedUsd + hostReserveUsd >=
+        cumulativeLimitUsd
+      )
+        throw new Error(
+          "Remaining cumulative budget cannot cover native maintenance and the host reserve.",
+        );
+      return {
+        configured: PAID_SELECTION.chat,
+        scheduling: "manual",
+        budget,
+        nativeEnvelopeUsd: MAINTENANCE_LIMITS.estimatedUsd,
+        hostReserveUsd,
+        ledger: readLifecycleLedger(ledger),
+        externalContext:
+          "Host owns flush and compaction; no native external-context endpoint.",
+      };
+    } catch (error) {
+      this.settings = previous;
+      this.lifecycleLedger = previousLedger;
+      await this.saveSettings();
+      throw error;
+    }
+  }
+
+  async runMaintenance() {
+    if (!this.settings.managedMaintenance || !this.lifecycleLedger)
+      throw new Error("Configure finite SDK maintenance before running it.");
+    // Recheck current cumulative usage after reconnects, before native dispatch.
+    if (this.settings.maintenanceHostReserveUsd === undefined)
+      throw new Error(
+        "Reconfigure maintenance with the explicit host reserve.",
+      );
+    await this.configureMaintenance(
+      50,
+      this.settings.maintenanceHostReserveUsd,
+    );
+    const ledger = this.lifecycleLedger;
+    try {
+      const staged = await this.remStage();
+      const logPath = join(this.directory, "openclaw.log");
+      const logOffset = (await readFile(logPath, "utf8").catch(() => ""))
+        .length;
+      this.maintenanceRunning = true;
+      const sweep = await this.dreamRun();
+      // Native cron completion and asynchronous diary publication are separate.
+      const publishers: Record<string, string> = {
+        light: "pending",
+        rem: "pending",
+        deep: "pending",
+      };
+      const deadline = Date.now() + 90000;
+      while (
+        Object.values(publishers).includes("pending") &&
+        Date.now() < deadline
+      ) {
+        const messages = (await readFile(logPath, "utf8")).slice(logOffset);
+        for (const phase of Object.keys(publishers)) {
+          if (messages.includes(`dream diary entry written for ${phase} phase`))
+            publishers[phase] = "completed";
+          else if (
+            messages.includes(
+              `narrative generation used fallback for ${phase} phase`,
+            )
+          )
+            publishers[phase] = "degraded";
+          else if (
+            messages.includes(
+              `narrative publication skipped for ${phase} phase`,
+            )
+          )
+            publishers[phase] = "skipped";
+        }
+        if (Object.values(publishers).includes("pending")) await delay(300);
+      }
+      const status = await this.dreamStatus();
+      const diary = await this.dreamDiary();
+      return {
+        staged,
+        sweep,
+        status,
+        diary,
+        publishers,
+        ledger: readLifecycleLedger(ledger),
+        diaryPublication:
+          "Observed pinned native logs; pending publishers at the deadline are interrupted on shutdown, not reported as successful.",
+      };
+    } finally {
+      await this.stop();
+      this.maintenanceRunning = false;
+      await this.provision();
+    }
   }
   private async writeSource(id: string, text: string) {
     if (!text.trim() || Buffer.byteLength(text) > 64000)
@@ -671,6 +822,8 @@ export class Lab {
       textModel: this.settings.textModel,
       sessionMemory: this.settings.sessionMemory,
       flush: this.settings.flush,
+      managedMaintenance: this.settings.managedMaintenance,
+      maintenanceHostReserveUsd: this.settings.maintenanceHostReserveUsd,
     };
     await this.saveSettings();
     return this.index();
