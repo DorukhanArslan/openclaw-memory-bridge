@@ -50,7 +50,7 @@
       "native": "Per-agent SQLite index and Markdown sources",
       "sdk": "restart and reconnect with same root",
       "labOperator": "restart/status/index",
-      "coverage": "fresh SDK + historical Vega restart recall",
+      "coverage": "new native Maya session after dreaming/Gateway restart passed; fresh SDK and Vega evidence also retained",
       "pinnedCode": [
         "openclaw-agent-schema-CV4V4sh3.mjs",
         "memory-schema-SE7C0M3V.mjs"
@@ -86,12 +86,12 @@
       "native": "Threshold-based pre-compaction memory flush and native summary compaction",
       "sdk": "state inspection only",
       "labOperator": "flush-config/chat/compact; paid guarded runners",
-      "coverage": "separate real Borealis flush + compaction; absent in Maya E2E",
+      "coverage": "real same-Maya continuation: native flush succeeded, compaction committed, current-source recall passed",
       "pinnedCode": [
         "memory-flush-session-BjKZkw5O.mjs",
         "compaction-DG39GCC7.mjs"
       ],
-      "boundary": "Existing runner uses low test thresholds. Not a per-message guarantee; no new run fits retained budget."
+      "boundary": "Thresholds/retention are explicit test settings. No SDK trigger. Summary may describe older state; no separate flush-only note write was isolated."
     },
     {
       "id": "session-capture",

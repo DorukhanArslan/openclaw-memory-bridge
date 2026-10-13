@@ -28,6 +28,7 @@ import {
   CONSOLIDATION_LIMITS,
   E2E_LIMITS,
   LIFECYCLE_LIMITS,
+  MAINTENANCE_LIMITS,
   readLifecycleLedger,
 } from "./lifecycle-request-budget.ts";
 import {
@@ -1954,6 +1955,271 @@ export class Lab {
 
   private sessionKey(session: string) {
     return `agent:main:${validId(session)}`;
+  }
+
+  /** Fixed Maya continuation after explicit cumulative 50 USD approval. */
+  async boundedMayaMaintenance(
+    ledgerPath: string,
+    checkpoint: (value: Record<string, unknown>) => Promise<void>,
+  ) {
+    await verifySmokeRuntime();
+    requireEnvironment([PAID_SELECTION.keyEnv]);
+    if (this.name !== "w-c4b42d5e46db88eb0f9c6660f653a2158b1cfe11")
+      throw new Error("Only the retained synthetic Maya workspace is allowed.");
+    const priorPath = join(
+      PROJECT,
+      "evidence/e2e-conversation/request-ledger.json",
+    );
+    const prior = readLifecycleLedger(priorPath);
+    const ledger = readLifecycleLedger(ledgerPath);
+    if (
+      prior.requests !== 24 ||
+      prior.inputBytes !== 386120 ||
+      prior.outputTokens !== 18432 ||
+      ledger.profile !== "maintenance" ||
+      ledger.requests ||
+      ledger.inputBytes ||
+      ledger.outputTokens
+    )
+      throw new Error("Retained ledger or fresh continuation ledger mismatch.");
+    this.lifecycleLedger = resolve(ledgerPath);
+    this.conversationDemo = true;
+    this.settings = {
+      provider: "none",
+      dreaming: true,
+      flush: "test",
+      sessionMemory: true,
+      textModel: nativeModel(PAID_SELECTION.chat, PAID_SELECTION.keyEnv),
+    };
+    const result: Record<string, unknown> = {
+      mode: "real-provider/same-Maya-native-maintenance-continuation",
+      cumulativeTestLimitUsd: 50,
+      limits: MAINTENANCE_LIMITS,
+      priorLedger: prior,
+      priorLedgerPath: "evidence/e2e-conversation/request-ledger.json",
+      continuity:
+        "Same retained workspace and main native session. New linked phase ledger; prior counters and failed attempts remain unchanged.",
+      harness:
+        "No workspace note writes. Gateway chat enables the genuine native flush lifecycle; maintenance test thresholds are explicit.",
+      steps: [],
+      stages: {},
+    };
+    const steps = result.steps as Array<Record<string, unknown>>;
+    const stages = result.stages as Record<string, string>;
+    const snapshot = async () => {
+      const files: Record<string, string | null> = {};
+      for (const name of ["USER.md", "BOOTSTRAP.md", "MEMORY.md", "DREAMS.md"])
+        files[name] = null;
+      const visit = async (directory: string, prefix = "") => {
+        for (const entry of await readdir(directory, { withFileTypes: true })) {
+          if (entry.isSymbolicLink())
+            throw new Error("Unexpected synthetic workspace link.");
+          const path = join(directory, entry.name),
+            relative = prefix + entry.name;
+          if (entry.isDirectory()) await visit(path, `${relative}/`);
+          else if (/\.(md|txt)$/.test(entry.name))
+            files[relative] = await readFile(path, "utf8");
+        }
+      };
+      await visit(join(this.directory, "workspace"));
+      return files;
+    };
+    const capture = async (
+      id: string,
+      input: string | null,
+      action: () => Promise<unknown>,
+    ) => {
+      const before = await snapshot();
+      const step: Record<string, unknown> = { id, input, bot: null, before };
+      steps.push(step);
+      try {
+        const output = await action();
+        step.output = output;
+        if (output && typeof output === "object" && "completion" in output)
+          step.bot =
+            (output as { completion: { terminalReply?: { text?: string } } })
+              .completion.terminalReply?.text ?? null;
+      } catch (error) {
+        step.error = this.redact((error as Error).message);
+        throw error;
+      } finally {
+        const after = await snapshot();
+        step.after = after;
+        step.changes = Object.keys({ ...before, ...after })
+          .filter((p) => before[p] !== after[p])
+          .map((path) => ({
+            path,
+            before: before[path] ?? null,
+            after: after[path] ?? null,
+          }));
+        result.requestLedger = readLifecycleLedger(ledgerPath);
+        await checkpoint(result);
+      }
+      return step;
+    };
+    const budget = async () =>
+      smokeBudget(await this.providerUsage(), {
+        keyLimit: true,
+        prices: SMOKE.prices,
+        providerLimitUsd: 50,
+      });
+    try {
+      const initial = await snapshot();
+      if (
+        !initial["USER.md"]?.includes("currently prefers rooibos tea") ||
+        !initial["MEMORY.md"]?.includes("Maya watered the orchids")
+      )
+        throw new Error(
+          "Actual retained Maya profile and daily promotion are required.",
+        );
+      result.initialWorkspace = initial;
+      await this.provision();
+      await this.validateConfig();
+      result.beforeBudget = await budget();
+      if (
+        (result.beforeBudget as { usedUsd: number }).usedUsd +
+          MAINTENANCE_LIMITS.estimatedUsd >
+        50
+      )
+        throw new Error(
+          "Fixed continuation envelope exceeds remaining cumulative 50 USD approval.",
+        );
+      await this.index();
+      result.sessionBefore = await this.sessionState("main");
+      await capture(
+        "native-chat-and-flush",
+        "Continue our synthetic greenhouse conversation. Today I checked the greenhouse thermometer at 08:00. Remember this daily event. What is my current morning drink and usual orchid-watering day? Check saved memory and cite your source briefly.",
+        () =>
+          this.chat(
+            "main",
+            "Continue our synthetic greenhouse conversation. Today I checked the greenhouse thermometer at 08:00. Remember this daily event. What is my current morning drink and usual orchid-watering day? Check saved memory and cite your source briefly.",
+          ),
+      );
+      const flush = await capture("observe-native-flush", null, () =>
+        this.waitForFlush("main"),
+      );
+      const state = flush.output as {
+        nativeMaintenance: { memoryFlush?: { kind?: string } };
+      };
+      stages.flush =
+        state.nativeMaintenance.memoryFlush?.kind === "succeeded"
+          ? "pass"
+          : "unverified: native successful flush absent";
+      if (stages.flush !== "pass")
+        throw new Error(
+          "Native flush was not accepted; preserve partial evidence.",
+        );
+      const compact = await capture("native-compaction", null, () =>
+        this.compactSession("main", true),
+      );
+      stages.compaction = (
+        compact.output as { native: { compacted?: boolean } }
+      ).native.compacted
+        ? "pass"
+        : "fail";
+      if (stages.compaction !== "pass")
+        throw new Error("Native compaction did not commit.");
+      const afterCompact = await capture(
+        "recall-after-compaction",
+        "After shortening this conversation, what is my current morning drink and usual orchid-watering day? Check saved memory and cite your source briefly.",
+        () =>
+          this.chat(
+            "main",
+            "After shortening this conversation, what is my current morning drink and usual orchid-watering day? Check saved memory and cite your source briefly.",
+          ),
+      );
+      stages.compactionRecall =
+        /rooibos/i.test(String(afterCompact.bot)) &&
+        /Monday/i.test(String(afterCompact.bot))
+          ? "pass"
+          : "fail";
+      await this.index();
+      await this.search("Maya thermometer rooibos orchids");
+      const dream = await capture("native-dreaming", null, () =>
+        this.dreamRun(),
+      );
+      stages.dreaming =
+        (dream.output as { completed?: boolean; completionStatus?: string })
+          .completed &&
+        (dream.output as { completionStatus?: string }).completionStatus ===
+          "succeeded"
+          ? "pass"
+          : "fail";
+      // Wait for real asynchronous phase publishers, not only the cron receipt.
+      const deadline = Date.now() + 60000;
+      while (Date.now() < deadline) {
+        const log = await readFile(
+          join(this.directory, "openclaw.log"),
+          "utf8",
+        ).catch(() => "");
+        const today = new Date().toISOString().slice(0, 10);
+        if (
+          ["light", "rem", "deep"].every((phase) =>
+            log
+              .split("\n")
+              .some(
+                (line) =>
+                  line.includes(today) &&
+                  line.includes(`dream diary entry written for ${phase} phase`),
+              ),
+          )
+        )
+          break;
+        await delay(1000);
+      }
+      result.dreamStatus = await this.dreamStatus();
+      result.diary = await this.dreamDiary();
+      await this.index();
+      await this.restart();
+      const final = await capture(
+        "new-session-after-dream-and-restart",
+        "In this new session after memory maintenance, what is my current morning drink, usual orchid-watering day, and the recent thermometer event? Check saved memory and cite your sources briefly.",
+        () =>
+          this.chat(
+            "maintenance-after-restart",
+            "In this new session after memory maintenance, what is my current morning drink, usual orchid-watering day, and the recent thermometer event? Check saved memory and cite your sources briefly.",
+          ),
+      );
+      stages.postDreamRecall =
+        /rooibos/i.test(String(final.bot)) &&
+        /Monday/i.test(String(final.bot)) &&
+        /thermometer/i.test(String(final.bot))
+          ? "pass"
+          : "fail";
+      result.sessionAfter = await this.sessionState("main");
+    } catch (error) {
+      result.error = this.redact((error as Error).message);
+    } finally {
+      await this.stop();
+      result.afterBudget = await budget().catch(() => null);
+      result.finalWorkspace = await snapshot();
+      result.requestLedger = readLifecycleLedger(ledgerPath);
+      result.priorLedgerAfter = readLifecycleLedger(priorPath);
+      result.priorLedgerIntegrity =
+        JSON.stringify(result.priorLedgerAfter) === JSON.stringify(prior)
+          ? "pass"
+          : "fail";
+      if (result.priorLedgerIntegrity !== "pass")
+        result.error = "Prior consumed ledger changed unexpectedly.";
+      result.nativeDiagnostics = this.redact(
+        await readFile(join(this.directory, "openclaw.log"), "utf8").catch(
+          () => "",
+        ),
+      )
+        .split("\n")
+        .filter((line) =>
+          /memory.?flush|compaction|dream diary|consolidation|fallback|Finite lifecycle/i.test(
+            line,
+          ),
+        )
+        .slice(-80);
+      this.lifecycleLedger = undefined;
+      this.conversationDemo = false;
+      this.settings = { provider: "none" };
+      await this.saveSettings();
+      await checkpoint(result);
+    }
+    return result;
   }
 
   async createSession(session: string) {

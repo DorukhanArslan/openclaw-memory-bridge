@@ -131,27 +131,119 @@
         "extra-multimodal-cjk",
         "session-wiki-corpora"
       ]
+    },
+    {
+      "id": "C14",
+      "title": "Native chat and flush",
+      "runId": "maya-maintenance-2026-10-13",
+      "status": "real continuation pass",
+      "featureIds": [
+        "flush-compaction"
+      ]
+    },
+    {
+      "id": "C15",
+      "title": "Observe native flush",
+      "runId": "maya-maintenance-2026-10-13",
+      "status": "real continuation pass",
+      "featureIds": [
+        "flush-compaction"
+      ]
+    },
+    {
+      "id": "C16",
+      "title": "Native compaction",
+      "runId": "maya-maintenance-2026-10-13",
+      "status": "real continuation pass",
+      "featureIds": [
+        "flush-compaction"
+      ]
+    },
+    {
+      "id": "C17",
+      "title": "Recall after compaction",
+      "runId": "maya-maintenance-2026-10-13",
+      "status": "real continuation pass",
+      "featureIds": [
+        "flush-compaction"
+      ]
+    },
+    {
+      "id": "C18",
+      "title": "Native dreaming",
+      "runId": "maya-maintenance-2026-10-13",
+      "status": "real continuation pass",
+      "featureIds": [
+        "dreaming",
+        "persistence",
+        "source"
+      ]
+    },
+    {
+      "id": "C19",
+      "title": "New session after dream and restart",
+      "runId": "maya-maintenance-2026-10-13",
+      "status": "real continuation pass",
+      "featureIds": [
+        "dreaming",
+        "persistence",
+        "source"
+      ]
     }
   ],
   "gaps": {
     "sameMayaContinuousAllFeatures": false,
     "bootstrapTemplateLoad": "not demonstrated; USER.md load verified",
-    "MayaAutomaticFlush": "not observed",
-    "MayaCompaction": "not run",
-    "MayaPostDreamNativeAgent": "blocked by input-byte admission; bot is null",
+    "MayaAutomaticFlush": "native succeeded marker observed in linked continuation; no distinct flush-only file write isolated",
+    "MayaCompaction": "committed; 9447 \u2192 1182 tokens; summary contains older state",
+    "MayaPostDreamNativeAgent": "passed in new session after restart; historical blocked call retained",
     "PythonUSERGet": "rejected adapter path; native get and Python search evidence retained",
     "changedFactSupersession": "unverified",
     "diaryCurrentPreference": "older mint fragment remains",
-    "newPaidRuns": 0,
+    "newPaidRuns": 1,
     "historicalRunsAreNotContinuousWithMaya": true,
     "budget": {
-      "cumulativeLimitUsd": 5,
-      "lastMeasuredUsedUsdBeforeFinalAnswer": 0.3256195199999965,
-      "retainedE2ERequests": 24,
-      "remainingSerializedInputBytes": 13880,
-      "existingFullFlushEnvelopeUsd": 4.83,
-      "minimumTotalWithLastMeasuredUsageUsd": 5.15561952,
-      "note": "Final answer cost was not resampled. No new envelope or ledger reset was introduced."
-    }
+      "approvedCumulativeUsd": 50,
+      "before": {
+        "limitUsd": 50,
+        "usedUsd": 0.3261975200000009,
+        "remainingUsd": 49.67380248
+      },
+      "after": {
+        "limitUsd": 50,
+        "usedUsd": 0.4250189199999994,
+        "remainingUsd": 49.57498108
+      },
+      "measurement": "Read-only provider key counter snapshots; delayed billing/concurrent use are not isolated per-generation charges.",
+      "phaseLimits": {
+        "requests": 40,
+        "inputBytes": 1600000,
+        "inputBytesPerRequest": 100000,
+        "inputFramingTokensPerRequest": 1024,
+        "outputPerRequest": 2048,
+        "outputTokens": 32000,
+        "estimatedUsd": 30.49728
+      },
+      "phaseLedger": {
+        "profile": "maintenance",
+        "requests": 20,
+        "inputBytes": 493518,
+        "outputTokens": 12953
+      },
+      "priorLedger": {
+        "profile": "conversation",
+        "requests": 24,
+        "inputBytes": 386120,
+        "outputTokens": 18432
+      },
+      "priorLedgerAfter": {
+        "profile": "conversation",
+        "requests": 24,
+        "inputBytes": 386120,
+        "outputTokens": 18432
+      },
+      "priorLedgerIntegrity": "pass"
+    },
+    "continuation": "Same retained Maya main session and workspace, across a later linked phase; other optional feature runs remain separate."
   }
 }

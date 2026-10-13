@@ -21,13 +21,18 @@ const fixture = fileURLToPath(
   new URL("./fixtures/ledger-race-child.ts", import.meta.url),
 );
 const cases: Array<{
-  profile?: "consolidation" | "conversation";
+  profile?: "consolidation" | "conversation" | "maintenance";
   kind: string;
 }> = [{ kind: "model" }, { profile: "consolidation", kind: "model" }];
 if (budget.E2E_LIMITS)
   cases.push(
     { profile: "conversation", kind: "model" },
     { profile: "conversation", kind: "input" },
+  );
+if (budget.MAINTENANCE_LIMITS)
+  cases.push(
+    { profile: "maintenance", kind: "model" },
+    { profile: "maintenance", kind: "input" },
   );
 
 for (const { profile, kind } of cases) {
@@ -67,11 +72,13 @@ for (const { profile, kind } of cases) {
       assert.equal(actual.profile, profile);
       assert.ok(actual.lastDenial);
       const limits =
-        profile === "conversation"
-          ? budget.E2E_LIMITS
-          : profile === "consolidation"
-            ? budget.CONSOLIDATION_LIMITS
-            : budget.LIFECYCLE_LIMITS;
+        profile === "maintenance"
+          ? budget.MAINTENANCE_LIMITS
+          : profile === "conversation"
+            ? budget.E2E_LIMITS
+            : profile === "consolidation"
+              ? budget.CONSOLIDATION_LIMITS
+              : budget.LIFECYCLE_LIMITS;
       const admit = () =>
         budget.admitLifecycleRequest(
           path,

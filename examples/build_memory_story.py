@@ -77,11 +77,29 @@ maya_case('C11','Answer after maintenance with app context','application-final-a
 case('C12','Restart, update, delete and separate scopes','maya-app-tour',[s['input'] for s in app['steps']],None,'Explicit SDK calls in a fresh temporary root; no model executed',[c for s in app['steps'] for c in s['changes']],'Notes persist after restart; app replacement/deletion changes current hits; other user/workspace has no copied fact.','fresh real no-key pass; independent app run',['persistence','app-crud-scopes'],app)
 case('C13','Remaining native options','inventory-only',None,None,'No execution',None,'Ranking, backfill, trusted trigger recall, policy/forget and extended corpora are described with their access limits.','not a passed demonstration',['ranking','trusted-pre-reply','index-maintenance','historical-backfill','admission-forget','extra-multimodal-cjk','session-wiki-corpora'])
 status={'sameMayaContinuousAllFeatures':False,'bootstrapTemplateLoad':'not demonstrated; USER.md load verified','MayaAutomaticFlush':'not observed','MayaCompaction':'not run','MayaPostDreamNativeAgent':'blocked by input-byte admission; bot is null','PythonUSERGet':'rejected adapter path; native get and Python search evidence retained','changedFactSupersession':'unverified','diaryCurrentPreference':'older mint fragment remains','newPaidRuns':0,'historicalRunsAreNotContinuousWithMaya':True,'budget':{'cumulativeLimitUsd':5,'lastMeasuredUsedUsdBeforeFinalAnswer':maya['measuredProviderUsageBeforeFinal']['usedUsd'],'retainedE2ERequests':maya['ledger']['requests'],'remainingSerializedInputBytes':maya['limits']['inputBytes']-maya['ledger']['inputBytes'],'existingFullFlushEnvelopeUsd':4.83,'minimumTotalWithLastMeasuredUsageUsd':round(maya['measuredProviderUsageBeforeFinal']['usedUsd']+4.83,8),'note':'Final answer cost was not resampled. No new envelope or ledger reset was introduced.'}}
+maintenance_path=reports / 'maya-maintenance.json'
+maintenance=json.loads(maintenance_path.read_text()) if maintenance_path.exists() else None
+if maintenance:
+    for index, step in enumerate(maintenance['steps'], start=14):
+        case(f'C{index:02}', step['id'].replace('-', ' ').capitalize(), maintenance['runId'], step.get('input'), step.get('bot'), step['trigger'], step.get('changes'), 'Linked real Maya continuation: native maintenance or source-grounded recall; source files stay authoritative.', 'real continuation pass', ['flush-compaction'] if index in [14,15,16,17] else ['dreaming','persistence','source'], step)
+    status['MayaAutomaticFlush']='native succeeded marker observed in linked continuation; no distinct flush-only file write isolated'
+    status['MayaCompaction']='committed; 9447 → 1182 tokens; summary contains older state'
+    status['MayaPostDreamNativeAgent']='passed in new session after restart; historical blocked call retained'
+    status['newPaidRuns']=1
+    status['sameMayaContinuousAllFeatures']=False
+    status['continuation']='Same retained Maya main session and workspace, across a later linked phase; other optional feature runs remain separate.'
+    status['budget']=maintenance['budget']
+    for f in capabilities:
+        if f['id']=='flush-compaction':
+            f['coverage']='real same-Maya continuation: native flush succeeded, compaction committed, current-source recall passed'
+            f['boundary']='Thresholds/retention are explicit test settings. No SDK trigger. Summary may describe older state; no separate flush-only note write was isolated.'
+        if f['id']=='persistence':f['coverage']='new native Maya session after dreaming/Gateway restart passed; fresh SDK and Vega evidence also retained'
+    (reports / 'memory-capabilities.json').write_text(json.dumps(inventory,indent=2)+'\n')
 coverage={'scope':inventory['scope'],'cases':[{k:c[k] for k in ['id','title','runId','status','featureIds']} for c in cases],'gaps':status}
 (reports / 'memory-case-coverage.json').write_text(json.dumps(coverage,indent=2)+'\n')
-story=clean({'title':'OpenClaw memory feature tour','narrative':'Maya is the main recorded conversation. Separate Zephyr, Borealis and Vega records demonstrate optional capabilities; the app tour is a fresh no-key run. Case order is a learning path, not a stitched continuous transcript.','cases':cases,'runs':{'maya-chat-2026-10-12':maya},'capabilityInventory':inventory,'gaps':status})
+story=clean({'title':'OpenClaw memory feature tour','narrative':'Maya is the main recorded conversation. Separate Zephyr, Borealis and Vega records demonstrate optional capabilities; the app tour is a fresh no-key run. Case order is a learning path, not a stitched continuous transcript. The October 13 maintenance is a real continuation of the retained Maya main session, with earlier failures left visible.','readmeMarkdown':(foundation / 'README.md').read_text(),'cases':cases,'runs':{'maya-chat-2026-10-12':maya, **({maintenance['runId']:maintenance} if maintenance else {})},'capabilityInventory':inventory,'gaps':status})
 (reports / 'memory-story.json').write_text(json.dumps(story,indent=2,ensure_ascii=False)+'\n')
-print(json.dumps({'cases':len(cases),'capabilities':len(capabilities),'newPaidRuns':0}))
+print(json.dumps({'cases':len(cases),'capabilities':len(capabilities),'newPaidRuns':status['newPaidRuns']}))
 
 # Update only the presentation. The original Maya replay JSON remains unchanged.
 import html
@@ -114,4 +132,6 @@ for c in cases:
     summary+='<section class="row"><article>'+left+'</article><aside>'+right+'</aside></section>'
 summary+='</section><!-- memory-feature-tour:end -->'
 page=page.replace('<main>', '<main>'+summary, 1)
+if maintenance:
+    page=page.replace('<h1>One conversation. Real memory changes.</h1>', '<h1>Original October 12 conversation</h1><p>The failed calls and unobserved flush below are preserved historical results. The linked October 13 native continuation appears above.</p>')
 page_path.write_text(page)

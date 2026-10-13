@@ -141,5 +141,27 @@
     "Status": "PASS",
     "Evidence": "tests/review-regression.test.ts; evidence/review-regression/full-regression.log (local, ignored)",
     "Commit": "735f245"
+  },
+  {
+    "Round": "12. Real retained Maya native maintenance continuation",
+    "Test goal": "Observe native automatic flush, commit compaction, and recall current sources after dreaming and Gateway restart in the retained Maya workspace.",
+    "What we did": "Use the same main session and canonical files. Run native Gateway chat, observe its flush marker, request explicit native compaction, then run dreaming and a new-session agent recall after restart. Use a new linked finite phase ledger under the user-approved cumulative test limit; retain prior counters and failures.",
+    "Expected result": "Native maintenance states and real model replies support every accepted stage. Saved sources remain authoritative.",
+    "Actual result": "All five stages passed. The main session ID stayed identical. Flush changed from no marker to succeeded. Compaction committed and reported 9447 to 1182 tokens. Final agent cited rooibos/Monday at USER.md#L6-L7 and the thermometer event at memory/2026-10-13.md#L1-L3. The later dreaming sweep promoted zero new entries. The daily file is attributed to an observed agent write; a separate flush-only file write was not isolated. The summary describes an older mint-tea state; current source recall remains correct. The phase recorded 20 requests, 493518 input bytes and 12953 reserved output tokens. The sampled cumulative provider counter was 0.42501892 USD.",
+    "What this means for your app": "The native lifecycle can be tested on retained session state. Explicit compaction and model diaries are not SDK methods. Check current saved sources when a summary or diary describes older state.",
+    "Status": "PASS WITH EXPLICIT LIMITS",
+    "Evidence": "reports/maya-maintenance.json; reports/memory-story.json; tests/maintenance-evidence.test.ts; raw native evidence remains local and ignored",
+    "Commit": "Local continuation implementation included in this delivery; native run precedes documentation commit"
+  },
+  {
+    "Round": "13. Full default regression after maintenance continuation",
+    "Test goal": "Check the new finite profile, denial serialization and existing bridge behavior without new paid model calls.",
+    "What we did": "Run the full serial default Node suite with live model selections cleared. Run TypeScript, Biome, link and evidence-fidelity checks.",
+    "Expected result": "Applicable tests pass. Live-model gates remain explicit skips. Original Maya record and prior ledger remain unchanged.",
+    "Actual result": "104 tests in 456.59 seconds: 96 passed, 0 failed, 8 skipped, 0 cancelled. Recorded native stage checks, temporary-ledger concurrency regressions, actual no-key engine workflows and synthetic transport checks passed. TypeScript, Biome and links passed. A concurrent lint scan initially reported a temporary fixture disappearing; the quiescent rerun passed.",
+    "What this means for your app": "Default regression validates the adapter and recorded evidence. It does not rerun the paid native scenario. Historical failures and limitations remain visible.",
+    "Status": "PASS",
+    "Evidence": "tests/*.test.ts; /tmp/openclaw-maya-maintenance-full-regression.log (local); reports/memory-case-coverage.json",
+    "Commit": "Same implementation tree as this delivery"
   }
 ]

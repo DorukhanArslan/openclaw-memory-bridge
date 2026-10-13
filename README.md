@@ -30,10 +30,10 @@ Follow the [conversation and file changes](reports/chatbot-memory-demo.html). Th
 | 3. Keyword recall + source | Maya: native search/get pass. Python search passes; `get("USER.md")` rejects that path. |
 | 4. Semantic recall + source | Separate Zephyr run: “pedal-powered commuting” finds a bicycle note with real embeddings. No search-time bot reply. |
 | 5. Change preference | Maya: mint → rooibos; new-session recall passes. Native lineage supersession remains unverified. |
-| 6. Flush and compact context | Separate Borealis run: flush writes a daily note; compaction commits a summary. Maya's flush was not observed. |
+| 6. Flush and compact context | Maya continuation: native flush succeeds; compaction commits (9,447 → 1,182 tokens). Daily note writes are attributed to agent tools; summary can describe older state. |
 | 7. Capture/reset session | Separate Borealis run: native hook writes a dated capture. SDK fixtures are not generated chat. |
 | 8. Maintain durable memory | Maya: light/REM/deep adds one sourced event. Separate Vega run verifies duplicate merge and three model diary phases. |
-| 9. Recall after maintenance/restart | Maya: SDK context → real native `llm-task` answer; post-dream agent turn blocked. Separate Vega restart recall passes. |
+| 9. Recall after maintenance/restart | Maya continuation: new native agent session after dreaming/restart recalls rooibos, Monday, and the thermometer event with sources. Earlier blocked turn stays recorded. |
 | 10. Update/delete and scopes | Fresh SDK checks pass after reindex. Copies/backups remain outside note deletion. Routes are not authentication. |
 
 ## Start without a key
@@ -89,7 +89,7 @@ The [ready Gateway client](src/gateway.ts) only searches and reads an existing l
 
 Embeddings and maintenance can need a model. `vector` selects a local embedding endpoint; approved provider selection uses native configuration and an environment SecretRef. Keep keys in ignored `.env` and tokens on the server. Services stay on loopback. There is no invented memory-write endpoint.
 
-A diary can retain an old preference; it is not current truth. A complete Maya chat → flush → compaction → post-dream agent run remains unverified. Live model tests require explicit configuration and a spending limit.
+A diary or compacted summary can describe an old preference; check the current saved source. The linked Maya continuation now verifies native flush, compaction, and agent recall after dreaming/restart. Earlier failures remain visible. Live model tests require explicit configuration and a spending limit.
 
 ```sh
 npm run typecheck
