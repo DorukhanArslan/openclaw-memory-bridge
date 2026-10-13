@@ -6,6 +6,7 @@ import {
   createLifecycleLedger,
   readLifecycleLedger,
 } from "../src/lifecycle-request-budget.ts";
+import { maintenanceExitCode } from "../src/maintenance-status.ts";
 
 if (process.argv.length !== 2)
   throw new Error("Fixed Maya maintenance takes no arguments.");
@@ -69,7 +70,7 @@ try {
       ledger: result.requestLedger,
     }),
   );
-  if (result.error) process.exitCode = 2;
+  process.exitCode = maintenanceExitCode(result);
 } finally {
   await lab.close();
 }

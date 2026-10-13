@@ -31,6 +31,7 @@ import {
   MAINTENANCE_LIMITS,
   readLifecycleLedger,
 } from "./lifecycle-request-budget.ts";
+import { maintenanceExitCode } from "./maintenance-status.ts";
 import {
   confirmSmoke,
   fixtureEndpoint,
@@ -2187,6 +2188,10 @@ export class Lab {
           ? "pass"
           : "fail";
       result.sessionAfter = await this.sessionState("main");
+      if (maintenanceExitCode(result) !== 0)
+        throw new Error(
+          "Native Maya maintenance has a failed or missing acceptance stage.",
+        );
     } catch (error) {
       result.error = this.redact((error as Error).message);
     } finally {
