@@ -11,6 +11,7 @@ import json
 from pathlib import Path
 import re
 from openclaw_memory_bridge import BridgeConfig, MemoryClient
+from host_agent import sanitize_report
 
 FACT = "Synthetic Project Vega uses amber filters every Friday."
 PROJECT = "github.com/DorukhanArslan/openclaw-memory-bridge"
@@ -76,6 +77,7 @@ def main():
     except Exception as error:
         report["error"] = type(error).__name__+": "+str(error)
     finally:
+        report = sanitize_report(report, foundation=foundation, state=args.root)
         args.report.write_text(json.dumps(report,indent=2))
         print(json.dumps({"ok":report["ok"],"checks":report["checks"],"error":report.get("error"),"report":str(args.report)}))
     return 0 if report["ok"] else 2

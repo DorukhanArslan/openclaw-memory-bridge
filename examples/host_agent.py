@@ -5,6 +5,7 @@ from datetime import date
 import html
 import json
 import os
+import re
 from pathlib import Path
 import stat
 import urllib.request
@@ -114,7 +115,34 @@ class HostAgent:
         raise RuntimeError("Host tool-loop turn limit exceeded.")
 
 
+def sanitize_report(value, *, foundation=None, state=None):
+    """Keep source citations and facts, redact machine-specific filesystem roots."""
+    roots = []
+    for path, label in [(foundation, "<foundation>"), (state, "<state>")]:
+        if path is not None:
+            aliases = {str(Path(path).absolute()), str(Path(path).resolve())}
+            aliases.update(p.removeprefix("/private") for p in tuple(aliases) if p.startswith("/private/"))
+            roots.extend((alias, label) for alias in aliases)
+    roots.sort(key=lambda item: len(item[0]), reverse=True)
+
+    def clean(item):
+        if isinstance(item, dict):
+            return {clean(key) if isinstance(key, str) else key: clean(part) for key, part in item.items()}
+        if isinstance(item, (list, tuple)):
+            return [clean(part) for part in item]
+        if isinstance(item, str):
+            for path, label in roots:
+                item = item.replace(path, label)
+            # A renderer called with a historical receipt may have no root
+            # arguments. Such remaining home paths are opaque diagnostics.
+            return re.sub(r"/(?:Users|home)/[^\r\n\"<>]+", "<local-path>", item)
+        return item
+
+    return clean(value)
+
+
 def render(report, destination):
+    report = sanitize_report(report)
     escape = html.escape
     cards = []
     for step in report.get("conversation", []):
@@ -188,6 +216,7 @@ def main():
         # Do not include HTTP response bodies or provider credentials in errors.
         report["error"] = type(error).__name__ + ": " + (str(error) if not isinstance(error, urllib.error.HTTPError) else str(error.code))
     finally:
+        report = sanitize_report(report, foundation=args.foundation, state=args.root)
         args.report.write_text(json.dumps(report, indent=2))
         render(report, args.report.with_suffix(".html"))
         print(json.dumps({"ok": report["ok"], "checks": report["checks"], "error": report.get("error"), "report": str(args.report)}))

@@ -75,7 +75,7 @@ with MemoryClient(BridgeConfig(Path.cwd(), Path.cwd() / ".lab" / "sdk")) as memo
     # Your app supplies this context to its model. The SDK does not send chat.
 ```
 
-Call `index` after `write` or `delete`. Reuse the root for persistence. Close the client after a transport timeout before retry decisions.
+Call `index` after `write` or `delete`. Reuse the root for persistence. Close the client after a transport timeout before retry decisions. `run_maintenance` reserves a 40-minute response window for native polling and publication bounds; ordinary operations keep `BridgeConfig.timeout`. Reports redact workstation paths before JSON/HTML output.
 
 ## Independent host-agent example
 

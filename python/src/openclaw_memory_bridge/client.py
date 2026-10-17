@@ -13,6 +13,12 @@ from threading import Thread, Lock
 from typing import Any
 
 
+# Backfill, repeated native CLI polling, cron completion and asynchronous
+# publishers have separate bounds. Keep their receipt stream alive through
+# the full server envelope without changing ordinary request timeouts.
+MAINTENANCE_RESPONSE_TIMEOUT = 2400
+
+
 class FoundationError(RuntimeError):
     def __init__(self, message: str, code: str = "transport_error"):
         super().__init__(message)
@@ -125,7 +131,8 @@ class FoundationClient:
         except (BrokenPipeError, OSError) as error:
             self.poisoned = True
             raise FoundationError("Foundation input stream failed.", "transport_failed") from error
-        response = self._receive()
+        response_timeout = max(self.timeout, MAINTENANCE_RESPONSE_TIMEOUT) if op == "run_maintenance" else self.timeout
+        response = self._receive(response_timeout)
         if response.get("v") != 1 or response.get("id") != request_id:
             self.poisoned = True
             raise FoundationError("Foundation response did not match this request.", "protocol_error")
