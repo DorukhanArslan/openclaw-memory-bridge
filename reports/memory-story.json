@@ -6263,30 +6263,16 @@
     },
     "verification": {
       "nodeRegressionSuite": {
-        "total": 118,
-        "passed": 110,
+        "total": 121,
+        "passed": 113,
         "failed": 0,
-        "skipped": 8,
-        "cancelled": 0,
-        "durationMs": 432598.944459,
-        "skipRecords": [
-          "﹣ REAL optional selected model: agentic memory flush, compaction, reset capture and recall (0.446ms) # Choose a genuine local model or explicitly approved native provider; no simulated model.",
-          "﹣ REAL optional selected text model: native dreaming narrative (0.46575ms) # Choose a genuine local model or explicitly approved native provider; no simulated model.",
-          "﹣ MODEL-01 REAL fixed native embedding search and source read (0.537916ms) # Explicit finite real-model case selection is required. Historical audits are separate.",
-          "﹣ MODEL-02/03/04 REAL fixed native conversation, extraction, flush and compaction (0.07925ms) # Explicit finite real-model case selection is required. Historical audits are separate.",
-          "﹣ MODEL-05/06 REAL fixed native duplicate merge and complete model diary (0.063292ms) # Explicit finite real-model case selection is required. Historical audits are separate.",
-          "﹣ MODEL-07 changed-fact supersession (0.049459ms) # Matching native lineage and an accepted runnable supersession fixture are not verified.",
-          "﹣ REAL optional selected embeddings: ready client semantic recall (0.436ms) # Choose genuine local embeddings or explicitly approved native compatible embeddings; no fake semantic acceptance.",
-          "﹣ REAL optional selected embeddings: semantic recall without shared query words (0.444792ms) # Choose genuine local embeddings or explicitly approved native compatible embeddings; no fake semantic acceptance."
-        ]
+        "skipped": 8
       },
       "installedPythonSuite": {
         "total": 23,
         "passed": 22,
         "failed": 0,
-        "skipped": 1,
-        "durationSeconds": 268.316,
-        "skipReason": "Changed-fact native supersession remains unverified."
+        "skipped": 1
       },
       "finalFocusedChecks": {
         "tests": 21,
@@ -6303,8 +6289,8 @@
         "fresh real independent Python primary model tool loop and native memory maintenance"
       ],
       "unrun": "New branch CI, publication and release; no new vector trial",
-      "latestNoKeyRound": "final-no-key-regression-b5d6eda",
-      "testedCodeCommit": "b5d6edacd7175ab0948994e740100773b22942d4"
+      "latestNoKeyRound": "sdk-completion-regression-2026-10-17",
+      "testedCodeCommit": "88c9ae808b6f60af1d81865831585aa0428e742b"
     },
     "validationRounds": [
       {
@@ -6390,6 +6376,27 @@
           }
         },
         "scope": "Real local no-key OpenClaw checks, synthetic protocol/configuration/model-transport fixtures, and audits of existing model records. This is not an all-features acceptance claim."
+      },
+      {
+        "id": "sdk-completion-regression-2026-10-17",
+        "testedCodeCommit": "88c9ae808b6f60af1d81865831585aa0428e742b",
+        "recordedAtUtc": "2026-10-17T19:39:21.423155+00:00",
+        "typescript": {
+          "total": 121,
+          "passed": 113,
+          "failed": 0,
+          "skipped": 8
+        },
+        "python": {
+          "total": 23,
+          "passed": 22,
+          "failed": 0,
+          "skipped": 1
+        },
+        "lint": "pass",
+        "typecheck": "pass",
+        "wheelAndSdist": "pass",
+        "scope": "Full no-key suites, labelled transport/configuration fixtures and recorded real-model evidence audits. No live-model case selected for regression."
       }
     ],
     "sdkCompletion": {
@@ -7334,6 +7341,10 @@
             "uniqueQueries": true,
             "maxAge": true
           }
+        },
+        "initialBlockedAttempt": {
+          "error": "FoundationError: Paid Gateway startup is blocked: automatic model/embedding work has no strict spending reservation.",
+          "explanation": "Gateway gate rejected an initial get before finite maintenance configuration. The example was corrected to configure first. No model request dispatched in that attempt."
         }
       },
       "nativeMerge": "verified by new accepted native Merged: 1 summary and exact source replacement; distinct from append-only promotion",
@@ -7348,6 +7359,27 @@
         "requests": 8,
         "inputBytes": 15098,
         "outputTokens": 16384
+      },
+      "finalRegression": {
+        "id": "sdk-completion-regression-2026-10-17",
+        "testedCodeCommit": "88c9ae808b6f60af1d81865831585aa0428e742b",
+        "recordedAtUtc": "2026-10-17T19:39:21.423155+00:00",
+        "typescript": {
+          "total": 121,
+          "passed": 113,
+          "failed": 0,
+          "skipped": 8
+        },
+        "python": {
+          "total": 23,
+          "passed": 22,
+          "failed": 0,
+          "skipped": 1
+        },
+        "lint": "pass",
+        "typecheck": "pass",
+        "wheelAndSdist": "pass",
+        "scope": "Full no-key suites, labelled transport/configuration fixtures and recorded real-model evidence audits. No live-model case selected for regression."
       }
     }
   },
@@ -8292,6 +8324,10 @@
         "uniqueQueries": true,
         "maxAge": true
       }
+    },
+    "initialBlockedAttempt": {
+      "error": "FoundationError: Paid Gateway startup is blocked: automatic model/embedding work has no strict spending reservation.",
+      "explanation": "Gateway gate rejected an initial get before finite maintenance configuration. The example was corrected to configure first. No model request dispatched in that attempt."
     }
   }
 }

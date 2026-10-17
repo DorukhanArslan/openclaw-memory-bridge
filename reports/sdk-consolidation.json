@@ -939,5 +939,9 @@
       "uniqueQueries": true,
       "maxAge": true
     }
+  },
+  "initialBlockedAttempt": {
+    "error": "FoundationError: Paid Gateway startup is blocked: automatic model/embedding work has no strict spending reservation.",
+    "explanation": "Gateway gate rejected an initial get before finite maintenance configuration. The example was corrected to configure first. No model request dispatched in that attempt."
   }
 }
