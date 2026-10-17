@@ -3,6 +3,8 @@ import os
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
+from dataclasses import replace
 from openclaw_memory_bridge import BridgeConfig, FoundationError, MemoryClient, MemoryScope
 
 
@@ -26,7 +28,7 @@ for await(const line of createInterface({input:process.stdin})) {
  if(r.op==='bad-error') {console.log(JSON.stringify({v:1,id:r.id,ok:false,error:'bad'}));continue;}
  if(r.op==='error') {console.log(JSON.stringify({v:1,id:r.id,ok:false,error:{code:'invalid_request',message:'Unsupported operation.'}}));continue;}
  console.log(JSON.stringify({v:1,id:r.id,ok:true,result:{fixture:true}}));
- if(r.op==='shutdown') break;
+ if(r.op==='shutdown') {process.stdin.destroy();break;}
 }
 ''')
         self.config = BridgeConfig(self.root, self.root / "data", timeout=0.1)
@@ -51,6 +53,22 @@ for await(const line of createInterface({input:process.stdin})) {
             with self.assertRaises(FoundationError):
                 client.call("valid", text="x" * 128000)
             self.assertTrue(client.call("valid")["fixture"])
+
+    def test_maintenance_receipt_timeout_covers_the_native_envelope(self):
+        # A labelled echo fixture checks transport policy without waiting for
+        # minutes or dispatching a native/model operation.
+        for configured in [0.1, 3600]:
+            with self.subTest(configured=configured):
+                with MemoryClient(replace(self.config, timeout=configured)) as client:
+                    with patch.object(client, "_receive", wraps=client._receive) as receive:
+                        self.assertTrue(client.call("run_maintenance")["fixture"])
+                        allowed = receive.call_args.args[0]
+                        self.assertGreaterEqual(allowed, 120 + 10 * 120 + 210 + 90 + 120 + 25 + 100)
+                        self.assertGreaterEqual(allowed, configured)
+                        receive.reset_mock()
+                        self.assertTrue(client.call("valid")["fixture"])
+                        receive.assert_called_once_with(configured)
+                    self.assertFalse(client.poisoned)
 
     def test_uncertain_transport_poisoning(self):
         for operation in ["timeout", "malformed", "mismatch", "bad-error"]:

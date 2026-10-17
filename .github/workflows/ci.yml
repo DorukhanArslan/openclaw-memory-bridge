@@ -32,6 +32,13 @@ jobs:
           bash -n scripts/install.sh
       - name: Test synthetic transport and native OpenClaw workflows
         run: npm test
+      - name: Test the installed Python SDK without model credentials
+        env:
+          FOUNDATION_ROOT: ${{ github.workspace }}
+        run: |
+          python3 -m venv .bootstrap/python-ci
+          .bootstrap/python-ci/bin/python -m pip install ./python
+          .bootstrap/python-ci/bin/python -m unittest discover -s python/tests -v
       - name: Check the client-only clean setup
         run: |
           client_dir=$(mktemp -d)

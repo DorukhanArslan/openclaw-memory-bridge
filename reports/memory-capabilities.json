@@ -107,33 +107,33 @@
     {
       "id": "dreaming",
       "native": "Light stages, REM reflects, deep promotes grounded sources",
-      "sdk": "dream_status/dream_diary inspection only",
+      "sdk": "write_daily/configure_maintenance/run_maintenance/dream_status/dream_diary",
       "labOperator": "dream-run; rem-preview/rem-stage/promote/explain",
-      "coverage": "Maya Add 1; Vega duplicate Merged 1; model diary phase events",
+      "coverage": "Maya Add 1; Vega duplicate Merged 1; model diary phase events; independent Python host SDK run publishes all three model phases after an observed correction",
       "pinnedCode": [
         "dreaming-phases-rmgXNBLP.mjs",
         "dreaming-narrative-B8Hp3Mc_.mjs"
       ],
-      "boundary": "Operator-triggered sweeps; thresholds are explicit test settings. Diary is not a current truth source."
+      "boundary": "Explicit manual SDK/operator sweeps; bounded native model. Observe asynchronous publishers before shutdown. Diary is not a current truth source."
     },
     {
       "id": "consolidation-lineage",
       "native": "Adds, merges and eligible supersessions with provenance",
-      "sdk": "inspect outputs only",
+      "sdk": "run_maintenance + explain_promotion; inspect actual outputs",
       "labOperator": "native deep sweep/explain",
-      "coverage": "addition + duplicate merge passed; changed-fact supersession unverified",
+      "coverage": "native SDK duplicate merge passed (0 added/1 merged/0 superseded); SDK Markdown supersession unsupported by pinned provenance contract",
       "pinnedCode": [
         "memory-artifact-provenance-DhnyWiV1.mjs",
         "memory-entry-origins-BCQSIB3X.mjs"
       ],
-      "boundary": "App file replacement does not prove lineage-based supersession."
+      "boundary": "Markdown indexing emits no supersedesKey; native supersession requires matching candidate provenance and durable lineage. App file replacement cannot supply it."
     },
     {
       "id": "app-crud-scopes",
       "native": "Native reindex reflects source changes",
       "sdk": "write/delete/index and workspace/user route",
       "labOperator": "note/delete/use",
-      "coverage": "fresh Maya app write/update/delete and symmetric scope checks",
+      "coverage": "fresh Maya app write/update/delete and symmetric scope checks; independent primary Python agent performs real tool-driven writes/update and cross-route recall checks",
       "pinnedCode": [
         "memory-schema-SE7C0M3V.mjs"
       ],

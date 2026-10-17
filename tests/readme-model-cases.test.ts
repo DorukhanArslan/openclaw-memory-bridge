@@ -236,5 +236,5 @@ test("MODEL-05/06 REAL fixed native duplicate merge and complete model diary", {
 });
 
 test("MODEL-07 changed-fact supersession", {
-  skip: "Matching native lineage and an accepted runnable supersession fixture are not verified.",
+  skip: "OpenClaw 2026.9.9 Markdown indexing supplies no supersedesKey; native supersession requires matching provenance and durable lineage. The SDK cannot manufacture it.",
 }, () => {});

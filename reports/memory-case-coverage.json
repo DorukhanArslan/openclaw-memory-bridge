@@ -198,7 +198,7 @@
     "MayaCompaction": "committed; 9447 \u2192 1182 tokens; summary contains older state",
     "MayaPostDreamNativeAgent": "passed in new session after restart; historical blocked call retained",
     "PythonUSERGet": "rejected adapter path; native get and Python search evidence retained",
-    "changedFactSupersession": "unverified",
+    "changedFactSupersession": "unsupported through pinned SDK Markdown path: missing supersedesKey provenance; no trusted setter",
     "diaryCurrentPreference": "older mint fragment remains",
     "newPaidRuns": 1,
     "historicalRunsAreNotContinuousWithMaya": true,
@@ -244,6 +244,27 @@
       },
       "priorLedgerIntegrity": "pass"
     },
-    "continuation": "Same retained Maya main session and workspace, across a later linked phase; other optional feature runs remain separate."
+    "continuation": "Same retained Maya main session and workspace, across a later linked phase; other optional feature runs remain separate.",
+    "independentPythonHost": {
+      "checks": {
+        "realAgentWriteAndUpdate": true,
+        "freshHostRecall": true,
+        "nativeRunReceipt": true,
+        "recallAfterMaintenanceAndRestart": true,
+        "dailyPromoted": true,
+        "otherUser": true,
+        "otherWorkspace": true,
+        "nativeDiaryPublishers": true,
+        "newEventConsolidated": true,
+        "continuedRecallAfterRestart": true
+      },
+      "externalContext": "Native flush/compaction do not manage the external host context.",
+      "cumulativeBudgetSnapshot": {
+        "limitUsd": 50,
+        "usedUsd": 0.501274819999999,
+        "remainingUsd": 49.49872518
+      },
+      "diaryCorrection": "Initial interruption retained; same-ledger continuation published light/REM/deep model entries."
+    }
   }
 }
