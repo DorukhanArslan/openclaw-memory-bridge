@@ -121,12 +121,12 @@
       "native": "Adds, merges and eligible supersessions with provenance",
       "sdk": "run_maintenance + explain_promotion; inspect actual outputs",
       "labOperator": "native deep sweep/explain",
-      "coverage": "addition + duplicate merge passed; changed-fact supersession unverified",
+      "coverage": "native SDK duplicate merge passed (0 added/1 merged/0 superseded); SDK Markdown supersession unsupported by pinned provenance contract",
       "pinnedCode": [
         "memory-artifact-provenance-DhnyWiV1.mjs",
         "memory-entry-origins-BCQSIB3X.mjs"
       ],
-      "boundary": "App file replacement does not prove lineage-based supersession."
+      "boundary": "Markdown indexing emits no supersedesKey; native supersession requires matching candidate provenance and durable lineage. App file replacement cannot supply it."
     },
     {
       "id": "app-crud-scopes",

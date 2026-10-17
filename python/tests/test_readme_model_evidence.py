@@ -94,7 +94,7 @@ class RecordedNativeModelCases(unittest.TestCase):
 
     def test_MODEL_07_changed_fact_supersession_not_verified(self):
         """MODEL-07: explicit coverage gap; never pass by replacing an app file."""
-        self.skipTest("Changed-fact supersession requires matching native lineage. No accepted case or SDK trigger is verified.")
+        self.skipTest("OpenClaw 2026.9.9 Markdown indexing supplies no supersedesKey; native supersession requires matching provenance and durable lineage. The SDK cannot manufacture it.")
 
 
 if __name__ == "__main__":

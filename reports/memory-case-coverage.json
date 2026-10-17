@@ -198,7 +198,7 @@
     "MayaCompaction": "committed; 9447 \u2192 1182 tokens; summary contains older state",
     "MayaPostDreamNativeAgent": "passed in new session after restart; historical blocked call retained",
     "PythonUSERGet": "rejected adapter path; native get and Python search evidence retained",
-    "changedFactSupersession": "unverified",
+    "changedFactSupersession": "unsupported through pinned SDK Markdown path: missing supersedesKey provenance; no trusted setter",
     "diaryCurrentPreference": "older mint fragment remains",
     "newPaidRuns": 1,
     "historicalRunsAreNotContinuousWithMaya": true,

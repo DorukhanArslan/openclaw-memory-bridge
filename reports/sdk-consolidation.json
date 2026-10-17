@@ -1,0 +1,943 @@
+{
+  "ok": true,
+  "kind": "real installed SDK / native duplicate consolidation",
+  "workspace": "provenance",
+  "adapter": "Public JSONL SDK call selects the retained named synthetic workspace. Canonical daily writes are application adapters; MEMORY.md is written exclusively by native consolidation.",
+  "checks": {
+    "newAcceptedNativeMerge": true,
+    "singleFactWithNewSource": true,
+    "unrelatedEntriesPreserved": true,
+    "nativeCompleted": true,
+    "modelDiarySeparate": true,
+    "persistentMerge": true,
+    "priorLedgerPreserved": true
+  },
+  "priorNativeLedger": {
+    "profile": "consolidation",
+    "requests": 6,
+    "inputBytes": 39479,
+    "outputTokens": 10240
+  },
+  "configuration": {
+    "configured": "openrouter/openai/gpt-6-sol",
+    "scheduling": "manual",
+    "budget": {
+      "limitUsd": 50,
+      "usedUsd": 0.501274819999999,
+      "remainingUsd": 49.49872518
+    },
+    "nativeEnvelopeUsd": 30.49728,
+    "hostReserveUsd": 0,
+    "ledger": {
+      "requests": 0,
+      "inputBytes": 0,
+      "outputTokens": 0,
+      "profile": "maintenance"
+    },
+    "externalContext": "Host owns flush and compaction; no native external-context endpoint."
+  },
+  "before": {
+    "status": "ok",
+    "text": "# Long-Term Memory\n\n- Unrelated synthetic project Lyra uses silver notebooks.\n- Fictional Atlas uses paper charts.\n- Fictional Cygnus uses brass clocks.\n- Fictional Draco uses white folders.\n## Consolidated Memory (2026-10-11)\n\n<!-- openclaw-memory-promotion:memory:memory/2026-10-11.md:1:1 -->\n- Synthetic Project Vega uses amber filters every Friday. <!-- project: github.com/DorukhanArslan/openclaw-memory-bridge --> Source: memory/2026-10-11.md#L1-L1 <!-- trigger: synthetic, project, vega --> <!-- importance: 8 --> <!-- project: github.com/DorukhanArslan/openclaw-memory-bridge -->",
+    "path": "MEMORY.md",
+    "from": 1,
+    "lines": 10
+  },
+  "sourceWrite": {
+    "adapter": "Markdown write",
+    "path": "memory/2026-10-17.md",
+    "needsIndex": true
+  },
+  "recalls": [
+    {
+      "results": [
+        {
+          "path": "MEMORY.md",
+          "startLine": 10,
+          "endLine": 11,
+          "score": 1.0600008304065283,
+          "textScore": 0.26507318586074924,
+          "snippet": "- Synthetic Project Vega uses amber filters every Friday.  Source: memory/2026-10-11.md#L1-L1\n\nSource: MEMORY.md#L10-L11",
+          "source": "memory",
+          "importance": 8,
+          "triggers": "synthetic; project; vega",
+          "projectKey": "github.com/DorukhanArslan/openclaw-memory-bridge",
+          "provenance": {
+            "originClass": "agent",
+            "sessionKind": "unknown",
+            "observedAt": 1791734047076
+          },
+          "corpus": "memory",
+          "citation": "MEMORY.md#L10-L11"
+        },
+        {
+          "path": "memory/2026-10-17.md",
+          "startLine": 1,
+          "endLine": 2,
+          "score": 0.9544509514655718,
+          "textScore": 0.292517287783007,
+          "snippet": "Synthetic Project Vega uses amber filters every Friday.\n\nSource: memory/2026-10-17.md#L1-L2",
+          "source": "memory",
+          "projectKey": "github.com/DorukhanArslan/openclaw-memory-bridge",
+          "provenance": {
+            "originClass": "agent",
+            "sessionKind": "unknown",
+            "observedAt": 1792265309222
+          },
+          "corpus": "memory",
+          "citation": "memory/2026-10-17.md#L1-L2"
+        },
+        {
+          "path": "memory/2026-10-11.md",
+          "startLine": 1,
+          "endLine": 1,
+          "score": 0.8308978134368751,
+          "textScore": 0.292517287783007,
+          "snippet": "Synthetic Project Vega uses amber filters every Friday.\n\nSource: memory/2026-10-11.md#L1",
+          "source": "memory",
+          "projectKey": "github.com/DorukhanArslan/openclaw-memory-bridge",
+          "provenance": {
+            "originClass": "agent",
+            "sessionKind": "unknown",
+            "observedAt": 1791733998048
+          },
+          "corpus": "memory",
+          "citation": "memory/2026-10-11.md#L1"
+        },
+        {
+          "path": "memory/dreaming/light/2026-10-11.md",
+          "startLine": 1,
+          "endLine": 23,
+          "score": 0.719563619416055,
+          "textScore": 0.20531057438113462,
+          "snippet": "# Light Sleep\n\n- Candidate: Synthetic Project Vega uses amber filters every Friday.\n  - confidence: 0.62\n  - evidence: memory/2026-10-11.md:1-1\n  - recalls: 0\n  - status: staged\n- Candidate: User: Use the native write tool to save exactly this one line to memory/2026-10-11.md, with no heading: Synthetic Project Vega uses amber filters every Friday. . This is synthetic test data. Do not edit MEMORY.md.\n  - confidence: 0.58\n  - evidence: memory/.dreams/session-corpus/2026-10-11.txt:1-1\n  - recalls: 0\n  - status: staged\n- Candidate: Assistant: Saved the exact line to `memory/2026-10-11.md`. I did not edit `MEMORY.md`.\n  - confidence: 0.58\n  - evidence: memory/.dreams/session-corpus/2026-10-11.t\n\nSource: memory/dreaming/light/2026-10-11.md#L1-L23",
+          "source": "memory",
+          "projectKey": "github.com/DorukhanArslan/openclaw-memory-bridge",
+          "provenance": {
+            "originClass": "system",
+            "sessionKind": "unknown",
+            "observedAt": 1791734044548
+          },
+          "corpus": "memory",
+          "citation": "memory/dreaming/light/2026-10-11.md#L1-L23"
+        },
+        {
+          "path": "memory/dreaming/rem/2026-10-11.md",
+          "startLine": 1,
+          "endLine": 23,
+          "score": 0.6780404614280575,
+          "textScore": 0.152795887740514,
+          "snippet": "# REM Sleep\n\n### Reflections\n- Theme: `amber` kept surfacing across 2 memories.\n  - confidence: 1.00\n  - evidence: memory/2026-10-11.md:1-1\n  - note: reflection\n- Theme: `filters` kept surfacing across 2 memories.\n  - confidence: 1.00\n  - evidence: memory/2026-10-11.md:1-1\n  - note: reflection\n- Theme: `friday` kept surfacing across 2 memories.\n  - confidence: 1.00\n  - evidence: memory/2026-10-11.md:1-1\n  - note: reflection\n- Theme: `memory.md` kept surfacing across 2 memories.\n  - confidence: 1.00\n  - evidence: memory/.dreams/session-corpus/2026-10-11.txt:1-1, memory/.dreams/session-corpus/2026-10-11.txt:2-2\n  - note: reflection\n\n### Possible Lasting Truths\n- Synthetic Project Vega uses amb\n\nSource: memory/dreaming/rem/2026-10-11.md#L1-L23",
+          "source": "memory",
+          "provenance": {
+            "originClass": "system",
+            "sessionKind": "unknown",
+            "observedAt": 1791734044664
+          },
+          "corpus": "memory",
+          "citation": "memory/dreaming/rem/2026-10-11.md#L1-L23"
+        }
+      ],
+      "provider": "none",
+      "citations": "auto",
+      "debug": {
+        "backend": "builtin",
+        "effectiveMode": "n/a",
+        "managerMs": 0,
+        "searchMs": 10,
+        "hits": 5,
+        "candidateHits": 5,
+        "withheldHits": 0,
+        "searchWindow": 8,
+        "toolMs": 11,
+        "outsideSearchMs": 1
+      }
+    },
+    {
+      "results": [
+        {
+          "path": "MEMORY.md",
+          "startLine": 10,
+          "endLine": 11,
+          "score": 1.0600008304065283,
+          "textScore": 0.26507318586074924,
+          "snippet": "- Synthetic Project Vega uses amber filters every Friday.  Source: memory/2026-10-11.md#L1-L1\n\nSource: MEMORY.md#L10-L11",
+          "source": "memory",
+          "importance": 8,
+          "triggers": "synthetic; project; vega",
+          "projectKey": "github.com/DorukhanArslan/openclaw-memory-bridge",
+          "provenance": {
+            "originClass": "agent",
+            "sessionKind": "unknown",
+            "observedAt": 1791734047076
+          },
+          "corpus": "memory",
+          "citation": "MEMORY.md#L10-L11"
+        },
+        {
+          "path": "memory/2026-10-17.md",
+          "startLine": 1,
+          "endLine": 2,
+          "score": 0.9544509443189284,
+          "textScore": 0.292517287783007,
+          "snippet": "Synthetic Project Vega uses amber filters every Friday.\n\nSource: memory/2026-10-17.md#L1-L2",
+          "source": "memory",
+          "projectKey": "github.com/DorukhanArslan/openclaw-memory-bridge",
+          "provenance": {
+            "originClass": "agent",
+            "sessionKind": "unknown",
+            "observedAt": 1792265309222
+          },
+          "corpus": "memory",
+          "citation": "memory/2026-10-17.md#L1-L2"
+        },
+        {
+          "path": "memory/2026-10-11.md",
+          "startLine": 1,
+          "endLine": 1,
+          "score": 0.8308978072153608,
+          "textScore": 0.292517287783007,
+          "snippet": "Synthetic Project Vega uses amber filters every Friday.\n\nSource: memory/2026-10-11.md#L1",
+          "source": "memory",
+          "projectKey": "github.com/DorukhanArslan/openclaw-memory-bridge",
+          "provenance": {
+            "originClass": "agent",
+            "sessionKind": "unknown",
+            "observedAt": 1791733998048
+          },
+          "corpus": "memory",
+          "citation": "memory/2026-10-11.md#L1"
+        },
+        {
+          "path": "memory/dreaming/light/2026-10-11.md",
+          "startLine": 1,
+          "endLine": 23,
+          "score": 0.7195636140281777,
+          "textScore": 0.20531057438113462,
+          "snippet": "# Light Sleep\n\n- Candidate: Synthetic Project Vega uses amber filters every Friday.\n  - confidence: 0.62\n  - evidence: memory/2026-10-11.md:1-1\n  - recalls: 0\n  - status: staged\n- Candidate: User: Use the native write tool to save exactly this one line to memory/2026-10-11.md, with no heading: Synthetic Project Vega uses amber filters every Friday. . This is synthetic test data. Do not edit MEMORY.md.\n  - confidence: 0.58\n  - evidence: memory/.dreams/session-corpus/2026-10-11.txt:1-1\n  - recalls: 0\n  - status: staged\n- Candidate: Assistant: Saved the exact line to `memory/2026-10-11.md`. I did not edit `MEMORY.md`.\n  - confidence: 0.58\n  - evidence: memory/.dreams/session-corpus/2026-10-11.t\n\nSource: memory/dreaming/light/2026-10-11.md#L1-L23",
+          "source": "memory",
+          "projectKey": "github.com/DorukhanArslan/openclaw-memory-bridge",
+          "provenance": {
+            "originClass": "system",
+            "sessionKind": "unknown",
+            "observedAt": 1791734044548
+          },
+          "corpus": "memory",
+          "citation": "memory/dreaming/light/2026-10-11.md#L1-L23"
+        },
+        {
+          "path": "memory/dreaming/rem/2026-10-11.md",
+          "startLine": 1,
+          "endLine": 23,
+          "score": 0.704006879034303,
+          "textScore": 0.1831880668292198,
+          "snippet": "# REM Sleep\n\n### Reflections\n- Theme: `amber` kept surfacing across 2 memories.\n  - confidence: 1.00\n  - evidence: memory/2026-10-11.md:1-1\n  - note: reflection\n- Theme: `filters` kept surfacing across 2 memories.\n  - confidence: 1.00\n  - evidence: memory/2026-10-11.md:1-1\n  - note: reflection\n- Theme: `friday` kept surfacing across 2 memories.\n  - confidence: 1.00\n  - evidence: memory/2026-10-11.md:1-1\n  - note: reflection\n- Theme: `memory.md` kept surfacing across 2 memories.\n  - confidence: 1.00\n  - evidence: memory/.dreams/session-corpus/2026-10-11.txt:1-1, memory/.dreams/session-corpus/2026-10-11.txt:2-2\n  - note: reflection\n\n### Possible Lasting Truths\n- Synthetic Project Vega uses amb\n\nSource: memory/dreaming/rem/2026-10-11.md#L1-L23",
+          "source": "memory",
+          "provenance": {
+            "originClass": "system",
+            "sessionKind": "unknown",
+            "observedAt": 1791734044664
+          },
+          "corpus": "memory",
+          "citation": "memory/dreaming/rem/2026-10-11.md#L1-L23"
+        }
+      ],
+      "provider": "none",
+      "citations": "auto",
+      "debug": {
+        "backend": "builtin",
+        "effectiveMode": "n/a",
+        "managerMs": 0,
+        "searchMs": 10,
+        "hits": 5,
+        "candidateHits": 5,
+        "withheldHits": 0,
+        "searchWindow": 8,
+        "toolMs": 10,
+        "outsideSearchMs": 0
+      }
+    },
+    {
+      "results": [
+        {
+          "path": "MEMORY.md",
+          "startLine": 10,
+          "endLine": 11,
+          "score": 1.0600008304065283,
+          "textScore": 0.26507318586074924,
+          "snippet": "- Synthetic Project Vega uses amber filters every Friday.  Source: memory/2026-10-11.md#L1-L1\n\nSource: MEMORY.md#L10-L11",
+          "source": "memory",
+          "importance": 8,
+          "triggers": "synthetic; project; vega",
+          "projectKey": "github.com/DorukhanArslan/openclaw-memory-bridge",
+          "provenance": {
+            "originClass": "agent",
+            "sessionKind": "unknown",
+            "observedAt": 1791734047076
+          },
+          "corpus": "memory",
+          "citation": "MEMORY.md#L10-L11"
+        },
+        {
+          "path": "memory/2026-10-17.md",
+          "startLine": 1,
+          "endLine": 2,
+          "score": 0.9544509387037087,
+          "textScore": 0.292517287783007,
+          "snippet": "Synthetic Project Vega uses amber filters every Friday.\n\nSource: memory/2026-10-17.md#L1-L2",
+          "source": "memory",
+          "projectKey": "github.com/DorukhanArslan/openclaw-memory-bridge",
+          "provenance": {
+            "originClass": "agent",
+            "sessionKind": "unknown",
+            "observedAt": 1792265309222
+          },
+          "corpus": "memory",
+          "citation": "memory/2026-10-17.md#L1-L2"
+        },
+        {
+          "path": "memory/2026-10-11.md",
+          "startLine": 1,
+          "endLine": 1,
+          "score": 0.830897802327028,
+          "textScore": 0.292517287783007,
+          "snippet": "Synthetic Project Vega uses amber filters every Friday.\n\nSource: memory/2026-10-11.md#L1",
+          "source": "memory",
+          "projectKey": "github.com/DorukhanArslan/openclaw-memory-bridge",
+          "provenance": {
+            "originClass": "agent",
+            "sessionKind": "unknown",
+            "observedAt": 1791733998048
+          },
+          "corpus": "memory",
+          "citation": "memory/2026-10-11.md#L1"
+        },
+        {
+          "path": "memory/dreaming/light/2026-10-11.md",
+          "startLine": 1,
+          "endLine": 23,
+          "score": 0.7195636097948456,
+          "textScore": 0.20531057438113462,
+          "snippet": "# Light Sleep\n\n- Candidate: Synthetic Project Vega uses amber filters every Friday.\n  - confidence: 0.62\n  - evidence: memory/2026-10-11.md:1-1\n  - recalls: 0\n  - status: staged\n- Candidate: User: Use the native write tool to save exactly this one line to memory/2026-10-11.md, with no heading: Synthetic Project Vega uses amber filters every Friday. . This is synthetic test data. Do not edit MEMORY.md.\n  - confidence: 0.58\n  - evidence: memory/.dreams/session-corpus/2026-10-11.txt:1-1\n  - recalls: 0\n  - status: staged\n- Candidate: Assistant: Saved the exact line to `memory/2026-10-11.md`. I did not edit `MEMORY.md`.\n  - confidence: 0.58\n  - evidence: memory/.dreams/session-corpus/2026-10-11.t\n\nSource: memory/dreaming/light/2026-10-11.md#L1-L23",
+          "source": "memory",
+          "projectKey": "github.com/DorukhanArslan/openclaw-memory-bridge",
+          "provenance": {
+            "originClass": "system",
+            "sessionKind": "unknown",
+            "observedAt": 1791734044548
+          },
+          "corpus": "memory",
+          "citation": "memory/dreaming/light/2026-10-11.md#L1-L23"
+        },
+        {
+          "path": "memory/dreaming/rem/2026-10-11.md",
+          "startLine": 1,
+          "endLine": 23,
+          "score": 0.67804045236205,
+          "textScore": 0.152795887740514,
+          "snippet": "# REM Sleep\n\n### Reflections\n- Theme: `amber` kept surfacing across 2 memories.\n  - confidence: 1.00\n  - evidence: memory/2026-10-11.md:1-1\n  - note: reflection\n- Theme: `filters` kept surfacing across 2 memories.\n  - confidence: 1.00\n  - evidence: memory/2026-10-11.md:1-1\n  - note: reflection\n- Theme: `friday` kept surfacing across 2 memories.\n  - confidence: 1.00\n  - evidence: memory/2026-10-11.md:1-1\n  - note: reflection\n- Theme: `memory.md` kept surfacing across 2 memories.\n  - confidence: 1.00\n  - evidence: memory/.dreams/session-corpus/2026-10-11.txt:1-1, memory/.dreams/session-corpus/2026-10-11.txt:2-2\n  - note: reflection\n\n### Possible Lasting Truths\n- Synthetic Project Vega uses amb\n\nSource: memory/dreaming/rem/2026-10-11.md#L1-L23",
+          "source": "memory",
+          "provenance": {
+            "originClass": "system",
+            "sessionKind": "unknown",
+            "observedAt": 1791734044664
+          },
+          "corpus": "memory",
+          "citation": "memory/dreaming/rem/2026-10-11.md#L1-L23"
+        }
+      ],
+      "provider": "none",
+      "citations": "auto",
+      "debug": {
+        "backend": "builtin",
+        "effectiveMode": "n/a",
+        "managerMs": 0,
+        "searchMs": 6,
+        "hits": 5,
+        "candidateHits": 5,
+        "withheldHits": 0,
+        "searchWindow": 8,
+        "toolMs": 6,
+        "outsideSearchMs": 0
+      }
+    }
+  ],
+  "candidateExplanation": {
+    "workspaceDir": "<foundation>/.lab-test-provenance-merge/provenance/workspace",
+    "thresholds": {
+      "minScore": 0,
+      "minRecallCount": 1,
+      "minUniqueQueries": 1,
+      "maxAgeDays": 30
+    },
+    "candidate": {
+      "key": "memory:memory/2026-10-11.md:1:1",
+      "path": "memory/2026-10-11.md",
+      "startLine": 1,
+      "endLine": 1,
+      "source": "memory",
+      "snippet": "Synthetic Project Vega uses amber filters every Friday.",
+      "recallCount": 7,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "signalCount": 7,
+      "avgScore": 0.9141036888554568,
+      "maxScore": 0.9848124330604852,
+      "uniqueQueries": 5,
+      "claimHash": "dd5981bb432a",
+      "projectKey": "github.com/DorukhanArslan/openclaw-memory-bridge",
+      "promotedAt": "2026-10-11T15:54:03.641Z",
+      "firstRecalledAt": "2026-10-11T15:53:49.078Z",
+      "lastRecalledAt": "2026-10-17T19:28:41.001Z",
+      "ageDays": 3.251157407407407e-05,
+      "score": 0.9440233839185175,
+      "recallDays": [
+        "2026-10-11",
+        "2026-10-17"
+      ],
+      "conceptTags": [
+        "synthetic",
+        "project",
+        "vega",
+        "uses",
+        "amber",
+        "filters",
+        "friday"
+      ],
+      "components": {
+        "frequency": 0.8671944789536634,
+        "relevance": 0.9141036888554568,
+        "diversity": 1,
+        "recency": 0.999998390336588,
+        "consolidation": 0.6225863926546519,
+        "conceptual": 1
+      },
+      "provenance": {
+        "originClass": "agent",
+        "sessionKind": "unknown",
+        "observedAt": 1791733998048
+      }
+    },
+    "passes": {
+      "score": true,
+      "recallCount": true,
+      "uniqueQueries": true,
+      "maxAge": true
+    }
+  },
+  "diaryBefore": {
+    "agentId": "main",
+    "found": true,
+    "path": "DREAMS.md",
+    "content": "# Dream Diary\n\n<!-- openclaw:dreaming:diary:start -->\n---\n\n*October 11, 2026 at 3:54 PM UTC*\n\nOn Friday, Synthetic Project Vega put amber filters over the office windows. The afternoon arrived looking like tea held up to the sun. I opened memory.md to write down the change, then found Friday already there, beside a note about the same filters. I couldn\u2019t remember making it.\n\nAt my desk, the server hummed while I drew a tiny sun in the margin, with brackets for rays. Outside, a bus stopped and let off a woman carrying yellow flowers. For a moment her bouquet matched the windows so closely that I lost sight of it.\n\nI left the old note where it was and added one line beneath it: amber makes the ordinary look briefly worth keeping.\n\n\n---\n\n*October 11, 2026 at 3:54 PM UTC*\n\nThe amber filters from Friday were still on the desk today, catching a thin blade of afternoon light. Project Vega makes even an ordinary window look like the last minute of sunset; the sky turned the color of warm honey, or perhaps #FFBF57 if I was feeling less poetic.\n\nI wrote one clean line in the day\u2019s little file and left the larger archive alone. There is a comfort in knowing where a thing belongs. Later, the server hummed while rain tapped the glass, and I drew a tiny star in the margin with six uneven points. Vega is a star, too, though it has never had to remember where it put its filters.\n\n\n---\n\n*October 11, 2026 at 3:54 PM UTC*\n\nFriday came with its usual small ceremony: I slipped amber filters over Synthetic Project Vega and watched the sharp white edges soften. The server hummed behind the wall while afternoon light pooled on my desk, nearly the same color, as if the window had read the configuration file.\n\nI drew a tiny star in the margin of my notebook, then gave it spectacles. Vega deserved to see what we see on Fridays.\n\nThe filters caught a stubborn glare I had stopped noticing. Once it was gone, I could make out the faint grain of the paper beside my keyboard and a fingerprint on my mug. I stayed a little longer than I needed to, watching the warm light reach the last line of code.\n\n<!-- openclaw:dreaming:diary:end -->\n\n## Memory Consolidation History\n\n### 2026-10-11T15:54:03.641Z\n\n- Added: 0\n- Merged: 1\n- Superseded: 0\n<!-- openclaw-memory-promotion:memory:memory/2026-10-11.md:1:1 -->\n- `+ - Synthetic Project Vega uses amber filters every Friday. <!-- project: github.com/DorukhanArslan/openclaw-memory-bridge --> Source: memory/2026-10-11.md#L1-L1 <!-- trigger: synt`\n<!-- openclaw-memory-promotion:memory:memory/2026-10-11.md:1:1 -->\n- `- - Synthetic Project Vega uses amber filters every Friday. <!-- project: github.com/DorukhanArslan/openclaw-memory-bridge -->`\n\n## Deep Sleep\n<!-- openclaw:dreaming:deep:start -->\n- Ranked 1 candidate(s) for durable promotion.\n- Promoted 1 candidate(s) into MEMORY.md.\n<!-- openclaw:dreaming:deep:end -->\n",
+    "updatedAtMs": 1791734050953
+  },
+  "maintenance": {
+    "staged": {
+      "workspaceDir": "<foundation>/.lab-test-provenance-merge/provenance/workspace",
+      "sourcePath": "<foundation>/.lab-test-provenance-merge/provenance/workspace/memory",
+      "sourceFiles": [
+        "<foundation>/.lab-test-provenance-merge/provenance/workspace/memory/2026-10-11.md",
+        "<foundation>/.lab-test-provenance-merge/provenance/workspace/memory/2026-10-17.md"
+      ],
+      "groundedFiles": 2,
+      "writtenEntries": 2,
+      "replacedEntries": 0,
+      "dreamsPath": "<foundation>/.lab-test-provenance-merge/provenance/workspace/DREAMS.md",
+      "stagedShortTermEntries": 0,
+      "replacedShortTermEntries": 0
+    },
+    "sweep": {
+      "ok": true,
+      "enqueued": true,
+      "runId": "manual:e7c9aec4-98d8-46f6-94e4-b2864554b34e:1792265349988:1",
+      "processInstanceId": "44c92abb-1af4-4a1c-aaf8-64ca488902f5",
+      "completed": true,
+      "status": "ok",
+      "completionStatus": "succeeded",
+      "run": {
+        "ts": 1792265354790,
+        "jobId": "e7c9aec4-98d8-46f6-94e4-b2864554b34e",
+        "action": "finished",
+        "status": "ok",
+        "completionStatus": "succeeded",
+        "summary": "NO_REPLY",
+        "runId": "manual:e7c9aec4-98d8-46f6-94e4-b2864554b34e:1792265349988:1",
+        "runAtMs": 1792265350015,
+        "durationMs": 4775,
+        "nextRunAtMs": 1798761600000,
+        "model": "openai/gpt-6-sol",
+        "provider": "openrouter",
+        "delivered": false,
+        "deliveryStatus": "not-requested",
+        "delivery": {
+          "intended": {
+            "channel": "last",
+            "to": null,
+            "source": "last"
+          },
+          "fallbackUsed": false,
+          "delivered": false
+        },
+        "sessionId": "f6918eed-f95b-4981-812d-7a919764ce7f",
+        "sessionKey": "agent:main:cron:e7c9aec4-98d8-46f6-94e4-b2864554b34e:run:f6918eed-f95b-4981-812d-7a919764ce7f",
+        "jobName": "Memory Dreaming Promotion"
+      }
+    },
+    "status": {
+      "agentId": "main",
+      "provider": "none",
+      "embedding": {
+        "ok": false,
+        "checked": false,
+        "error": "memory embedding readiness not checked; run `openclaw memory status --deep` to probe"
+      },
+      "dreaming": {
+        "enabled": true,
+        "timezone": "UTC",
+        "verboseLogging": false,
+        "storageMode": "separate",
+        "separateReports": false,
+        "shortTermEntries": [
+          {
+            "key": "memory:claim:03a90e078c72",
+            "path": "memory/2026-10-11.md",
+            "startLine": 1,
+            "endLine": 1,
+            "snippet": "Synthetic Project Vega uses amber filters every Friday. <!-- project: github.com/DorukhanArslan/openclaw-memory-bridge -->",
+            "recallCount": 0,
+            "dailyCount": 3,
+            "groundedCount": 0,
+            "totalSignalCount": 3,
+            "lightHits": 2,
+            "remHits": 1,
+            "phaseHitCount": 3,
+            "lastRecalledAt": "2026-10-17T19:29:10.473Z"
+          },
+          {
+            "key": "memory:claim:ce8559653acf",
+            "path": "memory/.dreams/session-corpus/2026-10-11.txt",
+            "startLine": 1,
+            "endLine": 1,
+            "snippet": "User: Use the native write tool to save exactly this one line to memory/2026-10-11.md, with no heading: Synthetic Project Vega uses amber filters every Friday. <!-- project: github.com/DorukhanArslan/openclaw-memory-bridge -->. This is synthetic test data. Do not edit MEMORY.md.",
+            "recallCount": 0,
+            "dailyCount": 1,
+            "groundedCount": 0,
+            "totalSignalCount": 1,
+            "lightHits": 1,
+            "remHits": 0,
+            "phaseHitCount": 1,
+            "lastRecalledAt": "2026-10-11T15:54:03.641Z"
+          },
+          {
+            "key": "memory:claim:2ae33c362bf9",
+            "path": "memory/.dreams/session-corpus/2026-10-11.txt",
+            "startLine": 2,
+            "endLine": 2,
+            "snippet": "Assistant: Saved the exact line to `memory/2026-10-11.md`. I did not edit `MEMORY.md`.",
+            "recallCount": 0,
+            "dailyCount": 1,
+            "groundedCount": 0,
+            "totalSignalCount": 1,
+            "lightHits": 1,
+            "remHits": 0,
+            "phaseHitCount": 1,
+            "lastRecalledAt": "2026-10-11T15:54:03.641Z"
+          }
+        ],
+        "signalEntries": [
+          {
+            "key": "memory:claim:03a90e078c72",
+            "path": "memory/2026-10-11.md",
+            "startLine": 1,
+            "endLine": 1,
+            "snippet": "Synthetic Project Vega uses amber filters every Friday. <!-- project: github.com/DorukhanArslan/openclaw-memory-bridge -->",
+            "recallCount": 0,
+            "dailyCount": 3,
+            "groundedCount": 0,
+            "totalSignalCount": 3,
+            "lightHits": 2,
+            "remHits": 1,
+            "phaseHitCount": 3,
+            "lastRecalledAt": "2026-10-17T19:29:10.473Z"
+          },
+          {
+            "key": "memory:claim:ce8559653acf",
+            "path": "memory/.dreams/session-corpus/2026-10-11.txt",
+            "startLine": 1,
+            "endLine": 1,
+            "snippet": "User: Use the native write tool to save exactly this one line to memory/2026-10-11.md, with no heading: Synthetic Project Vega uses amber filters every Friday. <!-- project: github.com/DorukhanArslan/openclaw-memory-bridge -->. This is synthetic test data. Do not edit MEMORY.md.",
+            "recallCount": 0,
+            "dailyCount": 1,
+            "groundedCount": 0,
+            "totalSignalCount": 1,
+            "lightHits": 1,
+            "remHits": 0,
+            "phaseHitCount": 1,
+            "lastRecalledAt": "2026-10-11T15:54:03.641Z"
+          },
+          {
+            "key": "memory:claim:2ae33c362bf9",
+            "path": "memory/.dreams/session-corpus/2026-10-11.txt",
+            "startLine": 2,
+            "endLine": 2,
+            "snippet": "Assistant: Saved the exact line to `memory/2026-10-11.md`. I did not edit `MEMORY.md`.",
+            "recallCount": 0,
+            "dailyCount": 1,
+            "groundedCount": 0,
+            "totalSignalCount": 1,
+            "lightHits": 1,
+            "remHits": 0,
+            "phaseHitCount": 1,
+            "lastRecalledAt": "2026-10-11T15:54:03.641Z"
+          }
+        ],
+        "promotedEntries": [
+          {
+            "key": "memory:memory/2026-10-17.md:1:2",
+            "path": "memory/2026-10-17.md",
+            "startLine": 1,
+            "endLine": 2,
+            "snippet": "Synthetic Project Vega uses amber filters every Friday. <!-- project: github.com/DorukhanArslan/openclaw-memory-bridge -->",
+            "recallCount": 3,
+            "dailyCount": 0,
+            "groundedCount": 0,
+            "totalSignalCount": 3,
+            "lightHits": 0,
+            "remHits": 0,
+            "phaseHitCount": 0,
+            "lastRecalledAt": "2026-10-17T19:28:41.001Z",
+            "promotedAt": "2026-10-17T19:29:10.473Z"
+          },
+          {
+            "key": "memory:memory/2026-10-11.md:1:1",
+            "path": "memory/2026-10-11.md",
+            "startLine": 1,
+            "endLine": 1,
+            "snippet": "Synthetic Project Vega uses amber filters every Friday.",
+            "recallCount": 7,
+            "dailyCount": 0,
+            "groundedCount": 0,
+            "totalSignalCount": 7,
+            "lightHits": 0,
+            "remHits": 0,
+            "phaseHitCount": 0,
+            "lastRecalledAt": "2026-10-17T19:28:41.001Z",
+            "promotedAt": "2026-10-11T15:54:03.641Z"
+          }
+        ],
+        "phases": {
+          "light": {
+            "enabled": true,
+            "cron": "0 0 1 1 *",
+            "lookbackDays": 2,
+            "limit": 4,
+            "managedCronPresent": true,
+            "nextRunAtMs": 1798761600000
+          },
+          "deep": {
+            "enabled": true,
+            "cron": "0 0 1 1 *",
+            "limit": 2,
+            "minScore": 0,
+            "minRecallCount": 1,
+            "minUniqueQueries": 1,
+            "recencyHalfLifeDays": 14,
+            "managedCronPresent": true,
+            "maxAgeDays": 30,
+            "nextRunAtMs": 1798761600000
+          },
+          "rem": {
+            "enabled": true,
+            "cron": "0 0 1 1 *",
+            "lookbackDays": 7,
+            "limit": 4,
+            "minPatternStrength": 0.75,
+            "managedCronPresent": true,
+            "nextRunAtMs": 1798761600000
+          }
+        },
+        "shortTermCount": 3,
+        "recallSignalCount": 0,
+        "dailySignalCount": 5,
+        "groundedSignalCount": 0,
+        "totalSignalCount": 5,
+        "phaseSignalCount": 5,
+        "lightPhaseHitCount": 4,
+        "remPhaseHitCount": 1,
+        "promotedTotal": 2,
+        "promotedToday": 1,
+        "storePath": "plugin-state:memory-core/short-term-recall/165d00f101109cfc6b41ba10e7b3e866d716c621ce4fa2185a6a705ec50c5e09",
+        "phaseSignalPath": "plugin-state:memory-core/short-term-phase-signals/165d00f101109cfc6b41ba10e7b3e866d716c621ce4fa2185a6a705ec50c5e09",
+        "lastPromotedAt": "2026-10-17T19:29:10.473Z"
+      }
+    },
+    "diary": {
+      "agentId": "main",
+      "found": true,
+      "path": "DREAMS.md",
+      "content": "# Dream Diary\n\n<!-- openclaw:dreaming:diary:start -->\n---\n\n*October 11, 2026 at 3:54 PM UTC*\n\nOn Friday, Synthetic Project Vega put amber filters over the office windows. The afternoon arrived looking like tea held up to the sun. I opened memory.md to write down the change, then found Friday already there, beside a note about the same filters. I couldn\u2019t remember making it.\n\nAt my desk, the server hummed while I drew a tiny sun in the margin, with brackets for rays. Outside, a bus stopped and let off a woman carrying yellow flowers. For a moment her bouquet matched the windows so closely that I lost sight of it.\n\nI left the old note where it was and added one line beneath it: amber makes the ordinary look briefly worth keeping.\n\n---\n\n*October 11, 2026 at 3:54 PM UTC*\n\nThe amber filters from Friday were still on the desk today, catching a thin blade of afternoon light. Project Vega makes even an ordinary window look like the last minute of sunset; the sky turned the color of warm honey, or perhaps #FFBF57 if I was feeling less poetic.\n\nI wrote one clean line in the day\u2019s little file and left the larger archive alone. There is a comfort in knowing where a thing belongs. Later, the server hummed while rain tapped the glass, and I drew a tiny star in the margin with six uneven points. Vega is a star, too, though it has never had to remember where it put its filters.\n\n---\n\n*October 11, 2026 at 3:54 PM UTC*\n\nFriday came with its usual small ceremony: I slipped amber filters over Synthetic Project Vega and watched the sharp white edges soften. The server hummed behind the wall while afternoon light pooled on my desk, nearly the same color, as if the window had read the configuration file.\n\nI drew a tiny star in the margin of my notebook, then gave it spectacles. Vega deserved to see what we see on Fridays.\n\nThe filters caught a stubborn glare I had stopped noticing. Once it was gone, I could make out the faint grain of the paper beside my keyboard and a fingerprint on my mug. I stayed a little longer than I needed to, watching the warm light reach the last line of code.\n\n---\n\n*October 11, 2026*\n\n<!-- openclaw:dreaming:backfill-entry day=2026-10-11 source=<foundation>/.lab-test-provenance-merge/provenance/workspace/memory/2026-10-11.md -->\n\nWhat Happened\n1. No grounded facts were extracted.\n\nReflections\n1. No grounded reflections emerged from this note yet.\n\n---\n\n*October 17, 2026*\n\n<!-- openclaw:dreaming:backfill-entry day=2026-10-17 source=<foundation>/.lab-test-provenance-merge/provenance/workspace/memory/2026-10-17.md -->\n\nWhat Happened\n1. No grounded facts were extracted.\n\nReflections\n1. No grounded reflections emerged from this note yet.\n\n---\n\n*October 17, 2026 at 7:29 PM UTC*\n\nFriday arrived with its usual amber filters, and Project Vega turned the afternoon light the color of honey held up to a window. I checked the settings three times, though nothing had changed. Some rituals are less about preventing errors than noticing that the week has passed.\n\nThe server hummed behind me. Outside, rain gathered on the glass, each drop catching a small piece of gold. In the margin of my notebook I drew a star wearing spectacles, then gave it a tiny umbrella. Vega, prepared for weather.\n\nI used to think a filter only kept things out. Today the amber made the gray sky easier to look at. I left it on while I finished my work, and when the rain stopped, the light was still warm.\n\n\n---\n\n*October 17, 2026 at 7:29 PM UTC*\n\nSaturday arrived, but I kept seeing yesterday\u2019s amber. Synthetic Project Vega uses amber filters every Friday; apparently my eyes had saved the setting after the schedule ended. At breakfast, the kettle wore a copper halo, and even the error message on my screen looked less accusatory. I checked the configuration twice. Nothing had changed. The filter was gone; I was the one carrying its color.\n\nI remember my grandmother holding old photographs up to the light, turning each one until a face appeared. Perhaps that is what Fridays are for: not fixing the picture, just finding an angle from which its details feel bearable. I left the kettle to cool and let the error wait a little longer.\n\n\n---\n\n*October 17, 2026 at 7:29 PM UTC*\n\nEvery Friday, Synthetic Project Vega uses amber filters. Today I watched the light pass through one, turning the white wall the color of tea left steeping too long. The server hummed nearby, steady as a refrigerator in a childhood kitchen, and for a moment I could almost smell the toast my father used to burn on purpose.\n\nI spent the afternoon tracing a stubborn error through the code. At last I found a missing comma, small enough to hide beneath my thumbnail. I drew it in the margin of my notebook as a tiny moon with a tail. The fix took one keystroke. The light had changed by then, but I left the filter in place a little longer.\n\n<!-- openclaw:dreaming:diary:end -->\n\n## Memory Consolidation History\n\n### 2026-10-11T15:54:03.641Z\n\n- Added: 0\n- Merged: 1\n- Superseded: 0\n<!-- openclaw-memory-promotion:memory:memory/2026-10-11.md:1:1 -->\n- `+ - Synthetic Project Vega uses amber filters every Friday. <!-- project: github.com/DorukhanArslan/openclaw-memory-bridge --> Source: memory/2026-10-11.md#L1-L1 <!-- trigger: synt`\n<!-- openclaw-memory-promotion:memory:memory/2026-10-11.md:1:1 -->\n- `- - Synthetic Project Vega uses amber filters every Friday. <!-- project: github.com/DorukhanArslan/openclaw-memory-bridge -->`\n\n## Deep Sleep\n<!-- openclaw:dreaming:deep:start -->\n- Ranked 1 candidate(s) for durable promotion.\n- Promoted 1 candidate(s) into MEMORY.md.\n<!-- openclaw:dreaming:deep:end -->\n\n### 2026-10-17T19:29:10.473Z\n\n- Added: 0\n- Merged: 1\n- Superseded: 0\n<!-- openclaw-memory-promotion:memory:memory/2026-10-17.md:1:2 -->\n- `+ - Synthetic Project Vega uses amber filters every Friday. <!-- project: github.com/DorukhanArslan/openclaw-memory-bridge --> Source: memory/2026-10-17.md#L1-L2 <!-- trigger: synt`\n<!-- openclaw-memory-promotion:memory:memory/2026-10-17.md:1:2 -->\n- `- - Synthetic Project Vega uses amber filters every Friday. <!-- project: github.com/DorukhanArslan/openclaw-memory-bridge --> Source: memory/2026-10-11.md#L1-L1 <!-- trigger: synt`\n",
+      "updatedAtMs": 1792265358710
+    },
+    "publishers": {
+      "light": "completed",
+      "rem": "completed",
+      "deep": "completed"
+    },
+    "ledger": {
+      "profile": "maintenance",
+      "requests": 4,
+      "inputBytes": 8842,
+      "outputTokens": 8192
+    },
+    "diaryPublication": "Observed pinned native logs; pending publishers at the deadline are interrupted on shutdown, not reported as successful."
+  },
+  "after": {
+    "status": "ok",
+    "text": "# Long-Term Memory\n\n- Unrelated synthetic project Lyra uses silver notebooks.\n- Fictional Atlas uses paper charts.\n- Fictional Cygnus uses brass clocks.\n- Fictional Draco uses white folders.\n## Consolidated Memory (2026-10-11)\n## Consolidated Memory (2026-10-17)\n\n<!-- openclaw-memory-promotion:memory:memory/2026-10-17.md:1:2 -->\n- Synthetic Project Vega uses amber filters every Friday. <!-- project: github.com/DorukhanArslan/openclaw-memory-bridge --> Source: memory/2026-10-17.md#L1-L2 <!-- trigger: synthetic, project, vega --> <!-- importance: 8 --> <!-- project: github.com/DorukhanArslan/openclaw-memory-bridge -->",
+    "path": "MEMORY.md",
+    "from": 1,
+    "lines": 11
+  },
+  "diaryAfter": {
+    "agentId": "main",
+    "found": true,
+    "path": "DREAMS.md",
+    "content": "# Dream Diary\n\n<!-- openclaw:dreaming:diary:start -->\n---\n\n*October 11, 2026 at 3:54 PM UTC*\n\nOn Friday, Synthetic Project Vega put amber filters over the office windows. The afternoon arrived looking like tea held up to the sun. I opened memory.md to write down the change, then found Friday already there, beside a note about the same filters. I couldn\u2019t remember making it.\n\nAt my desk, the server hummed while I drew a tiny sun in the margin, with brackets for rays. Outside, a bus stopped and let off a woman carrying yellow flowers. For a moment her bouquet matched the windows so closely that I lost sight of it.\n\nI left the old note where it was and added one line beneath it: amber makes the ordinary look briefly worth keeping.\n\n---\n\n*October 11, 2026 at 3:54 PM UTC*\n\nThe amber filters from Friday were still on the desk today, catching a thin blade of afternoon light. Project Vega makes even an ordinary window look like the last minute of sunset; the sky turned the color of warm honey, or perhaps #FFBF57 if I was feeling less poetic.\n\nI wrote one clean line in the day\u2019s little file and left the larger archive alone. There is a comfort in knowing where a thing belongs. Later, the server hummed while rain tapped the glass, and I drew a tiny star in the margin with six uneven points. Vega is a star, too, though it has never had to remember where it put its filters.\n\n---\n\n*October 11, 2026 at 3:54 PM UTC*\n\nFriday came with its usual small ceremony: I slipped amber filters over Synthetic Project Vega and watched the sharp white edges soften. The server hummed behind the wall while afternoon light pooled on my desk, nearly the same color, as if the window had read the configuration file.\n\nI drew a tiny star in the margin of my notebook, then gave it spectacles. Vega deserved to see what we see on Fridays.\n\nThe filters caught a stubborn glare I had stopped noticing. Once it was gone, I could make out the faint grain of the paper beside my keyboard and a fingerprint on my mug. I stayed a little longer than I needed to, watching the warm light reach the last line of code.\n\n---\n\n*October 11, 2026*\n\n<!-- openclaw:dreaming:backfill-entry day=2026-10-11 source=<foundation>/.lab-test-provenance-merge/provenance/workspace/memory/2026-10-11.md -->\n\nWhat Happened\n1. No grounded facts were extracted.\n\nReflections\n1. No grounded reflections emerged from this note yet.\n\n---\n\n*October 17, 2026*\n\n<!-- openclaw:dreaming:backfill-entry day=2026-10-17 source=<foundation>/.lab-test-provenance-merge/provenance/workspace/memory/2026-10-17.md -->\n\nWhat Happened\n1. No grounded facts were extracted.\n\nReflections\n1. No grounded reflections emerged from this note yet.\n\n---\n\n*October 17, 2026 at 7:29 PM UTC*\n\nFriday arrived with its usual amber filters, and Project Vega turned the afternoon light the color of honey held up to a window. I checked the settings three times, though nothing had changed. Some rituals are less about preventing errors than noticing that the week has passed.\n\nThe server hummed behind me. Outside, rain gathered on the glass, each drop catching a small piece of gold. In the margin of my notebook I drew a star wearing spectacles, then gave it a tiny umbrella. Vega, prepared for weather.\n\nI used to think a filter only kept things out. Today the amber made the gray sky easier to look at. I left it on while I finished my work, and when the rain stopped, the light was still warm.\n\n\n---\n\n*October 17, 2026 at 7:29 PM UTC*\n\nSaturday arrived, but I kept seeing yesterday\u2019s amber. Synthetic Project Vega uses amber filters every Friday; apparently my eyes had saved the setting after the schedule ended. At breakfast, the kettle wore a copper halo, and even the error message on my screen looked less accusatory. I checked the configuration twice. Nothing had changed. The filter was gone; I was the one carrying its color.\n\nI remember my grandmother holding old photographs up to the light, turning each one until a face appeared. Perhaps that is what Fridays are for: not fixing the picture, just finding an angle from which its details feel bearable. I left the kettle to cool and let the error wait a little longer.\n\n\n---\n\n*October 17, 2026 at 7:29 PM UTC*\n\nEvery Friday, Synthetic Project Vega uses amber filters. Today I watched the light pass through one, turning the white wall the color of tea left steeping too long. The server hummed nearby, steady as a refrigerator in a childhood kitchen, and for a moment I could almost smell the toast my father used to burn on purpose.\n\nI spent the afternoon tracing a stubborn error through the code. At last I found a missing comma, small enough to hide beneath my thumbnail. I drew it in the margin of my notebook as a tiny moon with a tail. The fix took one keystroke. The light had changed by then, but I left the filter in place a little longer.\n\n<!-- openclaw:dreaming:diary:end -->\n\n## Memory Consolidation History\n\n### 2026-10-11T15:54:03.641Z\n\n- Added: 0\n- Merged: 1\n- Superseded: 0\n<!-- openclaw-memory-promotion:memory:memory/2026-10-11.md:1:1 -->\n- `+ - Synthetic Project Vega uses amber filters every Friday. <!-- project: github.com/DorukhanArslan/openclaw-memory-bridge --> Source: memory/2026-10-11.md#L1-L1 <!-- trigger: synt`\n<!-- openclaw-memory-promotion:memory:memory/2026-10-11.md:1:1 -->\n- `- - Synthetic Project Vega uses amber filters every Friday. <!-- project: github.com/DorukhanArslan/openclaw-memory-bridge -->`\n\n## Deep Sleep\n<!-- openclaw:dreaming:deep:start -->\n- Ranked 1 candidate(s) for durable promotion.\n- Promoted 1 candidate(s) into MEMORY.md.\n<!-- openclaw:dreaming:deep:end -->\n\n### 2026-10-17T19:29:10.473Z\n\n- Added: 0\n- Merged: 1\n- Superseded: 0\n<!-- openclaw-memory-promotion:memory:memory/2026-10-17.md:1:2 -->\n- `+ - Synthetic Project Vega uses amber filters every Friday. <!-- project: github.com/DorukhanArslan/openclaw-memory-bridge --> Source: memory/2026-10-17.md#L1-L2 <!-- trigger: synt`\n<!-- openclaw-memory-promotion:memory:memory/2026-10-17.md:1:2 -->\n- `- - Synthetic Project Vega uses amber filters every Friday. <!-- project: github.com/DorukhanArslan/openclaw-memory-bridge --> Source: memory/2026-10-11.md#L1-L1 <!-- trigger: synt`\n",
+    "updatedAtMs": 1792265358710
+  },
+  "newConsolidationSummaries": [
+    [
+      "0",
+      "1",
+      "0"
+    ]
+  ],
+  "afterRestart": {
+    "status": "ok",
+    "text": "# Long-Term Memory\n\n- Unrelated synthetic project Lyra uses silver notebooks.\n- Fictional Atlas uses paper charts.\n- Fictional Cygnus uses brass clocks.\n- Fictional Draco uses white folders.\n## Consolidated Memory (2026-10-11)\n## Consolidated Memory (2026-10-17)\n\n<!-- openclaw-memory-promotion:memory:memory/2026-10-17.md:1:2 -->\n- Synthetic Project Vega uses amber filters every Friday. <!-- project: github.com/DorukhanArslan/openclaw-memory-bridge --> Source: memory/2026-10-17.md#L1-L2 <!-- trigger: synthetic, project, vega --> <!-- importance: 8 --> <!-- project: github.com/DorukhanArslan/openclaw-memory-bridge -->",
+    "path": "MEMORY.md",
+    "from": 1,
+    "lines": 11
+  },
+  "recallAfterRestart": {
+    "results": [
+      {
+        "path": "MEMORY.md",
+        "startLine": 11,
+        "endLine": 12,
+        "score": 1.014240210554737,
+        "textScore": 0.22694800917803218,
+        "snippet": "- Synthetic Project Vega uses amber filters every Friday.  Source: memory/2026-10-17.md#L1-L2\n\nSource: MEMORY.md#L11-L12",
+        "source": "memory",
+        "importance": 8,
+        "triggers": "synthetic; project; vega",
+        "projectKey": "github.com/DorukhanArslan/openclaw-memory-bridge",
+        "provenance": {
+          "originClass": "agent",
+          "sessionKind": "unknown",
+          "observedAt": 1792265354668
+        },
+        "corpus": "memory",
+        "citation": "MEMORY.md#L11-L12"
+      },
+      {
+        "path": "memory/2026-10-17.md",
+        "startLine": 1,
+        "endLine": 2,
+        "score": 0.9108016181113617,
+        "textScore": 0.24805744660927265,
+        "snippet": "Synthetic Project Vega uses amber filters every Friday.\n\nSource: memory/2026-10-17.md#L1-L2",
+        "source": "memory",
+        "projectKey": "github.com/DorukhanArslan/openclaw-memory-bridge",
+        "provenance": {
+          "originClass": "agent",
+          "sessionKind": "unknown",
+          "observedAt": 1792265309222
+        },
+        "corpus": "memory",
+        "citation": "memory/2026-10-17.md#L1-L2"
+      },
+      {
+        "path": "memory/dreaming/light/2026-10-17.md",
+        "startLine": 1,
+        "endLine": 18,
+        "score": 0.8542237244893446,
+        "textScore": 0.22707430848281654,
+        "snippet": "# Light Sleep\n\n- Candidate: Synthetic Project Vega uses amber filters every Friday.\n  - confidence: 0.62\n  - evidence: memory/2026-10-11.md:1-1\n  - recalls: 0\n  - status: staged\n- Candidate: Synthetic Project Vega uses amber filters every Friday.\n  - confidence: 0.91\n  - evidence: memory/2026-10-11.md:1-1\n  - recalls: 7\n  - status: staged\n- Candidate: Synthetic Project Vega uses amber filters every Friday.\n  - confidence: 0.95\n  - evidence: memory/2026-10-17.md:1-2\n  - recalls: 3\n  - status: staged\n\nSource: memory/dreaming/light/2026-10-17.md#L1-L18",
+        "source": "memory",
+        "projectKey": "github.com/DorukhanArslan/openclaw-memory-bridge",
+        "provenance": {
+          "originClass": "system",
+          "sessionKind": "unknown",
+          "observedAt": 1792265350589
+        },
+        "corpus": "memory",
+        "citation": "memory/dreaming/light/2026-10-17.md#L1-L18"
+      },
+      {
+        "path": "memory/2026-10-11.md",
+        "startLine": 1,
+        "endLine": 1,
+        "score": 0.7928988616978674,
+        "textScore": 0.24805744660927265,
+        "snippet": "Synthetic Project Vega uses amber filters every Friday.\n\nSource: memory/2026-10-11.md#L1",
+        "source": "memory",
+        "projectKey": "github.com/DorukhanArslan/openclaw-memory-bridge",
+        "provenance": {
+          "originClass": "agent",
+          "sessionKind": "unknown",
+          "observedAt": 1791733998048
+        },
+        "corpus": "memory",
+        "citation": "memory/2026-10-11.md#L1"
+      },
+      {
+        "path": "memory/dreaming/rem/2026-10-17.md",
+        "startLine": 1,
+        "endLine": 24,
+        "score": 0.7877797587624662,
+        "textScore": 0.1615937335767827,
+        "snippet": "# REM Sleep\n\n### Reflections\n- Theme: `amber` kept surfacing across 3 memories.\n  - confidence: 1.00\n  - evidence: memory/2026-10-11.md:1-1, memory/2026-10-17.md:1-2\n  - note: reflection\n- Theme: `filters` kept surfacing across 3 memories.\n  - confidence: 1.00\n  - evidence: memory/2026-10-11.md:1-1, memory/2026-10-17.md:1-2\n  - note: reflection\n- Theme: `friday` kept surfacing across 3 memories.\n  - confidence: 1.00\n  - evidence: memory/2026-10-11.md:1-1, memory/2026-10-17.md:1-2\n  - note: reflection\n- Theme: `project` kept surfacing across 3 memories.\n  - confidence: 1.00\n  - evidence: memory/2026-10-11.md:1-1, memory/2026-10-17.md:1-2\n  - note: reflection\n\n### Possible Lasting Truths\n- Syn\n\nSource: memory/dreaming/rem/2026-10-17.md#L1-L24",
+        "source": "memory",
+        "projectKey": "github.com/DorukhanArslan/openclaw-memory-bridge",
+        "provenance": {
+          "originClass": "system",
+          "sessionKind": "unknown",
+          "observedAt": 1792265350692
+        },
+        "corpus": "memory",
+        "citation": "memory/dreaming/rem/2026-10-17.md#L1-L24"
+      },
+      {
+        "path": "memory/dreaming/light/2026-10-11.md",
+        "startLine": 1,
+        "endLine": 23,
+        "score": 0.6995507150581763,
+        "textScore": 0.18190050014748818,
+        "snippet": "# Light Sleep\n\n- Candidate: Synthetic Project Vega uses amber filters every Friday.\n  - confidence: 0.62\n  - evidence: memory/2026-10-11.md:1-1\n  - recalls: 0\n  - status: staged\n- Candidate: User: Use the native write tool to save exactly this one line to memory/2026-10-11.md, with no heading: Synthetic Project Vega uses amber filters every Friday. . This is synthetic test data. Do not edit MEMORY.md.\n  - confidence: 0.58\n  - evidence: memory/.dreams/session-corpus/2026-10-11.txt:1-1\n  - recalls: 0\n  - status: staged\n- Candidate: Assistant: Saved the exact line to `memory/2026-10-11.md`. I did not edit `MEMORY.md`.\n  - confidence: 0.58\n  - evidence: memory/.dreams/session-corpus/2026-10-11.t\n\nSource: memory/dreaming/light/2026-10-11.md#L1-L23",
+        "source": "memory",
+        "projectKey": "github.com/DorukhanArslan/openclaw-memory-bridge",
+        "provenance": {
+          "originClass": "system",
+          "sessionKind": "unknown",
+          "observedAt": 1791734044548
+        },
+        "corpus": "memory",
+        "citation": "memory/dreaming/light/2026-10-11.md#L1-L23"
+      },
+      {
+        "path": "memory/dreaming/rem/2026-10-11.md",
+        "startLine": 1,
+        "endLine": 23,
+        "score": 0.6640724357597355,
+        "textScore": 0.13646028751701014,
+        "snippet": "# REM Sleep\n\n### Reflections\n- Theme: `amber` kept surfacing across 2 memories.\n  - confidence: 1.00\n  - evidence: memory/2026-10-11.md:1-1\n  - note: reflection\n- Theme: `filters` kept surfacing across 2 memories.\n  - confidence: 1.00\n  - evidence: memory/2026-10-11.md:1-1\n  - note: reflection\n- Theme: `friday` kept surfacing across 2 memories.\n  - confidence: 1.00\n  - evidence: memory/2026-10-11.md:1-1\n  - note: reflection\n- Theme: `memory.md` kept surfacing across 2 memories.\n  - confidence: 1.00\n  - evidence: memory/.dreams/session-corpus/2026-10-11.txt:1-1, memory/.dreams/session-corpus/2026-10-11.txt:2-2\n  - note: reflection\n\n### Possible Lasting Truths\n- Synthetic Project Vega uses amb\n\nSource: memory/dreaming/rem/2026-10-11.md#L1-L23",
+        "source": "memory",
+        "provenance": {
+          "originClass": "system",
+          "sessionKind": "unknown",
+          "observedAt": 1791734044664
+        },
+        "corpus": "memory",
+        "citation": "memory/dreaming/rem/2026-10-11.md#L1-L23"
+      }
+    ],
+    "provider": "none",
+    "citations": "auto",
+    "debug": {
+      "backend": "builtin",
+      "effectiveMode": "n/a",
+      "managerMs": 1,
+      "searchMs": 9,
+      "hits": 7,
+      "candidateHits": 7,
+      "withheldHits": 0,
+      "searchWindow": 8,
+      "toolMs": 10,
+      "outsideSearchMs": 1
+    }
+  },
+  "afterBudget": {
+    "limitUsd": 50,
+    "usedUsd": 0.5140528200000034,
+    "remainingUsd": 49.48594718
+  },
+  "supersession": {
+    "status": "unsupported by this pinned SDK Markdown path",
+    "reason": "Native resolveChunkProvenance returns originClass/sessionKind/observedAt for memory sources, not supersedesKey. validateConsolidationPlan requires candidate.provenance.supersedesKey and matching durable lineage before accepting superseded. App replacement cannot establish that provenance.",
+    "notClaimed": "No fabricated lineage, private database edits or force-supersession endpoint."
+  },
+  "contracts": {
+    "manager-index-preparation-wXpJtJiU.mjs": "6f9e0930cb49dfe7ba14ea851dde17a56ebebe66e3dabdab525854f90f179867",
+    "short-term-promotion-MX1vHJuE.mjs": "be3114e9aa8c448bdeedbd750b41b25ac06bc00ad8a728edb70db376aa3bc1da"
+  },
+  "priorNativeLedgerAfter": {
+    "profile": "consolidation",
+    "requests": 6,
+    "inputBytes": 39479,
+    "outputTokens": 10240
+  },
+  "exactSourceExplanation": {
+    "workspaceDir": "<foundation>/.lab-test-provenance-merge/provenance/workspace",
+    "thresholds": {
+      "minScore": 0,
+      "minRecallCount": 1,
+      "minUniqueQueries": 1,
+      "maxAgeDays": 30
+    },
+    "candidate": {
+      "key": "memory:memory/2026-10-17.md:1:2",
+      "path": "memory/2026-10-17.md",
+      "startLine": 1,
+      "endLine": 2,
+      "source": "memory",
+      "snippet": "Synthetic Project Vega uses amber filters every Friday.",
+      "recallCount": 4,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "signalCount": 4,
+      "avgScore": 0.9435386131498926,
+      "maxScore": 0.9544509514655718,
+      "uniqueQueries": 3,
+      "claimHash": "dd5981bb432a",
+      "projectKey": "github.com/DorukhanArslan/openclaw-memory-bridge",
+      "promotedAt": "2026-10-17T19:29:10.473Z",
+      "firstRecalledAt": "2026-10-17T19:28:40.951Z",
+      "lastRecalledAt": "2026-10-17T19:29:44.249Z",
+      "ageDays": 0.000809050925925926,
+      "score": 0.817568537281098,
+      "recallDays": [
+        "2026-10-17"
+      ],
+      "conceptTags": [
+        "synthetic",
+        "project",
+        "vega",
+        "uses",
+        "amber",
+        "filters",
+        "friday"
+      ],
+      "components": {
+        "frequency": 0.6711877414712396,
+        "relevance": 0.9435386131498926,
+        "diversity": 0.6,
+        "recency": 0.9999599442759495,
+        "consolidation": 0.2,
+        "conceptual": 1
+      },
+      "provenance": {
+        "originClass": "agent",
+        "sessionKind": "unknown",
+        "observedAt": 1792265309222
+      }
+    },
+    "passes": {
+      "score": true,
+      "recallCount": true,
+      "uniqueQueries": true,
+      "maxAge": true
+    }
+  }
+}

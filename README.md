@@ -29,10 +29,10 @@ Follow the [conversation and file changes](reports/chatbot-memory-demo.html). Th
 | 2. Keep profile and daily event | Maya: native tools change `USER.md` and a dated note. No harness prewrite. |
 | 3. Keyword recall + source | Maya: native search/get pass. Python search passes; `get("USER.md")` rejects that path. |
 | 4. Semantic recall + source | Separate Zephyr run: “pedal-powered commuting” finds a bicycle note with real embeddings. No search-time bot reply. |
-| 5. Change preference | Maya: mint → rooibos; new-session recall passes. Native lineage supersession remains unverified. |
+| 5. Change preference | Maya: mint → rooibos; new-session recall passes. Native supersession is unavailable through this version’s SDK Markdown path: indexing supplies no `supersedesKey` lineage. |
 | 6. Flush and compact context | Maya continuation: native flush succeeds; compaction commits (9,447 → 1,182 tokens). Daily note writes are attributed to agent tools; summary can describe older state. |
 | 7. Capture/reset session | Separate Borealis run: native hook writes a dated capture. SDK fixtures are not generated chat. |
-| 8. Maintain durable memory | Maya: light/REM/deep adds one sourced event. Separate Vega run verifies duplicate merge and three model diary phases. |
+| 8. Maintain durable memory | Maya: light/REM/deep adds one sourced event. Retained Vega corpus: installed SDK continuation verifies native duplicate merge (Added 0 / Merged 1 / Superseded 0), new source and restart recall; diary publication is checked separately. |
 | 9. Recall after maintenance/restart | Maya continuation: new native agent session after dreaming/restart recalls rooibos, Monday, and the thermometer event with sources. Earlier blocked turn stays recorded. |
 | 10. Update/delete and scopes | Fresh SDK checks pass after reindex. Copies/backups remain outside note deletion. Routes are not authentication. |
 
@@ -92,6 +92,10 @@ cp "$FOUNDATION/examples/host_agent.py" agent.py
 ```
 
 This paid example uses the explicitly approved foundation `.env` through a local loader, never browser code. Its host and native ledgers retain attempted requests across restarts; do not reset them to replay tests. The fixed maintenance profile checks cumulative provider usage and both finite request envelopes before dispatch. It is a developer trial, not an account-wide atomic spending reservation.
+
+The [SDK consolidation record](reports/sdk-consolidation.json) continues the retained synthetic Vega corpus through the installed client’s public `call` API. Native consolidation replaces the old duplicate’s source, retains unrelated entries and survives restart. It does not count append-only promotion or diary text as a merge. [The acceptance script](examples/sdk_consolidation_acceptance.py) requires that retained fixture and refuses replay of a consumed continuation ledger.
+
+OpenClaw 2026.9.9 requires a candidate `supersedesKey` and matching durable lineage to accept old-fact supersession. Its Markdown indexing branch emits no such key, and the SDK has no trusted lineage setter. Preference-note replacement is supported; native lineage supersession through this SDK path is **unsupported**. No provenance or database edits are used to bypass that boundary.
 
 ## Native, SDK, and operator scope
 
