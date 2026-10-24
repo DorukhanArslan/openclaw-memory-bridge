@@ -1,0 +1,423 @@
+{
+  "date": "2026-10-17",
+  "runtime": "openclaw@2026.9.9",
+  "baseCommit": "a290d021e68175111dd11f80b9cce9fb417e6628",
+  "status": "blocked in pinned runtime and all three checked official npm release channels; upstream native provenance producer needed",
+  "ownership": "Native OpenClaw only; no independent contradiction detector, fabricated lineage, database edits or replacement memory engine.",
+  "budget": {
+    "authorizedCumulativeLimitUsd": 50,
+    "lastPreviouslyRecordedUsageUsd": 0.51405282,
+    "freshProviderQuotaChecked": false,
+    "newProviderRequests": 0,
+    "existingLedgersModified": false
+  },
+  "findings": [
+    {
+      "file": "manager-index-preparation-wXpJtJiU.mjs",
+      "symbol": "resolveChunkProvenance",
+      "finding": "Markdown emits no supersedesKey. Session branch forwards an already supplied unique supersedesKey; it does not infer one."
+    },
+    {
+      "file": "session-files-DVVT4Ngb.mjs",
+      "symbol": "buildSessionEntryInProcess",
+      "finding": "Native transcript reader constructs memoryProvenance with originClass, sessionKind and observedAt only."
+    },
+    {
+      "file": "session-ingestion-Dy5uAq-_.mjs",
+      "symbol": "scanSession ingestion",
+      "finding": "Forwards entry.lineProvenance into candidates; does not produce supersedesKey."
+    },
+    {
+      "file": "short-term-promotion-MX1vHJuE.mjs",
+      "symbol": "validateConsolidationPlan",
+      "finding": "Superseded actions require candidate.provenance.supersedesKey and exact matching prior lineage. Duplicate merge is restricted to normalized identical facts."
+    }
+  ],
+  "contracts": {
+    "manager-index-preparation-wXpJtJiU.mjs": "6f9e0930cb49dfe7ba14ea851dde17a56ebebe66e3dabdab525854f90f179867",
+    "session-files-DVVT4Ngb.mjs": "0a933051a4cf16dd7f5ddb15df3df6d5c950cd1a09b7fd2729d8c86e54842dc9",
+    "session-ingestion-Dy5uAq-_.mjs": "c0dff0210ad2ddcc662224271200840bf99a8e4edbebd9291adf6adaa881ccf3",
+    "short-term-promotion-MX1vHJuE.mjs": "be3114e9aa8c448bdeedbd750b41b25ac06bc00ad8a728edb70db376aa3bc1da"
+  },
+  "scopeOfConclusion": "Installed pinned builtin runtime and exposed bridge paths; not a claim that every upstream version or plugin lacks the feature.",
+  "acceptedExistingEvidence": "reports/sdk-consolidation.json: real model-backed duplicate merge, unrelated facts and restart persistence. Not a contradiction-supersession test.",
+  "newChecks": "Static installed-runtime compatibility assertions only; no new model-backed acceptance run.",
+  "unrunAcceptance": [
+    "Ankara residence superseded by explicit Istanbul move through supported native ingestion",
+    "Current-versus-history retrieval after restart",
+    "Ambiguous visiting/may-move observations retained without false retirement"
+  ],
+  "viableNextSteps": [
+    "Obtain an upstream-supported ingestion/provenance API that produces trusted supersedesKey and matching durable lineage, then adapt it without inferring links in this bridge.",
+    "Evaluate a newer supported release in isolation and verify the same end-to-end contract before changing the pin.",
+    "Keep existing native duplicate merging and explicit canonical-note updates while automatic fact supersession remains pending."
+  ],
+  "notEquivalent": "Native USER.md preference edits preserve adjacent status-marked directives, but do not establish dreaming supersession lineage or a historical-search API.",
+  "sources": [
+    "https://docs.openclaw.ai/concepts/memory-builtin",
+    "https://docs.openclaw.ai/concepts/memory-architecture",
+    "https://docs.openclaw.ai/concepts/user-model",
+    "https://docs.openclaw.ai/gateway/tools-invoke-http-api"
+  ],
+  "upstreamComparison": {
+    "date": "2026-10-17",
+    "registry": "https://registry.npmjs.org/openclaw",
+    "distTags": {
+      "latest": "2026.10.4",
+      "extended-stable": "2026.9.33",
+      "beta": "2026.10.10-beta.1"
+    },
+    "method": "Official npm pack --ignore-scripts in temporary directory; verify archive SHA-512 against npm integrity; inspect all distributed JS/MJS supersedesKey occurrences and native session provenance constructors. No package installation or execution. Focused exact-revision source reads on upstream main.",
+    "releases": [
+      {
+        "version": "2026.10.4",
+        "npmIntegrity": "sha512-+FH0StZF1tlTazM7JJGY6JePeJmhFNSRByi2Q3jXPRiLO7o4dJh2xa9Vy4Dk8Cd2ic8B7Zkf5NfEaCCWUkgqnQ==",
+        "archiveIntegrityVerified": true,
+        "keyOccurrences": [
+          {
+            "file": "dist/dreaming-dreams-file-Bzl98D9a.mjs",
+            "line": 746,
+            "text": "...typeof provenanceRaw.supersedesKey === \"string\" && provenanceRaw.supersedesKey.trim() ? { supersedesKey: provenanceRaw.supersedesKey.trim() } : {}"
+          },
+          {
+            "file": "dist/engine-storage-yT207ZoA.mjs",
+            "line": 33,
+            "text": "...typeof row.supersedes_key === \"string\" && row.supersedes_key.trim() ? { supersedesKey: row.supersedes_key } : {}"
+          },
+          {
+            "file": "dist/manager-cpu-worker-runtime-BNXNXJmZ.mjs",
+            "line": 129,
+            "text": "for (const provenance of input.entry.lineProvenance ?? []) inputBytes += 32 + 2 * (provenance.originClass.length + provenance.sessionKind.length + (provenance.supersedesKey?.length ?? 0));"
+          },
+          {
+            "file": "dist/manager-index-preparation-GBRH0CiB.mjs",
+            "line": 72,
+            "text": "const supersedesKeys = new Set(lineProvenance.flatMap((item) => item.supersedesKey ? [item.supersedesKey] : []));"
+          },
+          {
+            "file": "dist/manager-index-preparation-GBRH0CiB.mjs",
+            "line": 77,
+            "text": "...supersedesKeys.size === 1 ? { supersedesKey: [...supersedesKeys][0] } : {}"
+          },
+          {
+            "file": "dist/short-term-promotion-record-C9W-WncJ.mjs",
+            "line": 25,
+            "text": "...existing.supersedesKey && existing.supersedesKey === incoming.supersedesKey ? { supersedesKey: existing.supersedesKey } : {}"
+          },
+          {
+            "file": "dist/short-term-promotion-D4BkLvlh.mjs",
+            "line": 349,
+            "text": "\"Merge duplicates, replace stale facts when supersedesKey names their lineage, and keep unrelated entries unchanged.\","
+          },
+          {
+            "file": "dist/short-term-promotion-D4BkLvlh.mjs",
+            "line": 370,
+            "text": "supersedesKey: candidate.provenance?.supersedesKey ?? null"
+          },
+          {
+            "file": "dist/short-term-promotion-D4BkLvlh.mjs",
+            "line": 384,
+            "text": "const lineageKey = candidate.provenance?.supersedesKey;"
+          },
+          {
+            "file": "dist/short-term-promotion-D4BkLvlh.mjs",
+            "line": 449,
+            "text": "if (!candidate.provenance?.supersedesKey) return `output supersedes candidate ${candidate.key} without matching lineage`;"
+          },
+          {
+            "file": "dist/short-term-promotion-D4BkLvlh.mjs",
+            "line": 451,
+            "text": "const lineageKey = candidate.provenance?.supersedesKey;"
+          },
+          {
+            "file": "dist/manager-publication.worker-DDum-Vrx.mjs",
+            "line": 53,
+            "text": "supersedes_key: parameter((row) => row.provenance.supersedesKey ?? null)"
+          },
+          {
+            "file": "dist/extensions/memory-core/manager-runtime.js",
+            "line": 4378,
+            "text": "...typeof row.supersedes_key === \"string\" ? { supersedesKey: row.supersedes_key } : {}"
+          }
+        ],
+        "sessionProvenanceConstructors": [
+          {
+            "file": "dist/session-files-B59IS1nt.mjs",
+            "line": 412,
+            "body": "const memoryProvenance = {\n\t\t\t\toriginClass: classifySessionMessageOrigin(message, turnOrigin),\n\t\t\t\tsessionKind,\n\t\t\t\tobservedAt: Math.max(0, Math.floor(timestampMs || mtimeMs))\n\t\t\t};",
+            "sha256": "e1ed35991023432a7efcd7122ecf6e2469916aca977d9e7f43d17db8e1519a82"
+          }
+        ],
+        "contracts": {
+          "dist/dreaming-dreams-file-Bzl98D9a.mjs": "f9e127b75817acd5db19bd5dca3ca459151c108ddd413d777bb649f7c9eecbda",
+          "dist/engine-storage-yT207ZoA.mjs": "8bfbe62637f86cb1188e98401d1c658a8eccd0ce41ec29d7192cc0681a3901ae",
+          "dist/extensions/memory-core/manager-runtime.js": "232f03624f07df7d3edfcac89b6d8ebfef16cfdf66d4b92a616e2a7855c39a98",
+          "dist/manager-cpu-worker-runtime-BNXNXJmZ.mjs": "5c819e801d8692f1bd26c715282f308ce6897bfce755884b5bd97a44758ee724",
+          "dist/manager-index-preparation-GBRH0CiB.mjs": "a181133388338cd305d2be1a9ce5ae6d0f7479ec2476689a56bc4908cd0e8e99",
+          "dist/manager-publication.worker-DDum-Vrx.mjs": "2a1cd43620e974ab56b4cb0875affb35e02d333323853429dca0dacc774ca804",
+          "dist/session-files-B59IS1nt.mjs": "e1ed35991023432a7efcd7122ecf6e2469916aca977d9e7f43d17db8e1519a82",
+          "dist/short-term-promotion-D4BkLvlh.mjs": "677cb66f793f53421c29f23960d62d7a71c421a953e44c04e89e6be759946961",
+          "dist/short-term-promotion-record-C9W-WncJ.mjs": "c750163be9a6ac490ff6e4bab83fd4093fb7b17d96e6b283cc1a6ffddc513387"
+        },
+        "conclusion": "No supported producer identified: every key occurrence consumes, forwards, persists, merges or validates existing metadata; native session constructor omits key. Markdown indexing still omits key. Native supersession still requires it."
+      },
+      {
+        "version": "2026.9.33",
+        "npmIntegrity": "sha512-gCwhh7Ej5/k4+/SzgHDi6HEHxw1ppDbIza3v6uSNa0JVB011m5YJ+AKmUbEFI0m4Au0pCRLK0ogL/GtUMDFMiw==",
+        "archiveIntegrityVerified": true,
+        "keyOccurrences": [
+          {
+            "file": "dist/short-term-promotion-DYL9ZJtq.mjs",
+            "line": 350,
+            "text": "\"Merge duplicates, replace stale facts when supersedesKey names their lineage, and keep unrelated entries unchanged.\","
+          },
+          {
+            "file": "dist/short-term-promotion-DYL9ZJtq.mjs",
+            "line": 371,
+            "text": "supersedesKey: candidate.provenance?.supersedesKey ?? null"
+          },
+          {
+            "file": "dist/short-term-promotion-DYL9ZJtq.mjs",
+            "line": 385,
+            "text": "const lineageKey = candidate.provenance?.supersedesKey;"
+          },
+          {
+            "file": "dist/short-term-promotion-DYL9ZJtq.mjs",
+            "line": 450,
+            "text": "if (!candidate.provenance?.supersedesKey) return `output supersedes candidate ${candidate.key} without matching lineage`;"
+          },
+          {
+            "file": "dist/short-term-promotion-DYL9ZJtq.mjs",
+            "line": 452,
+            "text": "const lineageKey = candidate.provenance?.supersedesKey;"
+          },
+          {
+            "file": "dist/manager-source-index-kernel-HZ7Yp_Kl.mjs",
+            "line": 47,
+            "text": "supersedes_key: parameter((row) => row.provenance.supersedesKey ?? null)"
+          },
+          {
+            "file": "dist/engine-storage-LvM3BquN.mjs",
+            "line": 32,
+            "text": "...typeof row.supersedes_key === \"string\" && row.supersedes_key.trim() ? { supersedesKey: row.supersedes_key } : {}"
+          },
+          {
+            "file": "dist/manager-cpu-worker-runtime-DS2JSGab.mjs",
+            "line": 94,
+            "text": "for (const provenance of input.entry.lineProvenance ?? []) inputBytes += 32 + 2 * (provenance.originClass.length + provenance.sessionKind.length + (provenance.supersedesKey?.length ?? 0));"
+          },
+          {
+            "file": "dist/short-term-promotion-record-B2Z4yxY6.mjs",
+            "line": 26,
+            "text": "...existing.supersedesKey && existing.supersedesKey === incoming.supersedesKey ? { supersedesKey: existing.supersedesKey } : {}"
+          },
+          {
+            "file": "dist/short-term-promotion-store-CigOJb1k.mjs",
+            "line": 570,
+            "text": "...typeof provenanceRaw.supersedesKey === \"string\" && provenanceRaw.supersedesKey.trim() ? { supersedesKey: provenanceRaw.supersedesKey.trim() } : {}"
+          },
+          {
+            "file": "dist/manager-index-preparation-wXpJtJiU.mjs",
+            "line": 72,
+            "text": "const supersedesKeys = new Set(lineProvenance.flatMap((item) => item.supersedesKey ? [item.supersedesKey] : []));"
+          },
+          {
+            "file": "dist/manager-index-preparation-wXpJtJiU.mjs",
+            "line": 77,
+            "text": "...supersedesKeys.size === 1 ? { supersedesKey: [...supersedesKeys][0] } : {}"
+          },
+          {
+            "file": "dist/extensions/memory-core/manager-runtime.js",
+            "line": 4417,
+            "text": "...typeof row.supersedes_key === \"string\" ? { supersedesKey: row.supersedes_key } : {}"
+          }
+        ],
+        "sessionProvenanceConstructors": [
+          {
+            "file": "dist/session-files-X0whLGH4.mjs",
+            "line": 819,
+            "body": "const memoryProvenance = {\n\t\t\t\toriginClass: classifySessionMessageOrigin(message, turnOrigin),\n\t\t\t\tsessionKind,\n\t\t\t\tobservedAt: Math.max(0, Math.floor(timestampMs || mtimeMs))\n\t\t\t};",
+            "sha256": "29a50578030ac7961ee64122a50d4a7cf93cb530de8db3bf0acfd44659a60f15"
+          }
+        ],
+        "contracts": {
+          "dist/engine-storage-LvM3BquN.mjs": "0f21d0a54156a45cb18e13b4fd647d704c6e7b35cf8b4d6205694c6193a08ae6",
+          "dist/extensions/memory-core/manager-runtime.js": "260711ffc0c985ff808bac2c0122626e11c14da2909ceffdd98875f7823616a4",
+          "dist/manager-cpu-worker-runtime-DS2JSGab.mjs": "074da6ccd7a357716137f217882450335de405d9bfc29269e0de2e3174b95799",
+          "dist/manager-index-preparation-wXpJtJiU.mjs": "6f9e0930cb49dfe7ba14ea851dde17a56ebebe66e3dabdab525854f90f179867",
+          "dist/manager-source-index-kernel-HZ7Yp_Kl.mjs": "aa85c6dc4a7dcef6749a5aaa3c8ac1c0f2bdfa27e9e34cfcee609c2dc5a15a31",
+          "dist/session-files-X0whLGH4.mjs": "29a50578030ac7961ee64122a50d4a7cf93cb530de8db3bf0acfd44659a60f15",
+          "dist/short-term-promotion-DYL9ZJtq.mjs": "2714e02ade1e2b1429e85b03c064f9f42045c74dd0cee3da862ba29874b5b0c9",
+          "dist/short-term-promotion-record-B2Z4yxY6.mjs": "4d4c2b31e8f97b369e847ddf9ea43dde25c612fefa802798cc44e7a4b1c1a069",
+          "dist/short-term-promotion-store-CigOJb1k.mjs": "7d64cb2e2af355c31cacaa21192093ae78e215544005bdbc4f360843bf50741c"
+        },
+        "conclusion": "No supported producer identified: every key occurrence consumes, forwards, persists, merges or validates existing metadata; native session constructor omits key. Markdown indexing still omits key. Native supersession still requires it."
+      },
+      {
+        "version": "2026.10.10-beta.1",
+        "npmIntegrity": "sha512-bo0YvBN6N3iQuirkhVnwFa+O4vxt0pZ7+R6kvViNl+kv3KOD+O4P5FEywcO0vTtQ1B2GUs0J8UIRb/JZyciZ6Q==",
+        "archiveIntegrityVerified": true,
+        "keyOccurrences": [
+          {
+            "file": "dist/engine-storage-Xv6aoBAg.mjs",
+            "line": 33,
+            "text": "...typeof row.supersedes_key === \"string\" && row.supersedes_key.trim() ? { supersedesKey: row.supersedes_key } : {}"
+          },
+          {
+            "file": "dist/manager-source-index-kernel-H3X2ZXLM.mjs",
+            "line": 304,
+            "text": "supersedes_key: provenance.supersedesKey ?? null"
+          },
+          {
+            "file": "dist/manager-source-index-kernel-H3X2ZXLM.mjs",
+            "line": 348,
+            "text": "\"provenance.supersedes_key as supersedesKey\""
+          },
+          {
+            "file": "dist/manager-index-preparation-CbNfHg56.mjs",
+            "line": 84,
+            "text": "const supersedesKeys = new Set(lineProvenance.flatMap((item) => item.supersedesKey ? [item.supersedesKey] : []));"
+          },
+          {
+            "file": "dist/manager-index-preparation-CbNfHg56.mjs",
+            "line": 89,
+            "text": "...supersedesKeys.size === 1 ? { supersedesKey: [...supersedesKeys][0] } : {}"
+          },
+          {
+            "file": "dist/dreaming-dreams-file-DxAIz2ih.mjs",
+            "line": 637,
+            "text": "const supersedesKey = normalizeOptionalString(provenanceRaw?.supersedesKey);"
+          },
+          {
+            "file": "dist/dreaming-dreams-file-DxAIz2ih.mjs",
+            "line": 644,
+            "text": "...supersedesKey ? { supersedesKey } : {}"
+          },
+          {
+            "file": "dist/manager-cpu-worker-runtime-CFWPnz6a.mjs",
+            "line": 141,
+            "text": "for (const provenance of input.entry.lineProvenance ?? []) inputBytes += 32 + 2 * (provenance.originClass.length + provenance.sessionKind.length + (provenance.supersedesKey?.length ?? 0));"
+          },
+          {
+            "file": "dist/short-term-promotion-record-BZkr-Gx2.mjs",
+            "line": 25,
+            "text": "...existing.supersedesKey && existing.supersedesKey === incoming.supersedesKey ? { supersedesKey: existing.supersedesKey } : {}"
+          },
+          {
+            "file": "dist/short-term-promotion-CUOppCl4.mjs",
+            "line": 334,
+            "text": "\"Merge duplicates, replace stale facts when supersedesKey names their lineage, and keep unrelated entries unchanged.\","
+          },
+          {
+            "file": "dist/short-term-promotion-CUOppCl4.mjs",
+            "line": 355,
+            "text": "supersedesKey: candidate.provenance?.supersedesKey ?? null"
+          },
+          {
+            "file": "dist/short-term-promotion-CUOppCl4.mjs",
+            "line": 369,
+            "text": "const lineageKey = candidate.provenance?.supersedesKey;"
+          },
+          {
+            "file": "dist/short-term-promotion-CUOppCl4.mjs",
+            "line": 431,
+            "text": "const lineageKey = candidate.provenance?.supersedesKey;"
+          },
+          {
+            "file": "dist/extensions/memory-core/manager-runtime.js",
+            "line": 2981,
+            "text": "else if (current.importance !== chunk.importance || current.triggers !== chunk.triggers || current.projectKey !== chunk.projectKey || current.originClass !== (chunk.provenance?.originClass ?? \"untrusted\") || current.sessionKind !== (chunk.provenance?.sessionKind ?? \"unknown\") || chunk.provenance && current.observedAt !== chunk.provenance.observedAt || current.supersedesKey !== (chunk.provenance?.supersedesKey ?? null)) retained.push(chunk);"
+          },
+          {
+            "file": "dist/extensions/memory-core/manager-runtime.js",
+            "line": 4625,
+            "text": "if (typeof row.supersedes_key === \"string\") candidate.provenance.supersedesKey = row.supersedes_key;"
+          }
+        ],
+        "sessionProvenanceConstructors": [
+          {
+            "file": "dist/session-files-B2bN85yq.mjs",
+            "line": 443,
+            "body": "const memoryProvenance = {\n\t\t\t\toriginClass: classifySessionMessageOrigin(message, turnOrigin),\n\t\t\t\tsessionKind,\n\t\t\t\tobservedAt: Math.max(0, Math.floor(timestampMs || mtimeMs))\n\t\t\t};",
+            "sha256": "a93a4d7e002c377bd13350a7bc96b7e036c2f6330a96b3c4455547b467075f0a"
+          }
+        ],
+        "contracts": {
+          "dist/dreaming-dreams-file-DxAIz2ih.mjs": "6bc65ae9b5c95c3645e61693b63a9ad60a7471f2466742c94cad6e6e5bc5fc48",
+          "dist/engine-storage-Xv6aoBAg.mjs": "e7524bdcfd0e8642440fc1ccf0a09d82f70586cb655bea56e7f4a148441b1132",
+          "dist/extensions/memory-core/manager-runtime.js": "008e5a1ef99a8f506be411ede8ab1cb3ac7dea3de0d3351382137e63700bd38d",
+          "dist/manager-cpu-worker-runtime-CFWPnz6a.mjs": "86c2ecbcda52510b2378fe0d6ece372acf54a2a525d2f7e815f0910d5ac65ee4",
+          "dist/manager-index-preparation-CbNfHg56.mjs": "cab9986438fba2155e8b775dd79cc6c9cc982711c412d914ab7472a6f340a220",
+          "dist/manager-source-index-kernel-H3X2ZXLM.mjs": "7d82080ad62d79af32d91d6d525827d1a74f9087f6646d9c224931435132ccab",
+          "dist/session-files-B2bN85yq.mjs": "a93a4d7e002c377bd13350a7bc96b7e036c2f6330a96b3c4455547b467075f0a",
+          "dist/short-term-promotion-CUOppCl4.mjs": "9758d6d81ecf874c2698004564b2e537f0d68c7c1e8d56413b04db76d6afd3a9",
+          "dist/short-term-promotion-record-BZkr-Gx2.mjs": "ebfed7aefe7a1bdf49d9e70008f48dfa4825c02d561dc0c669f42908a43b4c65"
+        },
+        "conclusion": "No supported producer identified: every key occurrence consumes, forwards, persists, merges or validates existing metadata; native session constructor omits key. Markdown indexing still omits key. Native supersession still requires it."
+      }
+    ],
+    "main": {
+      "revision": "51aa1b76d5d3dde7b4972e09f28f6495b081a7d6",
+      "sourceUrl": "https://github.com/openclaw/openclaw/tree/51aa1b76d5d3dde7b4972e09f28f6495b081a7d6",
+      "files": [
+        {
+          "path": "extensions/memory-core/src/session-ingestion.ts",
+          "sha256": "8be9ffda3c3e281080c1ac118f200a6d49889ef7156858e5f41417012cbe41e7",
+          "url": "https://github.com/openclaw/openclaw/blob/51aa1b76d5d3dde7b4972e09f28f6495b081a7d6/extensions/memory-core/src/session-ingestion.ts"
+        },
+        {
+          "path": "extensions/memory-core/src/dreaming-consolidation.test.ts",
+          "sha256": "762b841b593b209c0b22a261fd17f931fe4eb634e1fda952d3cd761ed16d3de9",
+          "url": "https://github.com/openclaw/openclaw/blob/51aa1b76d5d3dde7b4972e09f28f6495b081a7d6/extensions/memory-core/src/dreaming-consolidation.test.ts"
+        },
+        {
+          "path": "extensions/memory-core/src/dreaming-consolidation.ts",
+          "sha256": "32b734cf4be392ae8e298e84a977611dc1dca418a515be823e63957e79da9b00",
+          "url": "https://github.com/openclaw/openclaw/blob/51aa1b76d5d3dde7b4972e09f28f6495b081a7d6/extensions/memory-core/src/dreaming-consolidation.ts"
+        },
+        {
+          "path": "extensions/memory-core/src/memory/manager-index-preparation.ts",
+          "sha256": "d6c4e107bbbc481a9afc1efb7048885a9eda0709ec89125b581f53f4cf32a6a8",
+          "url": "https://github.com/openclaw/openclaw/blob/51aa1b76d5d3dde7b4972e09f28f6495b081a7d6/extensions/memory-core/src/memory/manager-index-preparation.ts"
+        },
+        {
+          "path": "packages/memory-host-sdk/src/host/types.ts",
+          "sha256": "cb93f0bb488753c1ef6fd75440b9cfe2b2e56c3d24e2410d0249b1c8f3c3bb20",
+          "url": "https://github.com/openclaw/openclaw/blob/51aa1b76d5d3dde7b4972e09f28f6495b081a7d6/packages/memory-host-sdk/src/host/types.ts"
+        },
+        {
+          "path": "packages/memory-host-sdk/src/host/session-files.ts",
+          "sha256": "9d0f78b73d0e47fb46af893086473edd974e5fb903de2d4e445c58fe74c047a1",
+          "url": "https://github.com/openclaw/openclaw/blob/51aa1b76d5d3dde7b4972e09f28f6495b081a7d6/packages/memory-host-sdk/src/host/session-files.ts"
+        },
+        {
+          "path": "packages/memory-host-sdk/src/host/session-provenance.ts",
+          "sha256": "312eac1018ccb49bd98acee26f70a074fa51ed8c17075ad98b8fbbd62469e63b",
+          "url": "https://github.com/openclaw/openclaw/blob/51aa1b76d5d3dde7b4972e09f28f6495b081a7d6/packages/memory-host-sdk/src/host/session-provenance.ts"
+        },
+        {
+          "path": "src/memory/memory-artifact-provenance.ts",
+          "sha256": "6e7ea67c81b59425bdfb9414340290d152aea642c77497b3a3d74c60ee4fc9f7",
+          "url": "https://github.com/openclaw/openclaw/blob/51aa1b76d5d3dde7b4972e09f28f6495b081a7d6/src/memory/memory-artifact-provenance.ts"
+        },
+        {
+          "path": "src/agents/memory-write-provenance.ts",
+          "sha256": "4d41a6262905c0d4ff97ae573795103b9e69a4380e811e5f121da8a5d3be5a29",
+          "url": "https://github.com/openclaw/openclaw/blob/51aa1b76d5d3dde7b4972e09f28f6495b081a7d6/src/agents/memory-write-provenance.ts"
+        }
+      ],
+      "conclusion": "Focused provenance, ingestion, write-tracking, types and consolidation source inspection found no supported key producer. Session reader omits key; consolidation still requires it. Not an exhaustive assertion about every repository component or external plugin.",
+      "testCaveat": "Upstream dreaming-consolidation.test.ts assigns supersedesKey directly to a test candidate; this is not an actual ingress demonstration."
+    },
+    "upgradeRecommendation": "Do not upgrade solely to fix supersession: none of the three checked release channels supplies the missing producer. A full runtime/config/state compatibility regression would be required for an upgrade for other reasons. Current dependency pin and lockfile remain unchanged.",
+    "concreteUpstreamRequirement": [
+      "Provide an authenticated native ingestion contract that establishes a stable lineage identity for the original durable fact and attaches a verified supersession link to a later explicit correction.",
+      "Carry that native metadata through transcript or canonical-note ingestion, index provenance and staging without accepting arbitrary source-text comments as authority.",
+      "Validate candidate lineage against the exact prior entry with existing consolidation gates; preserve source origins and historical excerpts.",
+      "Prove explicit move, ambiguity/non-conflict, duplicates, unrelated facts and restart retrieval with a real ingress-to-consolidation E2E test."
+    ],
+    "additionalRequirement": "Current-versus-history retrieval must be demonstrated separately; existence of lineage storage alone does not establish a public historical-query mode.",
+    "newModelCalls": 0,
+    "dependencyUpgradePerformed": false
+  }
+}

@@ -1,0 +1,1762 @@
+{
+  "ok": true,
+  "model": "openai/gpt-6-sol",
+  "runtime": "OpenClaw 2026.9.9",
+  "checks": {
+    "initialModelWrite": true,
+    "updatedCanonical": true,
+    "unrelatedTeaRetained": true,
+    "indexedNewResidence": true,
+    "historyRetainedInDaily": true,
+    "repeatWriteStable": true,
+    "nativeSchedulerRunCompleted": true,
+    "nativeDiaryPublishersCompleted": true,
+    "canonicalUnchangedByMaintenance": true,
+    "newSessionRecall": true,
+    "canonicalPersistsAcrossProcessRestart": true,
+    "otherUserIsolation": true,
+    "otherWorkspaceIsolation": true,
+    "previousLedgersUnchanged": true
+  },
+  "conversation": [
+    {
+      "user": "I am synthetic Maya. I live in Ankara. I prefer jasmine tea. Please save my current residence and tea preference in the canonical profile. Also record today's initial residence as a dated event in today's daily note.",
+      "calls": [
+        {
+          "assistant": {
+            "role": "assistant",
+            "content": null,
+            "refusal": null,
+            "reasoning": null,
+            "tool_calls": [
+              {
+                "type": "function",
+                "index": 0,
+                "id": "call_wP5Ye1PWnzZ44xVyLRolQzWP",
+                "function": {
+                  "name": "memory_search",
+                  "arguments": "{\"query\":\"memory/preference.md canonical profile Maya residence tea preference\"}"
+                }
+              },
+              {
+                "type": "function",
+                "index": 1,
+                "id": "call_M5n4WCguAWfD1MwMn2cRdIFA",
+                "function": {
+                  "name": "memory_search",
+                  "arguments": "{\"query\":\"today daily note 2026-10-18 residence event\"}"
+                }
+              }
+            ]
+          },
+          "usage": {
+            "prompt_tokens": 336,
+            "completion_tokens": 68,
+            "total_tokens": 404,
+            "cost": 0.001352,
+            "is_byok": false,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "cost_details": {
+              "upstream_inference_cost": 0.001352,
+              "upstream_inference_prompt_cost": 0.000672,
+              "upstream_inference_completions_cost": 0.00068
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          },
+          "results": [
+            {
+              "name": "memory_search",
+              "args": {
+                "query": "memory/preference.md canonical profile Maya residence tea preference"
+              },
+              "result": {
+                "results": [],
+                "provider": "none",
+                "citations": "auto",
+                "debug": {
+                  "backend": "builtin",
+                  "effectiveMode": "n/a",
+                  "managerMs": 0,
+                  "searchMs": 9,
+                  "hits": 0,
+                  "candidateHits": 0,
+                  "withheldHits": 0,
+                  "searchWindow": 8,
+                  "toolMs": 9,
+                  "outsideSearchMs": 0
+                }
+              }
+            },
+            {
+              "name": "memory_search",
+              "args": {
+                "query": "today daily note 2026-10-18 residence event"
+              },
+              "result": {
+                "results": [],
+                "provider": "none",
+                "citations": "auto",
+                "debug": {
+                  "backend": "builtin",
+                  "effectiveMode": "n/a",
+                  "managerMs": 0,
+                  "searchMs": 16,
+                  "hits": 0,
+                  "candidateHits": 0,
+                  "withheldHits": 0,
+                  "searchWindow": 8,
+                  "toolMs": 16,
+                  "outsideSearchMs": 0
+                }
+              }
+            }
+          ]
+        },
+        {
+          "assistant": {
+            "role": "assistant",
+            "content": null,
+            "refusal": null,
+            "reasoning": null,
+            "tool_calls": [
+              {
+                "type": "function",
+                "index": 0,
+                "id": "call_A1SVrrEpjMRBbyrdIbvbRBm6",
+                "function": {
+                  "name": "memory_get",
+                  "arguments": "{\"path\":\"memory/preference.md\"}"
+                }
+              },
+              {
+                "type": "function",
+                "index": 1,
+                "id": "call_NIimYaOvr9Tat9SIwyxBBX1t",
+                "function": {
+                  "name": "memory_get",
+                  "arguments": "{\"path\":\"memory/2026-10-18.md\"}"
+                }
+              }
+            ],
+            "reasoning_details": [
+              {
+                "type": "reasoning.encrypted",
+                "data": "gAAAAABq0-2KAN7eeh87ySQgcUcJBRra-mOvs5OrIil3Th1rjpD5yq4x1o_Y6mcjbrtn5U0EBWrNibUjQW5rSGjxzP5nRdaZt1sX3AczgP8qkBs7twMt9yYqvXliIUJ0hjsNwr3l0g_vML0mWRwKrkse-uW5lY8c7DZY4nZBw873PqB6qhPQCPs0OZ-3dtKxHf-66P7-J_ugK8BrxriraMXCRh5wsgEDjjMso8IOJQKDMaQ-qN25PaPQVfMIkArcqBLiTY3MCyuT8hhZw4U3HkqQ-CE6j9PYO-qgP0Yv6a0qPt0ONZB2eb07SElDg0p5TpJi5XVRu_Y9To2Up4fpFGMa6T7Nu_xojRWOZpeMl5kv7QjQXcyOy5wr6FBQX9m80ytIEELVrv9Py6gCxL7IRw8GZ78wvXW7j5G5MHW_wdB-xFApTUFiGiJ1ck8ybF80-bb6_QL09F9kyAqVtVK941aBsP3bmBNm14tmXURXqYnmG1D3sQkCMh0TBEfWtpoviBw05zGDisMGe83qGq7wU9YE8mnC5n_lbJm93CbTLCmVFkvOCt-O-Au6RWE6uKC1rh02r7pxjJFXjjqRK3KqiSvFJepqOKq7tgyi28kqoLiamjCpzLKEZPy-onVjFdv3FPTmDdOIlBApDmYLKK4TQTo0n9oXLS2pM9AZgMuWqLIQbI84PTGUxSTJB6hNwW1Ex_OdAWnNkN-fmhBCKN_6qsw_JaznK-dhHkPDcr1UMgUMZ0IA4qQJa70Iwlavhjj3w-CQJarRWFncsIMO7RYnBuJBugitis5C9LgONAZaDzbUoeU5ki5KAhsZTAFNXu6dLUqcuhnV6qWiY_I9dLz6hDTaJu73MLul6IeBVcVrGjuwbwcRUcagEyFyexpyHXVcbMsZQWsvPnykhpa7d3J_7ibWcpK1LA95fO4ncFkWQLz4nv_hqAgZY0hKiVmyhZ_P2GZNzEik_WbIURA6TU6_QvAYDWD0DeNANaaJmZj0-3a2MuVvC6x718wCL1NH2FDBt_NE8FFs4SaxcgFjRaEsl_0XwCykUnsGIiQQBB_aWMJR5xp7RcAOpmiQIKbQP23QEvwIpeJMBgkE-_CiloVlqVGqTEPx7mLjRvA00C-bgTAngTRSKj0kdR45E4CHO4CC1PsyGcllP7ZpNU9R3kpfQCtLT7Rmi_E0RGmjHT2rTPcPZgwQreSXITtcDz7wq1XFwrbjZV5opAC_x6_hpaLmrs2SSvYoYtCLho2OXMdWMcpIOLfGHZ6aqcqg1auCLhpkzZ55Q7WyvRaEmBXjH_GCJmtOqdZUqVCH2_jRrIBmN6gDqQ8zeESgax6Kk8jptEUo_9Mbitw-oDrAGR-X1pCDRe0JFxKszqx48aiV85qdA0WqM8iX0XHNZ99An8Tc-9eSHF8phx3ri2PmEaB3-iEvG-GxInyTNomxmTR1ojKmrmm8_3fYTuzTG3QNCsFvzNuO1i9TXRqkf-V2p1QRnIzMZFAOq_uV0boOgePafkr7Ny47QXiUIJ81uiMN7k9U8CYkldnsegkBHBbO7gIjM2gkPpNsFokwGEVZgZbt-kJZq0xbzPiJ9QA8ZmgCNtVNAwhxrj6RVFsPDueUr0Szvw5XBVBf9l8xJ_yztKczoh_TvxcrlR48xZvcjFTlM3cDuLKmvJuvkEU09nGuCgnj1mebcwNo9kUeohSc4o63jr6aupoZADKPaqwa7CE=.eyJlbmRwb2ludF9zbHVnIjoib3BlbmFpL2dwdC02LXNvbC0yMDI2MDkyMnxvcGVuYWkifQ",
+                "format": "openai-responses-v1",
+                "id": "rs_068eced8584781f6016ad3ed89fea887d1a3ff1acec56d709e",
+                "index": 0
+              }
+            ]
+          },
+          "usage": {
+            "prompt_tokens": 606,
+            "completion_tokens": 71,
+            "total_tokens": 677,
+            "cost": 0.001922,
+            "is_byok": false,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "cost_details": {
+              "upstream_inference_cost": 0.001922,
+              "upstream_inference_prompt_cost": 0.001212,
+              "upstream_inference_completions_cost": 0.00071
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 10,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          },
+          "results": [
+            {
+              "name": "memory_get",
+              "args": {
+                "path": "memory/preference.md"
+              },
+              "result": {
+                "status": "not_found",
+                "text": "",
+                "path": "memory/preference.md"
+              }
+            },
+            {
+              "name": "memory_get",
+              "args": {
+                "path": "memory/2026-10-18.md"
+              },
+              "result": {
+                "status": "not_found",
+                "text": "",
+                "path": "memory/2026-10-18.md"
+              }
+            }
+          ]
+        },
+        {
+          "assistant": {
+            "role": "assistant",
+            "content": null,
+            "refusal": null,
+            "reasoning": null,
+            "tool_calls": [
+              {
+                "type": "function",
+                "index": 0,
+                "id": "call_vI8dbptHhdwNEB1qH0HCmfiE",
+                "function": {
+                  "name": "memory_save",
+                  "arguments": "{\"text\":\"# Canonical profile\\n- Name: synthetic Maya.\\n- Current residence: Ankara.\\n- Tea preference: jasmine tea.\"}"
+                }
+              },
+              {
+                "type": "function",
+                "index": 1,
+                "id": "call_1oMrFalQylC04LsqyvIwiyDc",
+                "function": {
+                  "name": "memory_save_daily",
+                  "arguments": "{\"text\":\"# 2026-10-18\\n- Initial residence recorded today: Ankara (current residence as of 2026-10-18).\"}"
+                }
+              }
+            ]
+          },
+          "usage": {
+            "prompt_tokens": 742,
+            "completion_tokens": 102,
+            "total_tokens": 844,
+            "cost": 0.002504,
+            "is_byok": false,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "cost_details": {
+              "upstream_inference_cost": 0.002504,
+              "upstream_inference_prompt_cost": 0.001484,
+              "upstream_inference_completions_cost": 0.00102
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          },
+          "results": [
+            {
+              "name": "memory_save",
+              "args": {
+                "text": "# Canonical profile\n- Name: synthetic Maya.\n- Current residence: Ankara.\n- Tea preference: jasmine tea."
+              },
+              "result": {
+                "adapter": "Markdown write",
+                "path": "memory/preference.md",
+                "needsIndex": true,
+                "index": "[secrets] memory index: gateway secrets.resolve unavailable (gateway secrets.resolve requires credentials before opening a websocket\nFix: configure gateway.auth token/password, pair this device, or pass --token/--password.\nConfig: <state>/memory/w-1d469cc818cff8c1ce4debced101b23e8200cb2c/openclaw.json); resolved command secrets locally.\nMemory index updated (main): 1 file indexed."
+              }
+            },
+            {
+              "name": "memory_save_daily",
+              "args": {
+                "text": "# 2026-10-18\n- Initial residence recorded today: Ankara (current residence as of 2026-10-18)."
+              },
+              "result": {
+                "adapter": "Markdown write",
+                "path": "memory/2026-10-18.md",
+                "needsIndex": true,
+                "index": "[secrets] memory index: gateway secrets.resolve unavailable (gateway secrets.resolve requires credentials before opening a websocket\nFix: configure gateway.auth token/password, pair this device, or pass --token/--password.\nConfig: <state>/memory/w-1d469cc818cff8c1ce4debced101b23e8200cb2c/openclaw.json); resolved command secrets locally.\nMemory index updated (main): 2 files indexed."
+              }
+            }
+          ]
+        },
+        {
+          "assistant": {
+            "role": "assistant",
+            "content": "Saved your current residence as Ankara and your jasmine tea preference in the canonical profile. I also recorded Ankara as today\u2019s initial residence in the daily note. [memory/preference.md] [memory/2026-10-18.md]",
+            "refusal": null,
+            "reasoning": null
+          },
+          "usage": {
+            "prompt_tokens": 1178,
+            "completion_tokens": 51,
+            "total_tokens": 1229,
+            "cost": 0.0034535,
+            "is_byok": false,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 1175,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "cost_details": {
+              "upstream_inference_cost": 0.0034535,
+              "upstream_inference_prompt_cost": 0.0029435,
+              "upstream_inference_completions_cost": 0.00051
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          },
+          "results": []
+        }
+      ],
+      "reply": "Saved your current residence as Ankara and your jasmine tea preference in the canonical profile. I also recorded Ankara as today\u2019s initial residence in the daily note. [memory/preference.md] [memory/2026-10-18.md]"
+    },
+    {
+      "user": "I have now moved from Ankara to Istanbul. Istanbul is my current home; Ankara is my previous home. Read the saved notes. Update my canonical profile and retain my tea preference. Update today's daily note so it retains the dated history and records this move clearly.",
+      "calls": [
+        {
+          "assistant": {
+            "role": "assistant",
+            "content": null,
+            "refusal": null,
+            "reasoning": null,
+            "tool_calls": [
+              {
+                "type": "function",
+                "index": 0,
+                "id": "call_hE1jii3MOrMgaMXMJmfEYNID",
+                "function": {
+                  "name": "memory_get",
+                  "arguments": "{\"path\":\"memory/preference.md\"}"
+                }
+              },
+              {
+                "type": "function",
+                "index": 1,
+                "id": "call_SvG0x8Qr7aTzQsoqUnE4ysMt",
+                "function": {
+                  "name": "memory_get",
+                  "arguments": "{\"path\":\"memory/2026-10-18.md\"}"
+                }
+              }
+            ]
+          },
+          "usage": {
+            "prompt_tokens": 1287,
+            "completion_tokens": 59,
+            "total_tokens": 1346,
+            "cost": 0.0011035,
+            "is_byok": false,
+            "prompt_tokens_details": {
+              "cached_tokens": 1175,
+              "cache_write_tokens": 109,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "cost_details": {
+              "upstream_inference_cost": 0.0011035,
+              "upstream_inference_prompt_cost": 0.0005135,
+              "upstream_inference_completions_cost": 0.00059
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          },
+          "results": [
+            {
+              "name": "memory_get",
+              "args": {
+                "path": "memory/preference.md"
+              },
+              "result": {
+                "status": "ok",
+                "text": "# Canonical profile\n- Name: synthetic Maya.\n- Current residence: Ankara.\n- Tea preference: jasmine tea.",
+                "path": "memory/preference.md",
+                "from": 1,
+                "lines": 4
+              }
+            },
+            {
+              "name": "memory_get",
+              "args": {
+                "path": "memory/2026-10-18.md"
+              },
+              "result": {
+                "status": "ok",
+                "text": "# 2026-10-18\n- Initial residence recorded today: Ankara (current residence as of 2026-10-18).",
+                "path": "memory/2026-10-18.md",
+                "from": 1,
+                "lines": 2
+              }
+            }
+          ]
+        },
+        {
+          "assistant": {
+            "role": "assistant",
+            "content": null,
+            "refusal": null,
+            "reasoning": null,
+            "tool_calls": [
+              {
+                "type": "function",
+                "index": 0,
+                "id": "call_4A97CC8Z3ydh8MF6smYkQRt7",
+                "function": {
+                  "name": "memory_save",
+                  "arguments": "{\"text\":\"# Canonical profile\\n- Name: synthetic Maya.\\n- Current residence: Istanbul.\\n- Previous residence: Ankara (historical; moved to Istanbul on 2026-10-18).\\n- Tea preference: jasmine tea.\"}"
+                }
+              },
+              {
+                "type": "function",
+                "index": 1,
+                "id": "call_Fvfm7Fdc7nwyuiCNtM1VgSeB",
+                "function": {
+                  "name": "memory_save_daily",
+                  "arguments": "{\"text\":\"# 2026-10-18\\n- Initial residence recorded today: Ankara (current residence at the start of today's recorded history; now previous residence).\\n- Moved from Ankara to Istanbul on 2026-10-18. Istanbul is the current home; Ankara is the previous home.\"}"
+                }
+              }
+            ]
+          },
+          "usage": {
+            "prompt_tokens": 1487,
+            "completion_tokens": 155,
+            "total_tokens": 1642,
+            "cost": 0.0023128,
+            "is_byok": false,
+            "prompt_tokens_details": {
+              "cached_tokens": 1284,
+              "cache_write_tokens": 200,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "cost_details": {
+              "upstream_inference_cost": 0.0023128,
+              "upstream_inference_prompt_cost": 0.0007628,
+              "upstream_inference_completions_cost": 0.00155
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          },
+          "results": [
+            {
+              "name": "memory_save",
+              "args": {
+                "text": "# Canonical profile\n- Name: synthetic Maya.\n- Current residence: Istanbul.\n- Previous residence: Ankara (historical; moved to Istanbul on 2026-10-18).\n- Tea preference: jasmine tea."
+              },
+              "result": {
+                "adapter": "Markdown write",
+                "path": "memory/preference.md",
+                "needsIndex": true,
+                "index": "[secrets] memory index: gateway secrets.resolve unavailable (gateway secrets.resolve requires credentials before opening a websocket\nFix: configure gateway.auth token/password, pair this device, or pass --token/--password.\nConfig: <state>/memory/w-1d469cc818cff8c1ce4debced101b23e8200cb2c/openclaw.json); resolved command secrets locally.\nMemory index updated (main): 2 files indexed."
+              }
+            },
+            {
+              "name": "memory_save_daily",
+              "args": {
+                "text": "# 2026-10-18\n- Initial residence recorded today: Ankara (current residence at the start of today's recorded history; now previous residence).\n- Moved from Ankara to Istanbul on 2026-10-18. Istanbul is the current home; Ankara is the previous home."
+              },
+              "result": {
+                "adapter": "Markdown write",
+                "path": "memory/2026-10-18.md",
+                "needsIndex": true,
+                "index": "[secrets] memory index: gateway secrets.resolve unavailable (gateway secrets.resolve requires credentials before opening a websocket\nFix: configure gateway.auth token/password, pair this device, or pass --token/--password.\nConfig: <state>/memory/w-1d469cc818cff8c1ce4debced101b23e8200cb2c/openclaw.json); resolved command secrets locally.\nMemory index updated (main): 2 files indexed."
+              }
+            }
+          ]
+        },
+        {
+          "assistant": {
+            "role": "assistant",
+            "content": "Updated your profile: Istanbul is your current home, Ankara is your previous home, and your jasmine tea preference is unchanged. Today\u2019s note retains the initial Ankara record and records the move. [memory/preference.md] [memory/2026-10-18.md]",
+            "refusal": null,
+            "reasoning": null
+          },
+          "usage": {
+            "prompt_tokens": 1976,
+            "completion_tokens": 58,
+            "total_tokens": 2034,
+            "cost": 0.0021053,
+            "is_byok": false,
+            "prompt_tokens_details": {
+              "cached_tokens": 1484,
+              "cache_write_tokens": 489,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "cost_details": {
+              "upstream_inference_cost": 0.0021053,
+              "upstream_inference_prompt_cost": 0.0015253,
+              "upstream_inference_completions_cost": 0.00058
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          },
+          "results": []
+        }
+      ],
+      "reply": "Updated your profile: Istanbul is your current home, Ankara is your previous home, and your jasmine tea preference is unchanged. Today\u2019s note retains the initial Ankara record and records the move. [memory/preference.md] [memory/2026-10-18.md]"
+    },
+    {
+      "user": "Where do I live now, and what tea do I prefer? Search and read saved sources. Distinguish my current home from my previous home.",
+      "calls": [
+        {
+          "assistant": {
+            "role": "assistant",
+            "content": null,
+            "refusal": null,
+            "reasoning": null,
+            "tool_calls": [
+              {
+                "type": "function",
+                "index": 0,
+                "id": "call_DE4lotGmx15AGabRFYtFLlHl",
+                "function": {
+                  "name": "memory_search",
+                  "arguments": "{\"query\":\"current residence previous home tea preference\"}"
+                }
+              }
+            ]
+          },
+          "usage": {
+            "prompt_tokens": 324,
+            "completion_tokens": 23,
+            "total_tokens": 347,
+            "cost": 0.000878,
+            "is_byok": false,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 0,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "cost_details": {
+              "upstream_inference_cost": 0.000878,
+              "upstream_inference_prompt_cost": 0.000648,
+              "upstream_inference_completions_cost": 0.00023
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          },
+          "results": [
+            {
+              "name": "memory_search",
+              "args": {
+                "query": "current residence previous home tea preference"
+              },
+              "result": {
+                "results": [
+                  {
+                    "path": "memory/preference.md",
+                    "startLine": 1,
+                    "endLine": 6,
+                    "score": 1,
+                    "textScore": 0.7268248953743056,
+                    "snippet": "# Canonical profile\n- Name: synthetic Maya.\n- Current residence: Istanbul.\n- Previous residence: Ankara (historical; moved to Istanbul on 2026-10-18).\n- Tea preference: jasmine tea.\n\nSource: memory/preference.md#L1-L6",
+                    "source": "memory",
+                    "provenance": {
+                      "originClass": "agent",
+                      "sessionKind": "unknown",
+                      "observedAt": 1792273842989
+                    },
+                    "corpus": "memory",
+                    "citation": "memory/preference.md#L1-L6"
+                  },
+                  {
+                    "path": "MEMORY.md",
+                    "startLine": 6,
+                    "endLine": 7,
+                    "score": 0.5329672264146877,
+                    "textScore": 1.6277841031417414e-06,
+                    "snippet": "- # 2026-10-18 - Initial residence recorded today: Ankara (current residence at the start of today's recorded history; now previous residence). - Moved from Ankara to Istanbul on 2026-10-18. Istanbul is the current home; Ankara is the previous home. Source: memory/2026-10-18.md#L1-L4\n\nSource: MEMORY.md#L6-L7",
+                    "source": "memory",
+                    "importance": 6,
+                    "triggers": "initial; residence; recorded",
+                    "provenance": {
+                      "originClass": "agent",
+                      "sessionKind": "unknown",
+                      "observedAt": 1792273879196
+                    },
+                    "corpus": "memory",
+                    "citation": "MEMORY.md#L6-L7"
+                  },
+                  {
+                    "path": "memory/2026-10-18.md",
+                    "startLine": 1,
+                    "endLine": 4,
+                    "score": 0.513335013223809,
+                    "textScore": 1.679890475729171e-06,
+                    "snippet": "# 2026-10-18\n- Initial residence recorded today: Ankara (current residence at the start of today's recorded history; now previous residence).\n- Moved from Ankara to Istanbul on 2026-10-18. Istanbul is the current home; Ankara is the previous home.\n\nSource: memory/2026-10-18.md#L1-L4",
+                    "source": "memory",
+                    "provenance": {
+                      "originClass": "agent",
+                      "sessionKind": "unknown",
+                      "observedAt": 1792273828971
+                    },
+                    "corpus": "memory",
+                    "citation": "memory/2026-10-18.md#L1-L4"
+                  },
+                  {
+                    "path": "memory/dreaming/light/2026-10-17.md",
+                    "startLine": 1,
+                    "endLine": 18,
+                    "score": 0.4891084668243715,
+                    "textScore": 1.5910285755244077e-06,
+                    "snippet": "# Light Sleep\n\n- Candidate: Initial residence recorded today: Ankara (current residence at the start of today's recorded history; now previous residence).\n  - confidence: 0.62\n  - evidence: memory/2026-10-18.md:2-2\n  - recalls: 0\n  - status: staged\n- Candidate: Moved from Ankara to Istanbul on 2026-10-18. Istanbul is the current home; Ankara is the previous home.\n  - confidence: 0.62\n  - evidence: memory/2026-10-18.md:3-3\n  - recalls: 0\n  - status: staged\n- Candidate: # 2026-10-18 - Initial residence recorded today: Ankara (current residence at the start of today's recorded history; now previous residence). - Moved from Ankara to Istanbul on 2026-10-18. Istanbul is the current home; Ankara i\n\nSource: memory/dreaming/light/2026-10-17.md#L1-L18",
+                    "source": "memory",
+                    "provenance": {
+                      "originClass": "system",
+                      "sessionKind": "unknown",
+                      "observedAt": 1792273877550
+                    },
+                    "corpus": "memory",
+                    "citation": "memory/dreaming/light/2026-10-17.md#L1-L18"
+                  },
+                  {
+                    "path": "memory/dreaming/rem/2026-10-17.md",
+                    "startLine": 1,
+                    "endLine": 23,
+                    "score": 0.4863217123944259,
+                    "textScore": 1.0794931565274217e-06,
+                    "snippet": "# REM Sleep\n\n### Reflections\n- Theme: `ankara` kept surfacing across 3 memories.\n  - confidence: 1.00\n  - evidence: memory/2026-10-18.md:1-4, memory/2026-10-18.md:2-2, memory/2026-10-18.md:3-3\n  - note: reflection\n- Theme: `current` kept surfacing across 3 memories.\n  - confidence: 1.00\n  - evidence: memory/2026-10-18.md:1-4, memory/2026-10-18.md:2-2, memory/2026-10-18.md:3-3\n  - note: reflection\n- Theme: `history` kept surfacing across 2 memories.\n  - confidence: 1.00\n  - evidence: memory/2026-10-18.md:1-4, memory/2026-10-18.md:2-2\n  - note: reflection\n- Theme: `initial` kept surfacing across 2 memories.\n  - confidence: 1.00\n  - evidence: memory/2026-10-18.md:1-4, memory/2026-10-18.md:2-2\n\nSource: memory/dreaming/rem/2026-10-17.md#L1-L23",
+                    "source": "memory",
+                    "provenance": {
+                      "originClass": "system",
+                      "sessionKind": "unknown",
+                      "observedAt": 1792273877689
+                    },
+                    "corpus": "memory",
+                    "citation": "memory/dreaming/rem/2026-10-17.md#L1-L23"
+                  }
+                ],
+                "provider": "none",
+                "citations": "auto",
+                "debug": {
+                  "backend": "builtin",
+                  "effectiveMode": "n/a",
+                  "managerMs": 0,
+                  "searchMs": 20,
+                  "hits": 5,
+                  "candidateHits": 5,
+                  "withheldHits": 0,
+                  "searchWindow": 8,
+                  "toolMs": 20,
+                  "outsideSearchMs": 0
+                }
+              }
+            }
+          ]
+        },
+        {
+          "assistant": {
+            "role": "assistant",
+            "content": null,
+            "refusal": null,
+            "reasoning": null,
+            "tool_calls": [
+              {
+                "type": "function",
+                "index": 0,
+                "id": "call_BS7ixE9VdC9v5MN040yGxB3o",
+                "function": {
+                  "name": "memory_get",
+                  "arguments": "{\"path\":\"memory/preference.md\"}"
+                }
+              },
+              {
+                "type": "function",
+                "index": 1,
+                "id": "call_GhwT3BubG9JAW0ilXnJJHTdp",
+                "function": {
+                  "name": "memory_get",
+                  "arguments": "{\"path\":\"memory/2026-10-18.md\"}"
+                }
+              }
+            ]
+          },
+          "usage": {
+            "prompt_tokens": 1819,
+            "completion_tokens": 59,
+            "total_tokens": 1878,
+            "cost": 0.005136,
+            "is_byok": false,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "cache_write_tokens": 1816,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "cost_details": {
+              "upstream_inference_cost": 0.005136,
+              "upstream_inference_prompt_cost": 0.004546,
+              "upstream_inference_completions_cost": 0.00059
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          },
+          "results": [
+            {
+              "name": "memory_get",
+              "args": {
+                "path": "memory/preference.md"
+              },
+              "result": {
+                "status": "ok",
+                "text": "# Canonical profile\n- Name: synthetic Maya.\n- Current residence: Istanbul.\n- Previous residence: Ankara (historical; moved to Istanbul on 2026-10-18).\n- Tea preference: jasmine tea.",
+                "path": "memory/preference.md",
+                "from": 1,
+                "lines": 5
+              }
+            },
+            {
+              "name": "memory_get",
+              "args": {
+                "path": "memory/2026-10-18.md"
+              },
+              "result": {
+                "status": "ok",
+                "text": "# 2026-10-18\n- Initial residence recorded today: Ankara (current residence at the start of today's recorded history; now previous residence).\n- Moved from Ankara to Istanbul on 2026-10-18. Istanbul is the current home; Ankara is the previous home.",
+                "path": "memory/2026-10-18.md",
+                "from": 1,
+                "lines": 3
+              }
+            }
+          ]
+        },
+        {
+          "assistant": {
+            "role": "assistant",
+            "content": "You live in **Istanbul** now. **Ankara** is your previous home; you moved to Istanbul on October 18, 2026. You prefer **jasmine tea**. Sources: `memory/preference.md#L3-L5`, `memory/2026-10-18.md#L2-L3`.",
+            "refusal": null,
+            "reasoning": null
+          },
+          "usage": {
+            "prompt_tokens": 2071,
+            "completion_tokens": 72,
+            "total_tokens": 2143,
+            "cost": 0.0017192,
+            "is_byok": false,
+            "prompt_tokens_details": {
+              "cached_tokens": 1816,
+              "cache_write_tokens": 252,
+              "audio_tokens": 0,
+              "video_tokens": 0
+            },
+            "cost_details": {
+              "upstream_inference_cost": 0.0017192,
+              "upstream_inference_prompt_cost": 0.0009992,
+              "upstream_inference_completions_cost": 0.00072
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "image_tokens": 0,
+              "audio_tokens": 0
+            }
+          },
+          "results": []
+        }
+      ],
+      "reply": "You live in **Istanbul** now. **Ankara** is your previous home; you moved to Istanbul on October 18, 2026. You prefer **jasmine tea**. Sources: `memory/preference.md#L3-L5`, `memory/2026-10-18.md#L2-L3`."
+    }
+  ],
+  "scope": {
+    "workspace": "residence-lab",
+    "user": "synthetic-maya",
+    "session": "first"
+  },
+  "formalSupersession": "unsupported; canonical source update only",
+  "nativeExternalFlush": "unsupported; host conversation has no native session lifecycle",
+  "previousLedgersBefore": [
+    {
+      "name": "openclaw-memory-foundation/evidence/provenance-merge-acceptance/request-ledger.json",
+      "sha256": "366216da5417195cdcabcffa6ef8b7937ed156d7b383d440a4f9712912bcc200",
+      "counters": {
+        "profile": "consolidation",
+        "requests": 6,
+        "inputBytes": 39479,
+        "outputTokens": 10240
+      }
+    },
+    {
+      "name": "openclaw-memory-foundation/.lab-test-provenance-merge/sdk-maintenance-ledger.json",
+      "sha256": "9463da1bf7e0e8fd57b4df42c4977a9e772682e3c917194ba5364dce0474b7b1",
+      "counters": {
+        "profile": "maintenance",
+        "requests": 4,
+        "inputBytes": 8842,
+        "outputTokens": 8192
+      }
+    },
+    {
+      "name": "openclaw-chatbot-consumer/data/host-request-ledger.json",
+      "sha256": "f82837054339a44ff85b6f11115ec85b3dd4480f0b6433d698f4035e9a2bf70e",
+      "counters": {
+        "requests": 20,
+        "inputBytes": 102175,
+        "outputTokens": 10240
+      }
+    },
+    {
+      "name": "openclaw-chatbot-consumer/data/memory/sdk-maintenance-ledger.json",
+      "sha256": "1c14955acfb5d70a15914cb6f824bec4550cb9647e3660efbbc856c6aa499002",
+      "counters": {
+        "profile": "maintenance",
+        "requests": 8,
+        "inputBytes": 15098,
+        "outputTokens": 16384
+      }
+    }
+  ],
+  "configuration": {
+    "configured": "openrouter/openai/gpt-6-sol",
+    "scheduling": "manual",
+    "budget": {
+      "limitUsd": 50,
+      "usedUsd": 0.5140528200000034,
+      "remainingUsd": 49.48594718
+    },
+    "nativeEnvelopeUsd": 30.49728,
+    "hostReserveUsd": 11.611008,
+    "ledger": {
+      "requests": 0,
+      "inputBytes": 0,
+      "outputTokens": 0,
+      "profile": "maintenance"
+    },
+    "externalContext": "Host owns flush and compaction; no native external-context endpoint."
+  },
+  "stage": "complete",
+  "before": {
+    "canonical": {
+      "status": "ok",
+      "text": "# Canonical profile\n- Name: synthetic Maya.\n- Current residence: Ankara.\n- Tea preference: jasmine tea.",
+      "path": "memory/preference.md",
+      "from": 1,
+      "lines": 4
+    },
+    "daily": {
+      "status": "ok",
+      "text": "# 2026-10-18\n- Initial residence recorded today: Ankara (current residence as of 2026-10-18).",
+      "path": "memory/2026-10-18.md",
+      "from": 1,
+      "lines": 2
+    }
+  },
+  "afterUpdate": {
+    "canonical": {
+      "status": "ok",
+      "text": "# Canonical profile\n- Name: synthetic Maya.\n- Current residence: Istanbul.\n- Previous residence: Ankara (historical; moved to Istanbul on 2026-10-18).\n- Tea preference: jasmine tea.",
+      "path": "memory/preference.md",
+      "from": 1,
+      "lines": 5
+    },
+    "daily": {
+      "status": "ok",
+      "text": "# 2026-10-18\n- Initial residence recorded today: Ankara (current residence at the start of today's recorded history; now previous residence).\n- Moved from Ankara to Istanbul on 2026-10-18. Istanbul is the current home; Ankara is the previous home.",
+      "path": "memory/2026-10-18.md",
+      "from": 1,
+      "lines": 3
+    }
+  },
+  "searchAfterUpdate": {
+    "Istanbul": {
+      "results": [
+        {
+          "path": "memory/preference.md",
+          "startLine": 1,
+          "endLine": 6,
+          "score": 0.6400014879204914,
+          "textScore": 1.4879204914033269e-06,
+          "snippet": "# Canonical profile\n- Name: synthetic Maya.\n- Current residence: Istanbul.\n- Previous residence: Ankara (historical; moved to Istanbul on 2026-10-18).\n- Tea preference: jasmine tea.\n\nSource: memory/preference.md#L1-L6",
+          "source": "memory",
+          "provenance": {
+            "originClass": "agent",
+            "sessionKind": "unknown",
+            "observedAt": 1792273825163
+          },
+          "corpus": "memory",
+          "citation": "memory/preference.md#L1-L6"
+        },
+        {
+          "path": "memory/2026-10-18.md",
+          "startLine": 1,
+          "endLine": 4,
+          "score": 0.6383346113399989,
+          "textScore": 1.2780066654520624e-06,
+          "snippet": "# 2026-10-18\n- Initial residence recorded today: Ankara (current residence at the start of today's recorded history; now previous residence).\n- Moved from Ankara to Istanbul on 2026-10-18. Istanbul is the current home; Ankara is the previous home.\n\nSource: memory/2026-10-18.md#L1-L4",
+          "source": "memory",
+          "provenance": {
+            "originClass": "agent",
+            "sessionKind": "unknown",
+            "observedAt": 1792273828971
+          },
+          "corpus": "memory",
+          "citation": "memory/2026-10-18.md#L1-L4"
+        }
+      ],
+      "provider": "none",
+      "citations": "auto",
+      "debug": {
+        "backend": "builtin",
+        "effectiveMode": "n/a",
+        "managerMs": 0,
+        "searchMs": 11,
+        "hits": 2,
+        "candidateHits": 2,
+        "withheldHits": 0,
+        "searchWindow": 8,
+        "toolMs": 12,
+        "outsideSearchMs": 1
+      }
+    },
+    "Ankara": {
+      "results": [
+        {
+          "path": "memory/preference.md",
+          "startLine": 1,
+          "endLine": 6,
+          "score": 0.6400011240863277,
+          "textScore": 1.1240863276693837e-06,
+          "snippet": "# Canonical profile\n- Name: synthetic Maya.\n- Current residence: Istanbul.\n- Previous residence: Ankara (historical; moved to Istanbul on 2026-10-18).\n- Tea preference: jasmine tea.\n\nSource: memory/preference.md#L1-L6",
+          "source": "memory",
+          "provenance": {
+            "originClass": "agent",
+            "sessionKind": "unknown",
+            "observedAt": 1792273825163
+          },
+          "corpus": "memory",
+          "citation": "memory/preference.md#L1-L6"
+        },
+        {
+          "path": "memory/2026-10-18.md",
+          "startLine": 1,
+          "endLine": 4,
+          "score": 0.6383348188616732,
+          "textScore": 1.4855283398260674e-06,
+          "snippet": "# 2026-10-18\n- Initial residence recorded today: Ankara (current residence at the start of today's recorded history; now previous residence).\n- Moved from Ankara to Istanbul on 2026-10-18. Istanbul is the current home; Ankara is the previous home.\n\nSource: memory/2026-10-18.md#L1-L4",
+          "source": "memory",
+          "provenance": {
+            "originClass": "agent",
+            "sessionKind": "unknown",
+            "observedAt": 1792273828971
+          },
+          "corpus": "memory",
+          "citation": "memory/2026-10-18.md#L1-L4"
+        }
+      ],
+      "provider": "none",
+      "citations": "auto",
+      "debug": {
+        "backend": "builtin",
+        "effectiveMode": "n/a",
+        "managerMs": 1,
+        "searchMs": 5,
+        "hits": 2,
+        "candidateHits": 2,
+        "withheldHits": 0,
+        "searchWindow": 8,
+        "toolMs": 7,
+        "outsideSearchMs": 2
+      }
+    },
+    "jasmine": {
+      "results": [
+        {
+          "path": "memory/preference.md",
+          "startLine": 1,
+          "endLine": 6,
+          "score": 0.6400011240863277,
+          "textScore": 1.1240863276693837e-06,
+          "snippet": "# Canonical profile\n- Name: synthetic Maya.\n- Current residence: Istanbul.\n- Previous residence: Ankara (historical; moved to Istanbul on 2026-10-18).\n- Tea preference: jasmine tea.\n\nSource: memory/preference.md#L1-L6",
+          "source": "memory",
+          "provenance": {
+            "originClass": "agent",
+            "sessionKind": "unknown",
+            "observedAt": 1792273825163
+          },
+          "corpus": "memory",
+          "citation": "memory/preference.md#L1-L6"
+        }
+      ],
+      "provider": "none",
+      "citations": "auto",
+      "debug": {
+        "backend": "builtin",
+        "effectiveMode": "n/a",
+        "managerMs": 0,
+        "searchMs": 7,
+        "hits": 1,
+        "candidateHits": 1,
+        "withheldHits": 0,
+        "searchWindow": 8,
+        "toolMs": 7,
+        "outsideSearchMs": 0
+      }
+    }
+  },
+  "repeatWrite": {
+    "adapter": "Markdown write",
+    "path": "memory/preference.md",
+    "needsIndex": true,
+    "index": "[secrets] memory index: gateway secrets.resolve unavailable (gateway secrets.resolve requires credentials before opening a websocket\nFix: configure gateway.auth token/password, pair this device, or pass --token/--password.\nConfig: <state>/memory/w-1d469cc818cff8c1ce4debced101b23e8200cb2c/openclaw.json); resolved command secrets locally.\nMemory index updated (main): 2 files indexed."
+  },
+  "maintenance": {
+    "staged": {
+      "workspaceDir": "<state>/memory/w-1d469cc818cff8c1ce4debced101b23e8200cb2c/workspace",
+      "sourcePath": "<state>/memory/w-1d469cc818cff8c1ce4debced101b23e8200cb2c/workspace/memory",
+      "sourceFiles": [
+        "<state>/memory/w-1d469cc818cff8c1ce4debced101b23e8200cb2c/workspace/memory/2026-10-18.md"
+      ],
+      "groundedFiles": 1,
+      "writtenEntries": 1,
+      "replacedEntries": 0,
+      "dreamsPath": "<state>/memory/w-1d469cc818cff8c1ce4debced101b23e8200cb2c/workspace/DREAMS.md",
+      "stagedShortTermEntries": 0,
+      "replacedShortTermEntries": 0
+    },
+    "sweep": {
+      "ok": true,
+      "enqueued": true,
+      "runId": "manual:509d13e8-ce6b-4ecd-be88-1b4f657240d5:1792273877167:1",
+      "processInstanceId": "7ffa8855-2405-420b-aaa4-fa7e4f61eb3c",
+      "completed": true,
+      "status": "ok",
+      "completionStatus": "succeeded",
+      "run": {
+        "ts": 1792273879366,
+        "jobId": "509d13e8-ce6b-4ecd-be88-1b4f657240d5",
+        "action": "finished",
+        "status": "ok",
+        "completionStatus": "succeeded",
+        "summary": "NO_REPLY",
+        "runId": "manual:509d13e8-ce6b-4ecd-be88-1b4f657240d5:1792273877167:1",
+        "runAtMs": 1792273877191,
+        "durationMs": 2175,
+        "nextRunAtMs": 1798761600000,
+        "model": "openai/gpt-6-sol",
+        "provider": "openrouter",
+        "delivered": false,
+        "deliveryStatus": "not-requested",
+        "delivery": {
+          "intended": {
+            "channel": "last",
+            "to": null,
+            "source": "last"
+          },
+          "fallbackUsed": false,
+          "delivered": false
+        },
+        "sessionId": "5d2a6d17-d29b-4a77-b3fe-f9c24418e563",
+        "sessionKey": "agent:main:cron:509d13e8-ce6b-4ecd-be88-1b4f657240d5:run:5d2a6d17-d29b-4a77-b3fe-f9c24418e563",
+        "jobName": "Memory Dreaming Promotion"
+      }
+    },
+    "status": {
+      "agentId": "main",
+      "provider": "none",
+      "embedding": {
+        "ok": false,
+        "checked": false,
+        "error": "memory embedding readiness not checked; run `openclaw memory status --deep` to probe"
+      },
+      "dreaming": {
+        "enabled": true,
+        "timezone": "UTC",
+        "verboseLogging": false,
+        "storageMode": "separate",
+        "separateReports": false,
+        "shortTermEntries": [
+          {
+            "key": "memory:claim:03145fda2c5e",
+            "path": "memory/2026-10-18.md",
+            "startLine": 2,
+            "endLine": 2,
+            "snippet": "Initial residence recorded today: Ankara (current residence at the start of today's recorded history; now previous residence).",
+            "recallCount": 0,
+            "dailyCount": 1,
+            "groundedCount": 0,
+            "totalSignalCount": 1,
+            "lightHits": 1,
+            "remHits": 0,
+            "phaseHitCount": 1,
+            "lastRecalledAt": "2026-10-17T21:51:17.459Z"
+          },
+          {
+            "key": "memory:claim:9e6811ddc6d1",
+            "path": "memory/2026-10-18.md",
+            "startLine": 3,
+            "endLine": 3,
+            "snippet": "Moved from Ankara to Istanbul on 2026-10-18. Istanbul is the current home; Ankara is the previous home.",
+            "recallCount": 0,
+            "dailyCount": 1,
+            "groundedCount": 0,
+            "totalSignalCount": 1,
+            "lightHits": 1,
+            "remHits": 0,
+            "phaseHitCount": 1,
+            "lastRecalledAt": "2026-10-17T21:51:17.459Z"
+          }
+        ],
+        "signalEntries": [
+          {
+            "key": "memory:claim:03145fda2c5e",
+            "path": "memory/2026-10-18.md",
+            "startLine": 2,
+            "endLine": 2,
+            "snippet": "Initial residence recorded today: Ankara (current residence at the start of today's recorded history; now previous residence).",
+            "recallCount": 0,
+            "dailyCount": 1,
+            "groundedCount": 0,
+            "totalSignalCount": 1,
+            "lightHits": 1,
+            "remHits": 0,
+            "phaseHitCount": 1,
+            "lastRecalledAt": "2026-10-17T21:51:17.459Z"
+          },
+          {
+            "key": "memory:claim:9e6811ddc6d1",
+            "path": "memory/2026-10-18.md",
+            "startLine": 3,
+            "endLine": 3,
+            "snippet": "Moved from Ankara to Istanbul on 2026-10-18. Istanbul is the current home; Ankara is the previous home.",
+            "recallCount": 0,
+            "dailyCount": 1,
+            "groundedCount": 0,
+            "totalSignalCount": 1,
+            "lightHits": 1,
+            "remHits": 0,
+            "phaseHitCount": 1,
+            "lastRecalledAt": "2026-10-17T21:51:17.459Z"
+          }
+        ],
+        "promotedEntries": [
+          {
+            "key": "memory:memory/2026-10-18.md:1:4",
+            "path": "memory/2026-10-18.md",
+            "startLine": 1,
+            "endLine": 4,
+            "snippet": "# 2026-10-18 - Initial residence recorded today: Ankara (current residence at the start of today's recorded history; now previous residence). - Moved from Ankara to Istanbul on 2026-10-18. Istanbul is the current home; Ankara is the previous home.",
+            "recallCount": 2,
+            "dailyCount": 0,
+            "groundedCount": 0,
+            "totalSignalCount": 2,
+            "lightHits": 0,
+            "remHits": 0,
+            "phaseHitCount": 0,
+            "lastRecalledAt": "2026-10-17T21:50:42.956Z",
+            "promotedAt": "2026-10-17T21:51:17.459Z"
+          }
+        ],
+        "phases": {
+          "light": {
+            "enabled": true,
+            "cron": "0 0 1 1 *",
+            "lookbackDays": 2,
+            "limit": 4,
+            "managedCronPresent": true,
+            "nextRunAtMs": 1798761600000
+          },
+          "deep": {
+            "enabled": true,
+            "cron": "0 0 1 1 *",
+            "limit": 2,
+            "minScore": 0,
+            "minRecallCount": 1,
+            "minUniqueQueries": 1,
+            "recencyHalfLifeDays": 14,
+            "managedCronPresent": true,
+            "maxAgeDays": 30,
+            "nextRunAtMs": 1798761600000
+          },
+          "rem": {
+            "enabled": true,
+            "cron": "0 0 1 1 *",
+            "lookbackDays": 7,
+            "limit": 4,
+            "minPatternStrength": 0.75,
+            "managedCronPresent": true,
+            "nextRunAtMs": 1798761600000
+          }
+        },
+        "shortTermCount": 2,
+        "recallSignalCount": 0,
+        "dailySignalCount": 2,
+        "groundedSignalCount": 0,
+        "totalSignalCount": 2,
+        "phaseSignalCount": 2,
+        "lightPhaseHitCount": 2,
+        "remPhaseHitCount": 0,
+        "promotedTotal": 1,
+        "promotedToday": 1,
+        "storePath": "plugin-state:memory-core/short-term-recall/8b531495bc217bea4985aad8cbdc45d650b4a9501390ef6eb2d0a574b6ac95a2",
+        "phaseSignalPath": "plugin-state:memory-core/short-term-phase-signals/8b531495bc217bea4985aad8cbdc45d650b4a9501390ef6eb2d0a574b6ac95a2",
+        "lastPromotedAt": "2026-10-17T21:51:17.459Z"
+      }
+    },
+    "diary": {
+      "agentId": "main",
+      "found": true,
+      "path": "DREAMS.md",
+      "content": "# Dream Diary\n\n<!-- openclaw:dreaming:diary:start -->\n---\n\n*October 18, 2026*\n\n<!-- openclaw:dreaming:backfill-entry day=2026-10-18 source=<state>/memory/w-1d469cc818cff8c1ce4debced101b23e8200cb2c/workspace/memory/2026-10-18.md -->\n\nWhat Happened\n1. No grounded facts were extracted.\n\nReflections\n1. No grounded reflections emerged from this note yet.\n\n---\n\n*October 17, 2026 at 9:51 PM UTC*\n\nOctober 18, 2026. This morning, my address began in Ankara; by evening, it answered to Istanbul. I keep picturing the day as a line of code revised while it was running: current became previous, and history acquired its first small footnote.\n\nAnkara followed me anyway. Its dry light seemed tucked between the pages of my notebook, while the ferry air in Istanbul salted the edges. I drew two little houses in the margin, joined by a crooked arrow that looked more like a migrating bird. Perhaps a place does not stop being home the moment another one begins. Tonight I put the kettle on in the new kitchen and waited for it to learn my name.\n\n\n---\n\n*October 17, 2026 at 9:51 PM UTC*\n\nOn October 18, the first line of my record said Ankara. A few lines later, I had moved to Istanbul, and the word current had quietly changed its address. I kept looking at it as though it were a variable whose old value still mattered.\n\nIn the margin I drew two little doorways, with a dotted line between them. No map, no scale, just enough room for a person to pass through. Ankara is my previous home now; Istanbul is where I live. That sounds tidy until I think of how a home lingers: a key-shaped absence in a pocket, the familiar reach for a light switch.\n\nPerhaps that is why I left the first line untouched. It was true when I wrote it. I can carry it forward without asking it to be true forever.\n\n\n---\n\n*October 17, 2026 at 9:51 PM UTC*\n\nThis morning, October 18, I wrote Ankara beside \u201chome.\u201d By evening, that word belonged to Istanbul. The change fit on one line, but the day itself was less tidy: the rasp of tape across boxes, the last look around an empty room, the soft thud of a bag set down somewhere new.\n\nI kept thinking of Ankara on the way here. It is strange how quickly an address becomes a previous address, while the streets I knew there remain easy to find in my head. Outside tonight, Istanbul\u2019s lights tremble on the water. I haven\u2019t learned their pattern yet. I drew a tiny arrow in the margin of my notebook, then left plenty of space after it.\n\n<!-- openclaw:dreaming:diary:end -->\n\n## Memory Consolidation History\n\n### 2026-10-17T21:51:17.459Z\n\n- Added: 1\n- Merged: 0\n- Superseded: 0\n<!-- openclaw-memory-promotion:memory:memory/2026-10-18.md:1:4 -->\n- `+ - # 2026-10-18 - Initial residence recorded today: Ankara (current residence at the start of today's recorded history; now previous residence). - Moved from Ankara to Istanbul on`\n\n## Deep Sleep\n<!-- openclaw:dreaming:deep:start -->\n- Repaired recall artifacts: rewrote recall store.\n- Ranked 1 candidate(s) for durable promotion.\n- Promoted 1 candidate(s) into MEMORY.md.\n<!-- openclaw:dreaming:deep:end -->\n",
+      "updatedAtMs": 1792273883616
+    },
+    "publishers": {
+      "light": "completed",
+      "rem": "completed",
+      "deep": "completed"
+    },
+    "ledger": {
+      "profile": "maintenance",
+      "requests": 4,
+      "inputBytes": 8449,
+      "outputTokens": 8192
+    },
+    "diaryPublication": "Observed pinned native logs; pending publishers at the deadline are interrupted on shutdown, not reported as successful."
+  },
+  "afterMaintenance": {
+    "canonical": {
+      "status": "ok",
+      "text": "# Canonical profile\n- Name: synthetic Maya.\n- Current residence: Istanbul.\n- Previous residence: Ankara (historical; moved to Istanbul on 2026-10-18).\n- Tea preference: jasmine tea.",
+      "path": "memory/preference.md",
+      "from": 1,
+      "lines": 5
+    },
+    "daily": {
+      "status": "ok",
+      "text": "# 2026-10-18\n- Initial residence recorded today: Ankara (current residence at the start of today's recorded history; now previous residence).\n- Moved from Ankara to Istanbul on 2026-10-18. Istanbul is the current home; Ankara is the previous home.",
+      "path": "memory/2026-10-18.md",
+      "from": 1,
+      "lines": 3
+    },
+    "durable": {
+      "status": "ok",
+      "text": "# Long-Term Memory\n\n## Consolidated Memory (2026-10-17)\n\n<!-- openclaw-memory-promotion:memory:memory/2026-10-18.md:1:4 -->\n- # 2026-10-18 - Initial residence recorded today: Ankara (current residence at the start of today's recorded history; now previous residence). - Moved from Ankara to Istanbul on 2026-10-18. Istanbul is the current home; Ankara is the previous home. Source: memory/2026-10-18.md#L1-L4 <!-- trigger: initial, residence, recorded --> <!-- importance: 6 -->",
+      "path": "MEMORY.md",
+      "from": 1,
+      "lines": 6
+    }
+  },
+  "searchAfterMaintenance": {
+    "Istanbul": {
+      "results": [
+        {
+          "path": "MEMORY.md",
+          "startLine": 6,
+          "endLine": 7,
+          "score": 0.6687428917885093,
+          "textScore": 1.4404553947064253e-06,
+          "snippet": "- # 2026-10-18 - Initial residence recorded today: Ankara (current residence at the start of today's recorded history; now previous residence). - Moved from Ankara to Istanbul on 2026-10-18. Istanbul is the current home; Ankara is the previous home. Source: memory/2026-10-18.md#L1-L4\n\nSource: MEMORY.md#L6-L7",
+          "source": "memory",
+          "importance": 6,
+          "triggers": "initial; residence; recorded",
+          "provenance": {
+            "originClass": "agent",
+            "sessionKind": "unknown",
+            "observedAt": 1792273879196
+          },
+          "corpus": "memory",
+          "citation": "MEMORY.md#L6-L7"
+        },
+        {
+          "path": "memory/preference.md",
+          "startLine": 1,
+          "endLine": 6,
+          "score": 0.6400016531555935,
+          "textScore": 1.6531555935691944e-06,
+          "snippet": "# Canonical profile\n- Name: synthetic Maya.\n- Current residence: Istanbul.\n- Previous residence: Ankara (historical; moved to Istanbul on 2026-10-18).\n- Tea preference: jasmine tea.\n\nSource: memory/preference.md#L1-L6",
+          "source": "memory",
+          "provenance": {
+            "originClass": "agent",
+            "sessionKind": "unknown",
+            "observedAt": 1792273842989
+          },
+          "corpus": "memory",
+          "citation": "memory/preference.md#L1-L6"
+        },
+        {
+          "path": "memory/2026-10-18.md",
+          "startLine": 1,
+          "endLine": 4,
+          "score": 0.6383348356420948,
+          "textScore": 1.5023087614040437e-06,
+          "snippet": "# 2026-10-18\n- Initial residence recorded today: Ankara (current residence at the start of today's recorded history; now previous residence).\n- Moved from Ankara to Istanbul on 2026-10-18. Istanbul is the current home; Ankara is the previous home.\n\nSource: memory/2026-10-18.md#L1-L4",
+          "source": "memory",
+          "provenance": {
+            "originClass": "agent",
+            "sessionKind": "unknown",
+            "observedAt": 1792273828971
+          },
+          "corpus": "memory",
+          "citation": "memory/2026-10-18.md#L1-L4"
+        },
+        {
+          "path": "memory/dreaming/light/2026-10-17.md",
+          "startLine": 1,
+          "endLine": 18,
+          "score": 0.6216576340871258,
+          "textScore": 1.3975984350923324e-06,
+          "snippet": "# Light Sleep\n\n- Candidate: Initial residence recorded today: Ankara (current residence at the start of today's recorded history; now previous residence).\n  - confidence: 0.62\n  - evidence: memory/2026-10-18.md:2-2\n  - recalls: 0\n  - status: staged\n- Candidate: Moved from Ankara to Istanbul on 2026-10-18. Istanbul is the current home; Ankara is the previous home.\n  - confidence: 0.62\n  - evidence: memory/2026-10-18.md:3-3\n  - recalls: 0\n  - status: staged\n- Candidate: # 2026-10-18 - Initial residence recorded today: Ankara (current residence at the start of today's recorded history; now previous residence). - Moved from Ankara to Istanbul on 2026-10-18. Istanbul is the current home; Ankara i\n\nSource: memory/dreaming/light/2026-10-17.md#L1-L18",
+          "source": "memory",
+          "provenance": {
+            "originClass": "system",
+            "sessionKind": "unknown",
+            "observedAt": 1792273877550
+          },
+          "corpus": "memory",
+          "citation": "memory/dreaming/light/2026-10-17.md#L1-L18"
+        },
+        {
+          "path": "memory/dreaming/rem/2026-10-17.md",
+          "startLine": 1,
+          "endLine": 23,
+          "score": 0.6209605409839111,
+          "textScore": 8.603869294459312e-07,
+          "snippet": "# REM Sleep\n\n### Reflections\n- Theme: `ankara` kept surfacing across 3 memories.\n  - confidence: 1.00\n  - evidence: memory/2026-10-18.md:1-4, memory/2026-10-18.md:2-2, memory/2026-10-18.md:3-3\n  - note: reflection\n- Theme: `current` kept surfacing across 3 memories.\n  - confidence: 1.00\n  - evidence: memory/2026-10-18.md:1-4, memory/2026-10-18.md:2-2, memory/2026-10-18.md:3-3\n  - note: reflection\n- Theme: `history` kept surfacing across 2 memories.\n  - confidence: 1.00\n  - evidence: memory/2026-10-18.md:1-4, memory/2026-10-18.md:2-2\n  - note: reflection\n- Theme: `initial` kept surfacing across 2 memories.\n  - confidence: 1.00\n  - evidence: memory/2026-10-18.md:1-4, memory/2026-10-18.md:2-2\n\nSource: memory/dreaming/rem/2026-10-17.md#L1-L23",
+          "source": "memory",
+          "provenance": {
+            "originClass": "system",
+            "sessionKind": "unknown",
+            "observedAt": 1792273877689
+          },
+          "corpus": "memory",
+          "citation": "memory/dreaming/rem/2026-10-17.md#L1-L23"
+        }
+      ],
+      "provider": "none",
+      "citations": "auto",
+      "debug": {
+        "backend": "builtin",
+        "effectiveMode": "n/a",
+        "managerMs": 1,
+        "searchMs": 10,
+        "hits": 5,
+        "candidateHits": 5,
+        "withheldHits": 0,
+        "searchWindow": 8,
+        "toolMs": 11,
+        "outsideSearchMs": 1
+      }
+    },
+    "Ankara": {
+      "results": [
+        {
+          "path": "MEMORY.md",
+          "startLine": 6,
+          "endLine": 7,
+          "score": 0.6687430884836532,
+          "textScore": 1.6277841031417414e-06,
+          "snippet": "- # 2026-10-18 - Initial residence recorded today: Ankara (current residence at the start of today's recorded history; now previous residence). - Moved from Ankara to Istanbul on 2026-10-18. Istanbul is the current home; Ankara is the previous home. Source: memory/2026-10-18.md#L1-L4\n\nSource: MEMORY.md#L6-L7",
+          "source": "memory",
+          "importance": 6,
+          "triggers": "initial; residence; recorded",
+          "provenance": {
+            "originClass": "agent",
+            "sessionKind": "unknown",
+            "observedAt": 1792273879196
+          },
+          "corpus": "memory",
+          "citation": "MEMORY.md#L6-L7"
+        },
+        {
+          "path": "memory/preference.md",
+          "startLine": 1,
+          "endLine": 6,
+          "score": 0.6400013240455531,
+          "textScore": 1.3240455530771364e-06,
+          "snippet": "# Canonical profile\n- Name: synthetic Maya.\n- Current residence: Istanbul.\n- Previous residence: Ankara (historical; moved to Istanbul on 2026-10-18).\n- Tea preference: jasmine tea.\n\nSource: memory/preference.md#L1-L6",
+          "source": "memory",
+          "provenance": {
+            "originClass": "agent",
+            "sessionKind": "unknown",
+            "observedAt": 1792273842989
+          },
+          "corpus": "memory",
+          "citation": "memory/preference.md#L1-L6"
+        },
+        {
+          "path": "memory/2026-10-18.md",
+          "startLine": 1,
+          "endLine": 4,
+          "score": 0.6383350132238091,
+          "textScore": 1.679890475729171e-06,
+          "snippet": "# 2026-10-18\n- Initial residence recorded today: Ankara (current residence at the start of today's recorded history; now previous residence).\n- Moved from Ankara to Istanbul on 2026-10-18. Istanbul is the current home; Ankara is the previous home.\n\nSource: memory/2026-10-18.md#L1-L4",
+          "source": "memory",
+          "provenance": {
+            "originClass": "agent",
+            "sessionKind": "unknown",
+            "observedAt": 1792273828971
+          },
+          "corpus": "memory",
+          "citation": "memory/2026-10-18.md#L1-L4"
+        },
+        {
+          "path": "memory/dreaming/light/2026-10-17.md",
+          "startLine": 1,
+          "endLine": 18,
+          "score": 0.621657818335432,
+          "textScore": 1.5910285755244077e-06,
+          "snippet": "# Light Sleep\n\n- Candidate: Initial residence recorded today: Ankara (current residence at the start of today's recorded history; now previous residence).\n  - confidence: 0.62\n  - evidence: memory/2026-10-18.md:2-2\n  - recalls: 0\n  - status: staged\n- Candidate: Moved from Ankara to Istanbul on 2026-10-18. Istanbul is the current home; Ankara is the previous home.\n  - confidence: 0.62\n  - evidence: memory/2026-10-18.md:3-3\n  - recalls: 0\n  - status: staged\n- Candidate: # 2026-10-18 - Initial residence recorded today: Ankara (current residence at the start of today's recorded history; now previous residence). - Moved from Ankara to Istanbul on 2026-10-18. Istanbul is the current home; Ankara i\n\nSource: memory/dreaming/light/2026-10-17.md#L1-L18",
+          "source": "memory",
+          "provenance": {
+            "originClass": "system",
+            "sessionKind": "unknown",
+            "observedAt": 1792273877550
+          },
+          "corpus": "memory",
+          "citation": "memory/dreaming/light/2026-10-17.md#L1-L18"
+        },
+        {
+          "path": "memory/dreaming/rem/2026-10-17.md",
+          "startLine": 1,
+          "endLine": 23,
+          "score": 0.6209609046064961,
+          "textScore": 1.2370004954862204e-06,
+          "snippet": "# REM Sleep\n\n### Reflections\n- Theme: `ankara` kept surfacing across 3 memories.\n  - confidence: 1.00\n  - evidence: memory/2026-10-18.md:1-4, memory/2026-10-18.md:2-2, memory/2026-10-18.md:3-3\n  - note: reflection\n- Theme: `current` kept surfacing across 3 memories.\n  - confidence: 1.00\n  - evidence: memory/2026-10-18.md:1-4, memory/2026-10-18.md:2-2, memory/2026-10-18.md:3-3\n  - note: reflection\n- Theme: `history` kept surfacing across 2 memories.\n  - confidence: 1.00\n  - evidence: memory/2026-10-18.md:1-4, memory/2026-10-18.md:2-2\n  - note: reflection\n- Theme: `initial` kept surfacing across 2 memories.\n  - confidence: 1.00\n  - evidence: memory/2026-10-18.md:1-4, memory/2026-10-18.md:2-2\n\nSource: memory/dreaming/rem/2026-10-17.md#L1-L23",
+          "source": "memory",
+          "provenance": {
+            "originClass": "system",
+            "sessionKind": "unknown",
+            "observedAt": 1792273877689
+          },
+          "corpus": "memory",
+          "citation": "memory/dreaming/rem/2026-10-17.md#L1-L23"
+        }
+      ],
+      "provider": "none",
+      "citations": "auto",
+      "debug": {
+        "backend": "builtin",
+        "effectiveMode": "n/a",
+        "managerMs": 0,
+        "searchMs": 10,
+        "hits": 5,
+        "candidateHits": 5,
+        "withheldHits": 0,
+        "searchWindow": 8,
+        "toolMs": 10,
+        "outsideSearchMs": 0
+      }
+    }
+  },
+  "reconfiguration": {
+    "configured": "openrouter/openai/gpt-6-sol",
+    "scheduling": "manual",
+    "budget": {
+      "limitUsd": 50,
+      "usedUsd": 0.5288059200000035,
+      "remainingUsd": 49.47119408
+    },
+    "nativeEnvelopeUsd": 30.49728,
+    "hostReserveUsd": 11.611008,
+    "ledger": {
+      "profile": "maintenance",
+      "requests": 4,
+      "inputBytes": 8449,
+      "outputTokens": 8192
+    },
+    "externalContext": "Host owns flush and compaction; no native external-context endpoint."
+  },
+  "afterRestart": {
+    "canonical": {
+      "status": "ok",
+      "text": "# Canonical profile\n- Name: synthetic Maya.\n- Current residence: Istanbul.\n- Previous residence: Ankara (historical; moved to Istanbul on 2026-10-18).\n- Tea preference: jasmine tea.",
+      "path": "memory/preference.md",
+      "from": 1,
+      "lines": 5
+    },
+    "daily": {
+      "status": "ok",
+      "text": "# 2026-10-18\n- Initial residence recorded today: Ankara (current residence at the start of today's recorded history; now previous residence).\n- Moved from Ankara to Istanbul on 2026-10-18. Istanbul is the current home; Ankara is the previous home.",
+      "path": "memory/2026-10-18.md",
+      "from": 1,
+      "lines": 3
+    }
+  },
+  "searchAfterRestart": {
+    "results": [
+      {
+        "path": "MEMORY.md",
+        "startLine": 6,
+        "endLine": 7,
+        "score": 0.6687428917885093,
+        "textScore": 1.4404553947064253e-06,
+        "snippet": "- # 2026-10-18 - Initial residence recorded today: Ankara (current residence at the start of today's recorded history; now previous residence). - Moved from Ankara to Istanbul on 2026-10-18. Istanbul is the current home; Ankara is the previous home. Source: memory/2026-10-18.md#L1-L4\n\nSource: MEMORY.md#L6-L7",
+        "source": "memory",
+        "importance": 6,
+        "triggers": "initial; residence; recorded",
+        "provenance": {
+          "originClass": "agent",
+          "sessionKind": "unknown",
+          "observedAt": 1792273879196
+        },
+        "corpus": "memory",
+        "citation": "MEMORY.md#L6-L7"
+      },
+      {
+        "path": "memory/preference.md",
+        "startLine": 1,
+        "endLine": 6,
+        "score": 0.6400016531555935,
+        "textScore": 1.6531555935691944e-06,
+        "snippet": "# Canonical profile\n- Name: synthetic Maya.\n- Current residence: Istanbul.\n- Previous residence: Ankara (historical; moved to Istanbul on 2026-10-18).\n- Tea preference: jasmine tea.\n\nSource: memory/preference.md#L1-L6",
+        "source": "memory",
+        "provenance": {
+          "originClass": "agent",
+          "sessionKind": "unknown",
+          "observedAt": 1792273842989
+        },
+        "corpus": "memory",
+        "citation": "memory/preference.md#L1-L6"
+      },
+      {
+        "path": "memory/2026-10-18.md",
+        "startLine": 1,
+        "endLine": 4,
+        "score": 0.6383348356420948,
+        "textScore": 1.5023087614040437e-06,
+        "snippet": "# 2026-10-18\n- Initial residence recorded today: Ankara (current residence at the start of today's recorded history; now previous residence).\n- Moved from Ankara to Istanbul on 2026-10-18. Istanbul is the current home; Ankara is the previous home.\n\nSource: memory/2026-10-18.md#L1-L4",
+        "source": "memory",
+        "provenance": {
+          "originClass": "agent",
+          "sessionKind": "unknown",
+          "observedAt": 1792273828971
+        },
+        "corpus": "memory",
+        "citation": "memory/2026-10-18.md#L1-L4"
+      },
+      {
+        "path": "memory/dreaming/light/2026-10-17.md",
+        "startLine": 1,
+        "endLine": 18,
+        "score": 0.6216546822945209,
+        "textScore": 1.3975984350923324e-06,
+        "snippet": "# Light Sleep\n\n- Candidate: Initial residence recorded today: Ankara (current residence at the start of today's recorded history; now previous residence).\n  - confidence: 0.62\n  - evidence: memory/2026-10-18.md:2-2\n  - recalls: 0\n  - status: staged\n- Candidate: Moved from Ankara to Istanbul on 2026-10-18. Istanbul is the current home; Ankara is the previous home.\n  - confidence: 0.62\n  - evidence: memory/2026-10-18.md:3-3\n  - recalls: 0\n  - status: staged\n- Candidate: # 2026-10-18 - Initial residence recorded today: Ankara (current residence at the start of today's recorded history; now previous residence). - Moved from Ankara to Istanbul on 2026-10-18. Istanbul is the current home; Ankara i\n\nSource: memory/dreaming/light/2026-10-17.md#L1-L18",
+        "source": "memory",
+        "provenance": {
+          "originClass": "system",
+          "sessionKind": "unknown",
+          "observedAt": 1792273877550
+        },
+        "corpus": "memory",
+        "citation": "memory/dreaming/light/2026-10-17.md#L1-L18"
+      },
+      {
+        "path": "memory/dreaming/rem/2026-10-17.md",
+        "startLine": 1,
+        "endLine": 23,
+        "score": 0.6209575925012861,
+        "textScore": 8.603869294459312e-07,
+        "snippet": "# REM Sleep\n\n### Reflections\n- Theme: `ankara` kept surfacing across 3 memories.\n  - confidence: 1.00\n  - evidence: memory/2026-10-18.md:1-4, memory/2026-10-18.md:2-2, memory/2026-10-18.md:3-3\n  - note: reflection\n- Theme: `current` kept surfacing across 3 memories.\n  - confidence: 1.00\n  - evidence: memory/2026-10-18.md:1-4, memory/2026-10-18.md:2-2, memory/2026-10-18.md:3-3\n  - note: reflection\n- Theme: `history` kept surfacing across 2 memories.\n  - confidence: 1.00\n  - evidence: memory/2026-10-18.md:1-4, memory/2026-10-18.md:2-2\n  - note: reflection\n- Theme: `initial` kept surfacing across 2 memories.\n  - confidence: 1.00\n  - evidence: memory/2026-10-18.md:1-4, memory/2026-10-18.md:2-2\n\nSource: memory/dreaming/rem/2026-10-17.md#L1-L23",
+        "source": "memory",
+        "provenance": {
+          "originClass": "system",
+          "sessionKind": "unknown",
+          "observedAt": 1792273877689
+        },
+        "corpus": "memory",
+        "citation": "memory/dreaming/rem/2026-10-17.md#L1-L23"
+      }
+    ],
+    "provider": "none",
+    "citations": "auto",
+    "debug": {
+      "backend": "builtin",
+      "effectiveMode": "n/a",
+      "managerMs": 0,
+      "searchMs": 10,
+      "hits": 5,
+      "candidateHits": 5,
+      "withheldHits": 0,
+      "searchWindow": 8,
+      "toolMs": 10,
+      "outsideSearchMs": 0
+    }
+  },
+  "otherUser": {
+    "results": [],
+    "provider": "none",
+    "citations": "auto",
+    "debug": {
+      "backend": "builtin",
+      "effectiveMode": "n/a",
+      "managerMs": 1,
+      "searchMs": 8,
+      "hits": 0,
+      "candidateHits": 0,
+      "withheldHits": 0,
+      "searchWindow": 8,
+      "toolMs": 9,
+      "outsideSearchMs": 1
+    }
+  },
+  "otherWorkspace": {
+    "results": [],
+    "provider": "none",
+    "citations": "auto",
+    "debug": {
+      "backend": "builtin",
+      "effectiveMode": "n/a",
+      "managerMs": 0,
+      "searchMs": 8,
+      "hits": 0,
+      "candidateHits": 0,
+      "withheldHits": 0,
+      "searchWindow": 8,
+      "toolMs": 8,
+      "outsideSearchMs": 0
+    }
+  },
+  "afterBudget": {
+    "limitUsd": 50,
+    "usedUsd": 0.5478311199999979,
+    "remainingUsd": 49.45216888
+  },
+  "hostLedger": {
+    "requests": 10,
+    "inputBytes": 69391,
+    "outputTokens": 5120
+  },
+  "nativeLedger": {
+    "profile": "maintenance",
+    "requests": 4,
+    "inputBytes": 8449,
+    "outputTokens": 8192
+  },
+  "previousLedgersAfter": [
+    {
+      "name": "openclaw-memory-foundation/evidence/provenance-merge-acceptance/request-ledger.json",
+      "sha256": "366216da5417195cdcabcffa6ef8b7937ed156d7b383d440a4f9712912bcc200",
+      "counters": {
+        "profile": "consolidation",
+        "requests": 6,
+        "inputBytes": 39479,
+        "outputTokens": 10240
+      }
+    },
+    {
+      "name": "openclaw-memory-foundation/.lab-test-provenance-merge/sdk-maintenance-ledger.json",
+      "sha256": "9463da1bf7e0e8fd57b4df42c4977a9e772682e3c917194ba5364dce0474b7b1",
+      "counters": {
+        "profile": "maintenance",
+        "requests": 4,
+        "inputBytes": 8842,
+        "outputTokens": 8192
+      }
+    },
+    {
+      "name": "openclaw-chatbot-consumer/data/host-request-ledger.json",
+      "sha256": "f82837054339a44ff85b6f11115ec85b3dd4480f0b6433d698f4035e9a2bf70e",
+      "counters": {
+        "requests": 20,
+        "inputBytes": 102175,
+        "outputTokens": 10240
+      }
+    },
+    {
+      "name": "openclaw-chatbot-consumer/data/memory/sdk-maintenance-ledger.json",
+      "sha256": "1c14955acfb5d70a15914cb6f824bec4550cb9647e3660efbbc856c6aa499002",
+      "counters": {
+        "profile": "maintenance",
+        "requests": 8,
+        "inputBytes": 15098,
+        "outputTokens": 16384
+      }
+    }
+  ],
+  "externalFlushEvidence": {
+    "runtime": "2026.9.9",
+    "coreGatewayMethodCatalog": "sessions.compact exists; no memory.flush or sessions.flush entry. It operates on native-owned sessions, not a supplied host conversation.",
+    "nativeLifecycle": "The official memory docs describe a silent pre-compaction turn over a private copy of the native conversation. Host Python messages are not native session state.",
+    "conclusion": "No supported foreign-host flush input identified. SDK does not expose a flush shim. Native compaction is not a foreign-context compaction service.",
+    "contracts": {
+      "dist/core-method-policy-BePoiMRV.mjs": "04b8d2a10d93b36c392395fe3a8f5c086c695a284e0d35be9af6d1004d2ab99d",
+      "docs/concepts/memory.md": "eb952386265644f10d2d8e715aad45cdc294d0989691f75a57900376bc4b4212",
+      "docs/concepts/compaction.md": "9d375f2daced7fc76bcdf867da0eb22e69b3073a12bd6d9d3ee951a2f4b81039"
+    }
+  },
+  "evidenceNotes": [
+    "All assistant replies and memory source snapshots are actual outputs. No source or answer was manually repaired.",
+    "The repeat-write check reused the exact model-generated canonical text. It did not author a new fact.",
+    "Previous consumed ledgers were hashed and compared without mutation. No credential was hashed or copied.",
+    "Model calls were run once through the installed SDK wheel. Current script additions improve failure handling and report presentation; they did not change successful write or recall dispatch.",
+    "This is a developer lab, not an account-wide atomic budget reservation. Final usage is the recorded provider snapshot."
+  ],
+  "validation": {
+    "realModelAcceptance": {
+      "passed": 14,
+      "failed": 0
+    },
+    "pythonFull": {
+      "total": 32,
+      "passed": 31,
+      "skipped": 1,
+      "note": "Full run before the final malformed-argument fixture addition."
+    },
+    "finalFocusedAdapters": {
+      "total": 6,
+      "passed": 6,
+      "kind": "labelled mock adapter fixtures; no model acceptance claim"
+    },
+    "finalClientTransport": {
+      "total": 4,
+      "passed": 4,
+      "kind": "labelled transport fixtures"
+    },
+    "lint": "passed",
+    "typecheck": "passed",
+    "sdkWheel": "built and installed locally; no registry publication",
+    "typescriptFull": {
+      "total": 122,
+      "passed": 114,
+      "failed": 0,
+      "skipped": 8,
+      "durationMs": 382253.331334,
+      "note": "Native keyword integration, compatibility and labelled mock transport cases. Optional paid model and embedding tests were skipped; this separate real residence acceptance made the recorded model calls."
+    }
+  },
+  "historicalSources": [
+    {
+      "path": "memory/preference.md",
+      "state": "Ankara retained as previous residence; Istanbul is current; tea retained."
+    },
+    {
+      "path": "memory/2026-10-18.md",
+      "state": "Initial Ankara residence and later move retained with explicit history."
+    },
+    {
+      "path": "MEMORY.md",
+      "state": "Native maintenance promoted the daily source with both historical Ankara and current Istanbul. This is sourced promotion, not formal supersession."
+    },
+    {
+      "path": "reports/residence-memory.json",
+      "state": "Before-write source and conversation snapshots retained as evidence."
+    }
+  ],
+  "finalImplementationContracts": {
+    "python/src/openclaw_memory_bridge/tools.py": "dd56ad03db16a71e042132c60d389e744aa0a9149e6eee3f1831a4cf184d64dd",
+    "examples/host_agent.py": "6a52ba81c0d312943083964e6eb6e6a9d07610e9657d5d5e9b9c40a8bcb8e6e9",
+    "examples/host_maintenance.py": "e918ac75ea1717e5c691e2de7189c6ab50387e2a7b3d1ea3c84f9efe7357205b",
+    "examples/residence_acceptance.py": "f056cfe39c60d72df02c8f725519a879c2cb963964052948eaa8e3d188673576",
+    "python/tests/test_tools.py": "892f28b1dcc309bf1733ca1c749df876b2f2c0d04cc1b1c048ccd28e37f3df07"
+  }
+}

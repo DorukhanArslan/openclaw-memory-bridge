@@ -1,0 +1,18 @@
+{
+  "runtime": "openclaw@2026.9.9",
+  "baseCommit": "3b29170ce3b7deb8a99c6d20cb8a96ef7557122f",
+  "definedBeforeRuns": true,
+  "scenario": ["I live in Ankara; I prefer jasmine tea", "I moved from Ankara to Istanbul; keep tea and dated history", "run native maintenance", "fresh host session and Gateway process; recall"],
+  "adapterAssertions": ["matched native configuration except isolated paths and ephemeral ports", "actual SDK Gateway requests equal direct request envelopes for matched probes", "strict ordered protocol replay preserves responses, duplicate records and provenance", "changed query and request order are rejected by replay"],
+  "productAssertions": ["real model saves Ankara initially", "real model saves Istanbul as current after explicit correction", "unrelated jasmine preference survives", "indexed canonical source returns Istanbul", "native maintenance completion is observed separately from publisher status", "source text persists after process restart", "fresh real model reads sources and answers Istanbul and jasmine"],
+  "failureAssertions": ["bridge completes canonical write before acknowledgement is dropped", "client reports timeout and blocks automatic reuse", "fresh connection retries identical write", "second write executes; durable text remains one canonical copy", "index and native read show the retried text"],
+  "noGuarantee": ["formal supersession", "exactly-once writes", "current-versus-history search filtering", "equal independent model prose", "foreign host native flush", "account-wide atomic budget reservation"],
+  "normalization": ["replace only known isolated filesystem roots in diagnostic comparisons", "compare parsed JSON objects without object-key ordering", "do not sort arrays, deduplicate, remove provenance, round scores or erase observedAt", "elapsed runtime debug is reported as incidental variance, not replay-normalized"],
+  "trace": {
+    "write": ["docs/concepts/memory.md: plain Markdown source", "src/lab.ts: writeSource temp + rename", "python tools: write then index; separate requests"],
+    "read": ["dist/tools-invoke-http-CZkNXVex.mjs: authenticated POST", "dist/tools-invoke-shared-qz9jr5qn.mjs: invoke native memory tool", "SDK Lab.search/get: exact args and result unwrapping"],
+    "maintenance": ["SDK runMaintenance: rem-backfill then managed cron run --wait", "dist/extensions/memory-core/index.js: native managed job registration"],
+    "flush": ["docs/concepts/memory.md: private native conversation copy before compaction", "dist/core-method-policy-BePoiMRV.mjs: sessions.compact; no external flush route"],
+    "retry": ["dist/tools-invoke-shared-qz9jr5qn.mjs: idempotencyKey becomes toolCallId then tool.execute", "client.py: timeout poisons stream; no retry", "stdio.ts: request id is echoed; writeNote executes each request"]
+  }
+}

@@ -1,0 +1,2321 @@
+{
+  "date": "2026-10-23",
+  "purpose": "Audit the new bounded Diary diagnosis separately from regression and historical model evidence.",
+  "originalVerdictUnchanged": true,
+  "originalCauseResolved": false,
+  "productionSDKFix": false,
+  "initialCloseoutWork": {
+    "newCausalExperiment": false,
+    "work": [
+      "Verified raw original failure, timing, source contracts, trace hashes and matched snapshot manifests.",
+      "Ran fresh strict-replay fixture and negative tests within the installed-wheel suite.",
+      "Ran regression, clean wheel and client-only checks; these do not resolve Diary cause."
+    ]
+  },
+  "newFollowupWork": {
+    "newModelCalls": 0,
+    "nativeControlledRuns": 36,
+    "nativeFallbacksExpectedAndObserved": 6,
+    "fixtureTextPublicationsExpectedAndObserved": 30,
+    "sameCompletionPayloadAcrossBothExperiments": true,
+    "completionRequestSha256": "2193fed5bc63993df4908ccf98ebde7e8ef410876e8bf73be8b7ac265d9eafe2",
+    "callChainInspected": [
+      {
+        "file": "src/lab.ts",
+        "matchingLines": [
+          625
+        ],
+        "finding": "SDK adapter stages/backfills, runs managed cron and observes publishers before stopping; does not implement native scope ownership.",
+        "sha256": "f3cbef3aed9fb10d0089d41c26d98b13dcea5a2127bb76b64e6f6de8df233c6b"
+      },
+      {
+        "file": "node_modules/openclaw/dist/extensions/memory-core/index.js",
+        "matchingLines": [
+          252
+        ],
+        "finding": "Cron selects detached Diary publication.",
+        "sha256": "ead9aeb06b76504ba8ab9cb50a03c1425d18cbb936285c47f5ae7cf25e2877f8"
+      },
+      {
+        "file": "node_modules/openclaw/dist/dreaming-narrative-B8Hp3Mc_.mjs",
+        "matchingLines": [
+          165
+        ],
+        "finding": "Detached job is queued with queueMicrotask and returns pending; this boundary does not exit async-work ownership.",
+        "sha256": "db2106633d04a70616bb0b9596d9c35f506d984312325f57e6a32fbfbf46ed79"
+      },
+      {
+        "file": "node_modules/openclaw/dist/dreaming-narrative-B8Hp3Mc_.mjs",
+        "matchingLines": [
+          109
+        ],
+        "finding": "Native generator invokes completion and catches errors into fallback Diary publication.",
+        "sha256": "db2106633d04a70616bb0b9596d9c35f506d984312325f57e6a32fbfbf46ed79"
+      },
+      {
+        "file": "node_modules/openclaw/dist/server-plugins-CzOpf53P.mjs",
+        "matchingLines": [
+          131
+        ],
+        "finding": "Real completion awaits execution preparation and authorization before background enqueue; omitted by the fixture adapter.",
+        "sha256": "e72dfe589e9c3568992c7925942faf2f8db9c717d4e6c8674dc1ae4a92a038f9"
+      },
+      {
+        "file": "node_modules/openclaw/dist/server-plugins-CzOpf53P.mjs",
+        "matchingLines": [
+          150
+        ],
+        "finding": "Native plugin completion uses the background lane before isolated completion.",
+        "sha256": "e72dfe589e9c3568992c7925942faf2f8db9c717d4e6c8674dc1ae4a92a038f9"
+      },
+      {
+        "file": "node_modules/openclaw/dist/command-queue-fmu8Xs-B.mjs",
+        "matchingLines": [
+          564
+        ],
+        "finding": "Queue captures and later restores the ambient async context, including work ownership; it does not by itself register work in that scope.",
+        "sha256": "f47273cff222c711e51f62a7b5ebae896be5959874f2e049f3ab2cbf260ae3da"
+      },
+      {
+        "file": "node_modules/openclaw/dist/server-plugin-in-process-dispatch-CBGxjSoo.mjs",
+        "matchingLines": [
+          390
+        ],
+        "finding": "Execution.run leaves operator tool authority, not the async-work scope. No authorization bypass was tested.",
+        "sha256": "52e483b1c420b61514cc11c8d75fb134ddada9f61f63326a066fd96f78811c37"
+      },
+      {
+        "file": "node_modules/openclaw/dist/server-plugins-CzOpf53P.mjs",
+        "matchingLines": [
+          196
+        ],
+        "finding": "Actual budget-confounded rejection stack reaches this completion route.",
+        "sha256": "e72dfe589e9c3568992c7925942faf2f8db9c717d4e6c8674dc1ae4a92a038f9"
+      },
+      {
+        "file": "node_modules/openclaw/dist/isolated-completion-CCoeJoyo.mjs",
+        "matchingLines": [
+          226
+        ],
+        "finding": "Isolated completion enters resource ownership before its completion body.",
+        "sha256": "2a16677aafc13b4289ef024bd3fd082d86bee605c1a2ba4fbfa52634663d57fa"
+      },
+      {
+        "file": "node_modules/openclaw/dist/async-work-resources-Dpudqxo5.mjs",
+        "matchingLines": [
+          8
+        ],
+        "finding": "Resource wrapper captures then tracks the ambient owner before running the body.",
+        "sha256": "a7dc31e0ccdf63526ac2e0bdd25503304f8ddaa4cf849279503dd1491a848113"
+      },
+      {
+        "file": "node_modules/openclaw/dist/async-work-scope-BYeX3gh6.mjs",
+        "matchingLines": [
+          47
+        ],
+        "finding": "Closed owner rejects with the exact observed error; closing owner still accepts track.",
+        "sha256": "e820957a70b90a0b3d5d3dbb65ea07f88991d696d193c87798df9e33afb3fd3c"
+      },
+      {
+        "file": "node_modules/openclaw/dist/embedded-agent-gxn-c3nS.mjs",
+        "matchingLines": [
+          657,
+          8993
+        ],
+        "finding": "Generation creates a work scope; selected owner identity comes from the retained trace, not this static first match.",
+        "sha256": "5241e89998d2798f0621418c04438adb07b798a0b92537e91718bf116246d808"
+      },
+      {
+        "file": "node_modules/openclaw/dist/embedded-agent-gxn-c3nS.mjs",
+        "matchingLines": [
+          9217
+        ],
+        "finding": "runGeneration cleanup drains owned work; queue membership alone does not make an unregistered Diary job pending in that owner.",
+        "sha256": "5241e89998d2798f0621418c04438adb07b798a0b92537e91718bf116246d808"
+      }
+    ],
+    "experiments": {
+      "diary-offline-direct-v2": {
+        "kind": "offline native lifecycle diagnostic with a fixture completion adapter",
+        "harnessSha256": "ca52be20d06e8e9390b4f843bbdc70fc764bb10d636482e9b4be83d2be222c9e",
+        "nativeBackgroundQueue": false,
+        "originalPaidFailureReproduced": false,
+        "modelCalls": 0,
+        "providerCalls": 0,
+        "actualNativeFunctions": [
+          "runDreamNarrative",
+          "runWithAsyncWorkResources",
+          "AsyncWorkScope",
+          "appendNarrativeEntry",
+          "configureMemoryCoreDreamingState",
+          "createPluginStateKeyedStore"
+        ],
+        "matchingCompletionPayloads": true,
+        "runs": [
+          {
+            "repeat": 0,
+            "mode": "open-before-drain",
+            "returned": {
+              "status": "pending"
+            },
+            "completionRequestSha256": "2193fed5bc63993df4908ccf98ebde7e8ef410876e8bf73be8b7ac265d9eafe2",
+            "nativeCompletionBodyCalls": 1,
+            "diary": "fixture text via native publication",
+            "events": [
+              {
+                "kind": "completion-adapter-enter",
+                "phase": "open",
+                "pending": 0,
+                "aborted": false,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "adapter-waiting",
+                "phase": "open",
+                "pending": 0,
+                "aborted": false,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "before-native-resource-tracker",
+                "phase": "open",
+                "pending": 0,
+                "aborted": false,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "native-resource-body",
+                "phase": "open",
+                "pending": 1,
+                "aborted": false,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "final",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              }
+            ],
+            "messages": [
+              "memory-core: dream diary entry written for deep phase [workspace=<state>/diary-offline-direct-v2/0-open-before-drain]."
+            ],
+            "diarySha256": "5a9c944884cb0a932ace0b5d52e1042ce29a94d7098f41239afb3efeaff95e0e"
+          },
+          {
+            "repeat": 0,
+            "mode": "closed-before-resources",
+            "returned": {
+              "status": "pending"
+            },
+            "completionRequestSha256": "2193fed5bc63993df4908ccf98ebde7e8ef410876e8bf73be8b7ac265d9eafe2",
+            "nativeCompletionBodyCalls": 0,
+            "diary": "native fallback",
+            "events": [
+              {
+                "kind": "completion-adapter-enter",
+                "phase": "open",
+                "pending": 0,
+                "aborted": false,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "adapter-waiting",
+                "phase": "open",
+                "pending": 0,
+                "aborted": false,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "drain-finished",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "before-native-resource-tracker",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "final",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              }
+            ],
+            "messages": [
+              "memory-core: narrative generation failed for deep phase: Async work scope is closed",
+              "memory-core: narrative generation used fallback for deep phase because the narrative run failed (Async work scope is closed)."
+            ],
+            "diarySha256": "5abaabe82762b273ffbc73e073cd518e166d7399d58addbcaa03b2a56c7ed44a"
+          },
+          {
+            "repeat": 0,
+            "mode": "closing-with-owned-anchor",
+            "returned": {
+              "status": "pending"
+            },
+            "completionRequestSha256": "2193fed5bc63993df4908ccf98ebde7e8ef410876e8bf73be8b7ac265d9eafe2",
+            "nativeCompletionBodyCalls": 1,
+            "diary": "fixture text via native publication",
+            "events": [
+              {
+                "kind": "completion-adapter-enter",
+                "phase": "open",
+                "pending": 1,
+                "aborted": false,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "adapter-waiting",
+                "phase": "open",
+                "pending": 1,
+                "aborted": false,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "drain-started",
+                "phase": "closing",
+                "pending": 1,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "before-native-resource-tracker",
+                "phase": "closing",
+                "pending": 1,
+                "aborted": true,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "native-resource-body",
+                "phase": "closing",
+                "pending": 2,
+                "aborted": true,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "final",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              }
+            ],
+            "messages": [
+              "memory-core: dream diary entry written for deep phase [workspace=<state>/diary-offline-direct-v2/0-closing-with-owned-anchor]."
+            ],
+            "diarySha256": "5a9c944884cb0a932ace0b5d52e1042ce29a94d7098f41239afb3efeaff95e0e"
+          },
+          {
+            "repeat": 0,
+            "mode": "resources-before-drain",
+            "returned": {
+              "status": "pending"
+            },
+            "completionRequestSha256": "2193fed5bc63993df4908ccf98ebde7e8ef410876e8bf73be8b7ac265d9eafe2",
+            "nativeCompletionBodyCalls": 1,
+            "diary": "fixture text via native publication",
+            "events": [
+              {
+                "kind": "completion-adapter-enter",
+                "phase": "open",
+                "pending": 0,
+                "aborted": false,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "before-native-resource-tracker",
+                "phase": "open",
+                "pending": 0,
+                "aborted": false,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "native-resource-body",
+                "phase": "open",
+                "pending": 1,
+                "aborted": false,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "adapter-waiting",
+                "phase": "open",
+                "pending": 1,
+                "aborted": false,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "drain-started",
+                "phase": "closing",
+                "pending": 1,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "final",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              }
+            ],
+            "messages": [
+              "memory-core: dream diary entry written for deep phase [workspace=<state>/diary-offline-direct-v2/0-resources-before-drain]."
+            ],
+            "diarySha256": "5a9c944884cb0a932ace0b5d52e1042ce29a94d7098f41239afb3efeaff95e0e"
+          },
+          {
+            "repeat": 0,
+            "mode": "awaited-not-detached",
+            "returned": {
+              "status": "completed"
+            },
+            "completionRequestSha256": "2193fed5bc63993df4908ccf98ebde7e8ef410876e8bf73be8b7ac265d9eafe2",
+            "nativeCompletionBodyCalls": 1,
+            "diary": "fixture text via native publication",
+            "events": [
+              {
+                "kind": "completion-adapter-enter",
+                "phase": "open",
+                "pending": 1,
+                "aborted": false,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "adapter-waiting",
+                "phase": "open",
+                "pending": 1,
+                "aborted": false,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "drain-started",
+                "phase": "closing",
+                "pending": 1,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "before-native-resource-tracker",
+                "phase": "closing",
+                "pending": 1,
+                "aborted": true,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "native-resource-body",
+                "phase": "closing",
+                "pending": 2,
+                "aborted": true,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "final",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              }
+            ],
+            "messages": [
+              "memory-core: dream diary entry written for deep phase [workspace=<state>/diary-offline-direct-v2/0-awaited-not-detached]."
+            ],
+            "diarySha256": "5a9c944884cb0a932ace0b5d52e1042ce29a94d7098f41239afb3efeaff95e0e"
+          },
+          {
+            "repeat": 0,
+            "mode": "outside-scope",
+            "returned": {
+              "status": "pending"
+            },
+            "completionRequestSha256": "2193fed5bc63993df4908ccf98ebde7e8ef410876e8bf73be8b7ac265d9eafe2",
+            "nativeCompletionBodyCalls": 1,
+            "diary": "fixture text via native publication",
+            "events": [
+              {
+                "kind": "completion-adapter-enter",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "adapter-waiting",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "before-native-resource-tracker",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "native-resource-body",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "final",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              }
+            ],
+            "messages": [
+              "memory-core: dream diary entry written for deep phase [workspace=<state>/diary-offline-direct-v2/0-outside-scope]."
+            ],
+            "diarySha256": "5a9c944884cb0a932ace0b5d52e1042ce29a94d7098f41239afb3efeaff95e0e"
+          },
+          {
+            "repeat": 1,
+            "mode": "open-before-drain",
+            "returned": {
+              "status": "pending"
+            },
+            "completionRequestSha256": "2193fed5bc63993df4908ccf98ebde7e8ef410876e8bf73be8b7ac265d9eafe2",
+            "nativeCompletionBodyCalls": 1,
+            "diary": "fixture text via native publication",
+            "events": [
+              {
+                "kind": "completion-adapter-enter",
+                "phase": "open",
+                "pending": 0,
+                "aborted": false,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "adapter-waiting",
+                "phase": "open",
+                "pending": 0,
+                "aborted": false,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "before-native-resource-tracker",
+                "phase": "open",
+                "pending": 0,
+                "aborted": false,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "native-resource-body",
+                "phase": "open",
+                "pending": 1,
+                "aborted": false,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "final",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              }
+            ],
+            "messages": [
+              "memory-core: dream diary entry written for deep phase [workspace=<state>/diary-offline-direct-v2/1-open-before-drain]."
+            ],
+            "diarySha256": "5a9c944884cb0a932ace0b5d52e1042ce29a94d7098f41239afb3efeaff95e0e"
+          },
+          {
+            "repeat": 1,
+            "mode": "closed-before-resources",
+            "returned": {
+              "status": "pending"
+            },
+            "completionRequestSha256": "2193fed5bc63993df4908ccf98ebde7e8ef410876e8bf73be8b7ac265d9eafe2",
+            "nativeCompletionBodyCalls": 0,
+            "diary": "native fallback",
+            "events": [
+              {
+                "kind": "completion-adapter-enter",
+                "phase": "open",
+                "pending": 0,
+                "aborted": false,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "adapter-waiting",
+                "phase": "open",
+                "pending": 0,
+                "aborted": false,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "drain-finished",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "before-native-resource-tracker",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "final",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              }
+            ],
+            "messages": [
+              "memory-core: narrative generation failed for deep phase: Async work scope is closed",
+              "memory-core: narrative generation used fallback for deep phase because the narrative run failed (Async work scope is closed)."
+            ],
+            "diarySha256": "5abaabe82762b273ffbc73e073cd518e166d7399d58addbcaa03b2a56c7ed44a"
+          },
+          {
+            "repeat": 1,
+            "mode": "closing-with-owned-anchor",
+            "returned": {
+              "status": "pending"
+            },
+            "completionRequestSha256": "2193fed5bc63993df4908ccf98ebde7e8ef410876e8bf73be8b7ac265d9eafe2",
+            "nativeCompletionBodyCalls": 1,
+            "diary": "fixture text via native publication",
+            "events": [
+              {
+                "kind": "completion-adapter-enter",
+                "phase": "open",
+                "pending": 1,
+                "aborted": false,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "adapter-waiting",
+                "phase": "open",
+                "pending": 1,
+                "aborted": false,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "drain-started",
+                "phase": "closing",
+                "pending": 1,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "before-native-resource-tracker",
+                "phase": "closing",
+                "pending": 1,
+                "aborted": true,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "native-resource-body",
+                "phase": "closing",
+                "pending": 2,
+                "aborted": true,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "final",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              }
+            ],
+            "messages": [
+              "memory-core: dream diary entry written for deep phase [workspace=<state>/diary-offline-direct-v2/1-closing-with-owned-anchor]."
+            ],
+            "diarySha256": "5a9c944884cb0a932ace0b5d52e1042ce29a94d7098f41239afb3efeaff95e0e"
+          },
+          {
+            "repeat": 1,
+            "mode": "resources-before-drain",
+            "returned": {
+              "status": "pending"
+            },
+            "completionRequestSha256": "2193fed5bc63993df4908ccf98ebde7e8ef410876e8bf73be8b7ac265d9eafe2",
+            "nativeCompletionBodyCalls": 1,
+            "diary": "fixture text via native publication",
+            "events": [
+              {
+                "kind": "completion-adapter-enter",
+                "phase": "open",
+                "pending": 0,
+                "aborted": false,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "before-native-resource-tracker",
+                "phase": "open",
+                "pending": 0,
+                "aborted": false,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "native-resource-body",
+                "phase": "open",
+                "pending": 1,
+                "aborted": false,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "adapter-waiting",
+                "phase": "open",
+                "pending": 1,
+                "aborted": false,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "drain-started",
+                "phase": "closing",
+                "pending": 1,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "final",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              }
+            ],
+            "messages": [
+              "memory-core: dream diary entry written for deep phase [workspace=<state>/diary-offline-direct-v2/1-resources-before-drain]."
+            ],
+            "diarySha256": "5a9c944884cb0a932ace0b5d52e1042ce29a94d7098f41239afb3efeaff95e0e"
+          },
+          {
+            "repeat": 1,
+            "mode": "awaited-not-detached",
+            "returned": {
+              "status": "completed"
+            },
+            "completionRequestSha256": "2193fed5bc63993df4908ccf98ebde7e8ef410876e8bf73be8b7ac265d9eafe2",
+            "nativeCompletionBodyCalls": 1,
+            "diary": "fixture text via native publication",
+            "events": [
+              {
+                "kind": "completion-adapter-enter",
+                "phase": "open",
+                "pending": 1,
+                "aborted": false,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "adapter-waiting",
+                "phase": "open",
+                "pending": 1,
+                "aborted": false,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "drain-started",
+                "phase": "closing",
+                "pending": 1,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "before-native-resource-tracker",
+                "phase": "closing",
+                "pending": 1,
+                "aborted": true,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "native-resource-body",
+                "phase": "closing",
+                "pending": 2,
+                "aborted": true,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "final",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              }
+            ],
+            "messages": [
+              "memory-core: dream diary entry written for deep phase [workspace=<state>/diary-offline-direct-v2/1-awaited-not-detached]."
+            ],
+            "diarySha256": "5a9c944884cb0a932ace0b5d52e1042ce29a94d7098f41239afb3efeaff95e0e"
+          },
+          {
+            "repeat": 1,
+            "mode": "outside-scope",
+            "returned": {
+              "status": "pending"
+            },
+            "completionRequestSha256": "2193fed5bc63993df4908ccf98ebde7e8ef410876e8bf73be8b7ac265d9eafe2",
+            "nativeCompletionBodyCalls": 1,
+            "diary": "fixture text via native publication",
+            "events": [
+              {
+                "kind": "completion-adapter-enter",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "adapter-waiting",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "before-native-resource-tracker",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "native-resource-body",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "final",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              }
+            ],
+            "messages": [
+              "memory-core: dream diary entry written for deep phase [workspace=<state>/diary-offline-direct-v2/1-outside-scope]."
+            ],
+            "diarySha256": "5a9c944884cb0a932ace0b5d52e1042ce29a94d7098f41239afb3efeaff95e0e"
+          },
+          {
+            "repeat": 2,
+            "mode": "open-before-drain",
+            "returned": {
+              "status": "pending"
+            },
+            "completionRequestSha256": "2193fed5bc63993df4908ccf98ebde7e8ef410876e8bf73be8b7ac265d9eafe2",
+            "nativeCompletionBodyCalls": 1,
+            "diary": "fixture text via native publication",
+            "events": [
+              {
+                "kind": "completion-adapter-enter",
+                "phase": "open",
+                "pending": 0,
+                "aborted": false,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "adapter-waiting",
+                "phase": "open",
+                "pending": 0,
+                "aborted": false,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "before-native-resource-tracker",
+                "phase": "open",
+                "pending": 0,
+                "aborted": false,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "native-resource-body",
+                "phase": "open",
+                "pending": 1,
+                "aborted": false,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "final",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              }
+            ],
+            "messages": [
+              "memory-core: dream diary entry written for deep phase [workspace=<state>/diary-offline-direct-v2/2-open-before-drain]."
+            ],
+            "diarySha256": "5a9c944884cb0a932ace0b5d52e1042ce29a94d7098f41239afb3efeaff95e0e"
+          },
+          {
+            "repeat": 2,
+            "mode": "closed-before-resources",
+            "returned": {
+              "status": "pending"
+            },
+            "completionRequestSha256": "2193fed5bc63993df4908ccf98ebde7e8ef410876e8bf73be8b7ac265d9eafe2",
+            "nativeCompletionBodyCalls": 0,
+            "diary": "native fallback",
+            "events": [
+              {
+                "kind": "completion-adapter-enter",
+                "phase": "open",
+                "pending": 0,
+                "aborted": false,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "adapter-waiting",
+                "phase": "open",
+                "pending": 0,
+                "aborted": false,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "drain-finished",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "before-native-resource-tracker",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "final",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              }
+            ],
+            "messages": [
+              "memory-core: narrative generation failed for deep phase: Async work scope is closed",
+              "memory-core: narrative generation used fallback for deep phase because the narrative run failed (Async work scope is closed)."
+            ],
+            "diarySha256": "5abaabe82762b273ffbc73e073cd518e166d7399d58addbcaa03b2a56c7ed44a"
+          },
+          {
+            "repeat": 2,
+            "mode": "closing-with-owned-anchor",
+            "returned": {
+              "status": "pending"
+            },
+            "completionRequestSha256": "2193fed5bc63993df4908ccf98ebde7e8ef410876e8bf73be8b7ac265d9eafe2",
+            "nativeCompletionBodyCalls": 1,
+            "diary": "fixture text via native publication",
+            "events": [
+              {
+                "kind": "completion-adapter-enter",
+                "phase": "open",
+                "pending": 1,
+                "aborted": false,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "adapter-waiting",
+                "phase": "open",
+                "pending": 1,
+                "aborted": false,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "drain-started",
+                "phase": "closing",
+                "pending": 1,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "before-native-resource-tracker",
+                "phase": "closing",
+                "pending": 1,
+                "aborted": true,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "native-resource-body",
+                "phase": "closing",
+                "pending": 2,
+                "aborted": true,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "final",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              }
+            ],
+            "messages": [
+              "memory-core: dream diary entry written for deep phase [workspace=<state>/diary-offline-direct-v2/2-closing-with-owned-anchor]."
+            ],
+            "diarySha256": "5a9c944884cb0a932ace0b5d52e1042ce29a94d7098f41239afb3efeaff95e0e"
+          },
+          {
+            "repeat": 2,
+            "mode": "resources-before-drain",
+            "returned": {
+              "status": "pending"
+            },
+            "completionRequestSha256": "2193fed5bc63993df4908ccf98ebde7e8ef410876e8bf73be8b7ac265d9eafe2",
+            "nativeCompletionBodyCalls": 1,
+            "diary": "fixture text via native publication",
+            "events": [
+              {
+                "kind": "completion-adapter-enter",
+                "phase": "open",
+                "pending": 0,
+                "aborted": false,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "before-native-resource-tracker",
+                "phase": "open",
+                "pending": 0,
+                "aborted": false,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "native-resource-body",
+                "phase": "open",
+                "pending": 1,
+                "aborted": false,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "adapter-waiting",
+                "phase": "open",
+                "pending": 1,
+                "aborted": false,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "drain-started",
+                "phase": "closing",
+                "pending": 1,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "final",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              }
+            ],
+            "messages": [
+              "memory-core: dream diary entry written for deep phase [workspace=<state>/diary-offline-direct-v2/2-resources-before-drain]."
+            ],
+            "diarySha256": "5a9c944884cb0a932ace0b5d52e1042ce29a94d7098f41239afb3efeaff95e0e"
+          },
+          {
+            "repeat": 2,
+            "mode": "awaited-not-detached",
+            "returned": {
+              "status": "completed"
+            },
+            "completionRequestSha256": "2193fed5bc63993df4908ccf98ebde7e8ef410876e8bf73be8b7ac265d9eafe2",
+            "nativeCompletionBodyCalls": 1,
+            "diary": "fixture text via native publication",
+            "events": [
+              {
+                "kind": "completion-adapter-enter",
+                "phase": "open",
+                "pending": 1,
+                "aborted": false,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "adapter-waiting",
+                "phase": "open",
+                "pending": 1,
+                "aborted": false,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "drain-started",
+                "phase": "closing",
+                "pending": 1,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "before-native-resource-tracker",
+                "phase": "closing",
+                "pending": 1,
+                "aborted": true,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "native-resource-body",
+                "phase": "closing",
+                "pending": 2,
+                "aborted": true,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "final",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              }
+            ],
+            "messages": [
+              "memory-core: dream diary entry written for deep phase [workspace=<state>/diary-offline-direct-v2/2-awaited-not-detached]."
+            ],
+            "diarySha256": "5a9c944884cb0a932ace0b5d52e1042ce29a94d7098f41239afb3efeaff95e0e"
+          },
+          {
+            "repeat": 2,
+            "mode": "outside-scope",
+            "returned": {
+              "status": "pending"
+            },
+            "completionRequestSha256": "2193fed5bc63993df4908ccf98ebde7e8ef410876e8bf73be8b7ac265d9eafe2",
+            "nativeCompletionBodyCalls": 1,
+            "diary": "fixture text via native publication",
+            "events": [
+              {
+                "kind": "completion-adapter-enter",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "adapter-waiting",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "before-native-resource-tracker",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "native-resource-body",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "final",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              }
+            ],
+            "messages": [
+              "memory-core: dream diary entry written for deep phase [workspace=<state>/diary-offline-direct-v2/2-outside-scope]."
+            ],
+            "diarySha256": "5a9c944884cb0a932ace0b5d52e1042ce29a94d7098f41239afb3efeaff95e0e"
+          }
+        ],
+        "sourceHashes": {
+          "node_modules/openclaw/dist/async-work-scope-BYeX3gh6.mjs": "e820957a70b90a0b3d5d3dbb65ea07f88991d696d193c87798df9e33afb3fd3c",
+          "node_modules/openclaw/dist/async-work-resources-Dpudqxo5.mjs": "a7dc31e0ccdf63526ac2e0bdd25503304f8ddaa4cf849279503dd1491a848113",
+          "node_modules/openclaw/dist/dreaming-narrative-B8Hp3Mc_.mjs": "db2106633d04a70616bb0b9596d9c35f506d984312325f57e6a32fbfbf46ed79",
+          "node_modules/openclaw/dist/dreaming-state-VYUvbU-n.mjs": "8676156b95cc8b73d0cc830e1305bc3460eb90f2bf1114d9e5a6b008269a3e2c",
+          "node_modules/openclaw/dist/plugin-state-store-BPUaLoVD.mjs": "4d010227d5baea72f1dfc1e117efe2cc1eb596eeab579e6c92c047abf75f7efc",
+          "node_modules/openclaw/dist/background-work-DsUCV0EB.mjs": "562572ca17f7abd417c4ff09e4378f8450100d776f2dfa3fa4b5b6bbaf0a2e68",
+          "node_modules/openclaw/dist/command-queue-fmu8Xs-B.mjs": "f47273cff222c711e51f62a7b5ebae896be5959874f2e049f3ab2cbf260ae3da"
+        },
+        "conclusion": "A detached Diary can inherit an owner that closes before native resource registration. The same error occurs offline without any budget gate. Closing-but-not-closed accepts work; prior resource registration or awaiting keeps ownership alive in these controls. This establishes a possible mechanism, not the cause of the original paid failure or an SDK-specific defect.",
+        "limits": [
+          "Completion and its delay are fixtures, not native model execution.",
+          "No Gateway authorization, full embedded generation, native cron sweep or SDK transport is run here.",
+          "The fixture ignores cancellation; successful closing-phase controls do not prove a real provider would succeed.",
+          "No production runtime or scope policy was changed."
+        ]
+      },
+      "diary-offline-queue-v2": {
+        "kind": "offline native lifecycle diagnostic with a fixture completion adapter",
+        "harnessSha256": "ca52be20d06e8e9390b4f843bbdc70fc764bb10d636482e9b4be83d2be222c9e",
+        "nativeBackgroundQueue": true,
+        "originalPaidFailureReproduced": false,
+        "modelCalls": 0,
+        "providerCalls": 0,
+        "actualNativeFunctions": [
+          "runDreamNarrative",
+          "runWithAsyncWorkResources",
+          "AsyncWorkScope",
+          "appendNarrativeEntry",
+          "configureMemoryCoreDreamingState",
+          "createPluginStateKeyedStore"
+        ],
+        "matchingCompletionPayloads": true,
+        "runs": [
+          {
+            "repeat": 0,
+            "mode": "open-before-drain",
+            "returned": {
+              "status": "pending"
+            },
+            "completionRequestSha256": "2193fed5bc63993df4908ccf98ebde7e8ef410876e8bf73be8b7ac265d9eafe2",
+            "nativeCompletionBodyCalls": 1,
+            "diary": "fixture text via native publication",
+            "events": [
+              {
+                "kind": "completion-adapter-enter",
+                "phase": "open",
+                "pending": 0,
+                "aborted": false,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "adapter-waiting",
+                "phase": "open",
+                "pending": 0,
+                "aborted": false,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "before-native-resource-tracker",
+                "phase": "open",
+                "pending": 0,
+                "aborted": false,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "native-resource-body",
+                "phase": "open",
+                "pending": 1,
+                "aborted": false,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "final",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              }
+            ],
+            "messages": [
+              "memory-core: dream diary entry written for deep phase [workspace=<state>/diary-offline-queue-v2/0-open-before-drain]."
+            ],
+            "diarySha256": "5a9c944884cb0a932ace0b5d52e1042ce29a94d7098f41239afb3efeaff95e0e"
+          },
+          {
+            "repeat": 0,
+            "mode": "closed-before-resources",
+            "returned": {
+              "status": "pending"
+            },
+            "completionRequestSha256": "2193fed5bc63993df4908ccf98ebde7e8ef410876e8bf73be8b7ac265d9eafe2",
+            "nativeCompletionBodyCalls": 0,
+            "diary": "native fallback",
+            "events": [
+              {
+                "kind": "completion-adapter-enter",
+                "phase": "open",
+                "pending": 0,
+                "aborted": false,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "adapter-waiting",
+                "phase": "open",
+                "pending": 0,
+                "aborted": false,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "drain-finished",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "before-native-resource-tracker",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "final",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              }
+            ],
+            "messages": [
+              "memory-core: narrative generation failed for deep phase: Async work scope is closed",
+              "memory-core: narrative generation used fallback for deep phase because the narrative run failed (Async work scope is closed)."
+            ],
+            "diarySha256": "5abaabe82762b273ffbc73e073cd518e166d7399d58addbcaa03b2a56c7ed44a"
+          },
+          {
+            "repeat": 0,
+            "mode": "closing-with-owned-anchor",
+            "returned": {
+              "status": "pending"
+            },
+            "completionRequestSha256": "2193fed5bc63993df4908ccf98ebde7e8ef410876e8bf73be8b7ac265d9eafe2",
+            "nativeCompletionBodyCalls": 1,
+            "diary": "fixture text via native publication",
+            "events": [
+              {
+                "kind": "completion-adapter-enter",
+                "phase": "open",
+                "pending": 1,
+                "aborted": false,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "adapter-waiting",
+                "phase": "open",
+                "pending": 1,
+                "aborted": false,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "drain-started",
+                "phase": "closing",
+                "pending": 1,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "before-native-resource-tracker",
+                "phase": "closing",
+                "pending": 1,
+                "aborted": true,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "native-resource-body",
+                "phase": "closing",
+                "pending": 2,
+                "aborted": true,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "final",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              }
+            ],
+            "messages": [
+              "memory-core: dream diary entry written for deep phase [workspace=<state>/diary-offline-queue-v2/0-closing-with-owned-anchor]."
+            ],
+            "diarySha256": "5a9c944884cb0a932ace0b5d52e1042ce29a94d7098f41239afb3efeaff95e0e"
+          },
+          {
+            "repeat": 0,
+            "mode": "resources-before-drain",
+            "returned": {
+              "status": "pending"
+            },
+            "completionRequestSha256": "2193fed5bc63993df4908ccf98ebde7e8ef410876e8bf73be8b7ac265d9eafe2",
+            "nativeCompletionBodyCalls": 1,
+            "diary": "fixture text via native publication",
+            "events": [
+              {
+                "kind": "completion-adapter-enter",
+                "phase": "open",
+                "pending": 0,
+                "aborted": false,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "before-native-resource-tracker",
+                "phase": "open",
+                "pending": 0,
+                "aborted": false,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "native-resource-body",
+                "phase": "open",
+                "pending": 1,
+                "aborted": false,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "adapter-waiting",
+                "phase": "open",
+                "pending": 1,
+                "aborted": false,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "drain-started",
+                "phase": "closing",
+                "pending": 1,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "final",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              }
+            ],
+            "messages": [
+              "memory-core: dream diary entry written for deep phase [workspace=<state>/diary-offline-queue-v2/0-resources-before-drain]."
+            ],
+            "diarySha256": "5a9c944884cb0a932ace0b5d52e1042ce29a94d7098f41239afb3efeaff95e0e"
+          },
+          {
+            "repeat": 0,
+            "mode": "awaited-not-detached",
+            "returned": {
+              "status": "completed"
+            },
+            "completionRequestSha256": "2193fed5bc63993df4908ccf98ebde7e8ef410876e8bf73be8b7ac265d9eafe2",
+            "nativeCompletionBodyCalls": 1,
+            "diary": "fixture text via native publication",
+            "events": [
+              {
+                "kind": "completion-adapter-enter",
+                "phase": "open",
+                "pending": 1,
+                "aborted": false,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "adapter-waiting",
+                "phase": "open",
+                "pending": 1,
+                "aborted": false,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "drain-started",
+                "phase": "closing",
+                "pending": 1,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "before-native-resource-tracker",
+                "phase": "closing",
+                "pending": 1,
+                "aborted": true,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "native-resource-body",
+                "phase": "closing",
+                "pending": 2,
+                "aborted": true,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "final",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              }
+            ],
+            "messages": [
+              "memory-core: dream diary entry written for deep phase [workspace=<state>/diary-offline-queue-v2/0-awaited-not-detached]."
+            ],
+            "diarySha256": "5a9c944884cb0a932ace0b5d52e1042ce29a94d7098f41239afb3efeaff95e0e"
+          },
+          {
+            "repeat": 0,
+            "mode": "outside-scope",
+            "returned": {
+              "status": "pending"
+            },
+            "completionRequestSha256": "2193fed5bc63993df4908ccf98ebde7e8ef410876e8bf73be8b7ac265d9eafe2",
+            "nativeCompletionBodyCalls": 1,
+            "diary": "fixture text via native publication",
+            "events": [
+              {
+                "kind": "completion-adapter-enter",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "adapter-waiting",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "before-native-resource-tracker",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "native-resource-body",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "final",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              }
+            ],
+            "messages": [
+              "memory-core: dream diary entry written for deep phase [workspace=<state>/diary-offline-queue-v2/0-outside-scope]."
+            ],
+            "diarySha256": "5a9c944884cb0a932ace0b5d52e1042ce29a94d7098f41239afb3efeaff95e0e"
+          },
+          {
+            "repeat": 1,
+            "mode": "open-before-drain",
+            "returned": {
+              "status": "pending"
+            },
+            "completionRequestSha256": "2193fed5bc63993df4908ccf98ebde7e8ef410876e8bf73be8b7ac265d9eafe2",
+            "nativeCompletionBodyCalls": 1,
+            "diary": "fixture text via native publication",
+            "events": [
+              {
+                "kind": "completion-adapter-enter",
+                "phase": "open",
+                "pending": 0,
+                "aborted": false,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "adapter-waiting",
+                "phase": "open",
+                "pending": 0,
+                "aborted": false,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "before-native-resource-tracker",
+                "phase": "open",
+                "pending": 0,
+                "aborted": false,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "native-resource-body",
+                "phase": "open",
+                "pending": 1,
+                "aborted": false,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "final",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              }
+            ],
+            "messages": [
+              "memory-core: dream diary entry written for deep phase [workspace=<state>/diary-offline-queue-v2/1-open-before-drain]."
+            ],
+            "diarySha256": "5a9c944884cb0a932ace0b5d52e1042ce29a94d7098f41239afb3efeaff95e0e"
+          },
+          {
+            "repeat": 1,
+            "mode": "closed-before-resources",
+            "returned": {
+              "status": "pending"
+            },
+            "completionRequestSha256": "2193fed5bc63993df4908ccf98ebde7e8ef410876e8bf73be8b7ac265d9eafe2",
+            "nativeCompletionBodyCalls": 0,
+            "diary": "native fallback",
+            "events": [
+              {
+                "kind": "completion-adapter-enter",
+                "phase": "open",
+                "pending": 0,
+                "aborted": false,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "adapter-waiting",
+                "phase": "open",
+                "pending": 0,
+                "aborted": false,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "drain-finished",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "before-native-resource-tracker",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "final",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              }
+            ],
+            "messages": [
+              "memory-core: narrative generation failed for deep phase: Async work scope is closed",
+              "memory-core: narrative generation used fallback for deep phase because the narrative run failed (Async work scope is closed)."
+            ],
+            "diarySha256": "5abaabe82762b273ffbc73e073cd518e166d7399d58addbcaa03b2a56c7ed44a"
+          },
+          {
+            "repeat": 1,
+            "mode": "closing-with-owned-anchor",
+            "returned": {
+              "status": "pending"
+            },
+            "completionRequestSha256": "2193fed5bc63993df4908ccf98ebde7e8ef410876e8bf73be8b7ac265d9eafe2",
+            "nativeCompletionBodyCalls": 1,
+            "diary": "fixture text via native publication",
+            "events": [
+              {
+                "kind": "completion-adapter-enter",
+                "phase": "open",
+                "pending": 1,
+                "aborted": false,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "adapter-waiting",
+                "phase": "open",
+                "pending": 1,
+                "aborted": false,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "drain-started",
+                "phase": "closing",
+                "pending": 1,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "before-native-resource-tracker",
+                "phase": "closing",
+                "pending": 1,
+                "aborted": true,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "native-resource-body",
+                "phase": "closing",
+                "pending": 2,
+                "aborted": true,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "final",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              }
+            ],
+            "messages": [
+              "memory-core: dream diary entry written for deep phase [workspace=<state>/diary-offline-queue-v2/1-closing-with-owned-anchor]."
+            ],
+            "diarySha256": "5a9c944884cb0a932ace0b5d52e1042ce29a94d7098f41239afb3efeaff95e0e"
+          },
+          {
+            "repeat": 1,
+            "mode": "resources-before-drain",
+            "returned": {
+              "status": "pending"
+            },
+            "completionRequestSha256": "2193fed5bc63993df4908ccf98ebde7e8ef410876e8bf73be8b7ac265d9eafe2",
+            "nativeCompletionBodyCalls": 1,
+            "diary": "fixture text via native publication",
+            "events": [
+              {
+                "kind": "completion-adapter-enter",
+                "phase": "open",
+                "pending": 0,
+                "aborted": false,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "before-native-resource-tracker",
+                "phase": "open",
+                "pending": 0,
+                "aborted": false,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "native-resource-body",
+                "phase": "open",
+                "pending": 1,
+                "aborted": false,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "adapter-waiting",
+                "phase": "open",
+                "pending": 1,
+                "aborted": false,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "drain-started",
+                "phase": "closing",
+                "pending": 1,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "final",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              }
+            ],
+            "messages": [
+              "memory-core: dream diary entry written for deep phase [workspace=<state>/diary-offline-queue-v2/1-resources-before-drain]."
+            ],
+            "diarySha256": "5a9c944884cb0a932ace0b5d52e1042ce29a94d7098f41239afb3efeaff95e0e"
+          },
+          {
+            "repeat": 1,
+            "mode": "awaited-not-detached",
+            "returned": {
+              "status": "completed"
+            },
+            "completionRequestSha256": "2193fed5bc63993df4908ccf98ebde7e8ef410876e8bf73be8b7ac265d9eafe2",
+            "nativeCompletionBodyCalls": 1,
+            "diary": "fixture text via native publication",
+            "events": [
+              {
+                "kind": "completion-adapter-enter",
+                "phase": "open",
+                "pending": 1,
+                "aborted": false,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "adapter-waiting",
+                "phase": "open",
+                "pending": 1,
+                "aborted": false,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "drain-started",
+                "phase": "closing",
+                "pending": 1,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "before-native-resource-tracker",
+                "phase": "closing",
+                "pending": 1,
+                "aborted": true,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "native-resource-body",
+                "phase": "closing",
+                "pending": 2,
+                "aborted": true,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "final",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              }
+            ],
+            "messages": [
+              "memory-core: dream diary entry written for deep phase [workspace=<state>/diary-offline-queue-v2/1-awaited-not-detached]."
+            ],
+            "diarySha256": "5a9c944884cb0a932ace0b5d52e1042ce29a94d7098f41239afb3efeaff95e0e"
+          },
+          {
+            "repeat": 1,
+            "mode": "outside-scope",
+            "returned": {
+              "status": "pending"
+            },
+            "completionRequestSha256": "2193fed5bc63993df4908ccf98ebde7e8ef410876e8bf73be8b7ac265d9eafe2",
+            "nativeCompletionBodyCalls": 1,
+            "diary": "fixture text via native publication",
+            "events": [
+              {
+                "kind": "completion-adapter-enter",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "adapter-waiting",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "before-native-resource-tracker",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "native-resource-body",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "final",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              }
+            ],
+            "messages": [
+              "memory-core: dream diary entry written for deep phase [workspace=<state>/diary-offline-queue-v2/1-outside-scope]."
+            ],
+            "diarySha256": "5a9c944884cb0a932ace0b5d52e1042ce29a94d7098f41239afb3efeaff95e0e"
+          },
+          {
+            "repeat": 2,
+            "mode": "open-before-drain",
+            "returned": {
+              "status": "pending"
+            },
+            "completionRequestSha256": "2193fed5bc63993df4908ccf98ebde7e8ef410876e8bf73be8b7ac265d9eafe2",
+            "nativeCompletionBodyCalls": 1,
+            "diary": "fixture text via native publication",
+            "events": [
+              {
+                "kind": "completion-adapter-enter",
+                "phase": "open",
+                "pending": 0,
+                "aborted": false,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "adapter-waiting",
+                "phase": "open",
+                "pending": 0,
+                "aborted": false,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "before-native-resource-tracker",
+                "phase": "open",
+                "pending": 0,
+                "aborted": false,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "native-resource-body",
+                "phase": "open",
+                "pending": 1,
+                "aborted": false,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "final",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              }
+            ],
+            "messages": [
+              "memory-core: dream diary entry written for deep phase [workspace=<state>/diary-offline-queue-v2/2-open-before-drain]."
+            ],
+            "diarySha256": "5a9c944884cb0a932ace0b5d52e1042ce29a94d7098f41239afb3efeaff95e0e"
+          },
+          {
+            "repeat": 2,
+            "mode": "closed-before-resources",
+            "returned": {
+              "status": "pending"
+            },
+            "completionRequestSha256": "2193fed5bc63993df4908ccf98ebde7e8ef410876e8bf73be8b7ac265d9eafe2",
+            "nativeCompletionBodyCalls": 0,
+            "diary": "native fallback",
+            "events": [
+              {
+                "kind": "completion-adapter-enter",
+                "phase": "open",
+                "pending": 0,
+                "aborted": false,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "adapter-waiting",
+                "phase": "open",
+                "pending": 0,
+                "aborted": false,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "drain-finished",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "before-native-resource-tracker",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "final",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              }
+            ],
+            "messages": [
+              "memory-core: narrative generation failed for deep phase: Async work scope is closed",
+              "memory-core: narrative generation used fallback for deep phase because the narrative run failed (Async work scope is closed)."
+            ],
+            "diarySha256": "5abaabe82762b273ffbc73e073cd518e166d7399d58addbcaa03b2a56c7ed44a"
+          },
+          {
+            "repeat": 2,
+            "mode": "closing-with-owned-anchor",
+            "returned": {
+              "status": "pending"
+            },
+            "completionRequestSha256": "2193fed5bc63993df4908ccf98ebde7e8ef410876e8bf73be8b7ac265d9eafe2",
+            "nativeCompletionBodyCalls": 1,
+            "diary": "fixture text via native publication",
+            "events": [
+              {
+                "kind": "completion-adapter-enter",
+                "phase": "open",
+                "pending": 1,
+                "aborted": false,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "adapter-waiting",
+                "phase": "open",
+                "pending": 1,
+                "aborted": false,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "drain-started",
+                "phase": "closing",
+                "pending": 1,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "before-native-resource-tracker",
+                "phase": "closing",
+                "pending": 1,
+                "aborted": true,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "native-resource-body",
+                "phase": "closing",
+                "pending": 2,
+                "aborted": true,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "final",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              }
+            ],
+            "messages": [
+              "memory-core: dream diary entry written for deep phase [workspace=<state>/diary-offline-queue-v2/2-closing-with-owned-anchor]."
+            ],
+            "diarySha256": "5a9c944884cb0a932ace0b5d52e1042ce29a94d7098f41239afb3efeaff95e0e"
+          },
+          {
+            "repeat": 2,
+            "mode": "resources-before-drain",
+            "returned": {
+              "status": "pending"
+            },
+            "completionRequestSha256": "2193fed5bc63993df4908ccf98ebde7e8ef410876e8bf73be8b7ac265d9eafe2",
+            "nativeCompletionBodyCalls": 1,
+            "diary": "fixture text via native publication",
+            "events": [
+              {
+                "kind": "completion-adapter-enter",
+                "phase": "open",
+                "pending": 0,
+                "aborted": false,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "before-native-resource-tracker",
+                "phase": "open",
+                "pending": 0,
+                "aborted": false,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "native-resource-body",
+                "phase": "open",
+                "pending": 1,
+                "aborted": false,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "adapter-waiting",
+                "phase": "open",
+                "pending": 1,
+                "aborted": false,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "drain-started",
+                "phase": "closing",
+                "pending": 1,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "final",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              }
+            ],
+            "messages": [
+              "memory-core: dream diary entry written for deep phase [workspace=<state>/diary-offline-queue-v2/2-resources-before-drain]."
+            ],
+            "diarySha256": "5a9c944884cb0a932ace0b5d52e1042ce29a94d7098f41239afb3efeaff95e0e"
+          },
+          {
+            "repeat": 2,
+            "mode": "awaited-not-detached",
+            "returned": {
+              "status": "completed"
+            },
+            "completionRequestSha256": "2193fed5bc63993df4908ccf98ebde7e8ef410876e8bf73be8b7ac265d9eafe2",
+            "nativeCompletionBodyCalls": 1,
+            "diary": "fixture text via native publication",
+            "events": [
+              {
+                "kind": "completion-adapter-enter",
+                "phase": "open",
+                "pending": 1,
+                "aborted": false,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "adapter-waiting",
+                "phase": "open",
+                "pending": 1,
+                "aborted": false,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "drain-started",
+                "phase": "closing",
+                "pending": 1,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "before-native-resource-tracker",
+                "phase": "closing",
+                "pending": 1,
+                "aborted": true,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "native-resource-body",
+                "phase": "closing",
+                "pending": 2,
+                "aborted": true,
+                "inspectedScopeActiveHere": true
+              },
+              {
+                "kind": "final",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              }
+            ],
+            "messages": [
+              "memory-core: dream diary entry written for deep phase [workspace=<state>/diary-offline-queue-v2/2-awaited-not-detached]."
+            ],
+            "diarySha256": "5a9c944884cb0a932ace0b5d52e1042ce29a94d7098f41239afb3efeaff95e0e"
+          },
+          {
+            "repeat": 2,
+            "mode": "outside-scope",
+            "returned": {
+              "status": "pending"
+            },
+            "completionRequestSha256": "2193fed5bc63993df4908ccf98ebde7e8ef410876e8bf73be8b7ac265d9eafe2",
+            "nativeCompletionBodyCalls": 1,
+            "diary": "fixture text via native publication",
+            "events": [
+              {
+                "kind": "completion-adapter-enter",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "adapter-waiting",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "before-native-resource-tracker",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "native-resource-body",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              },
+              {
+                "kind": "final",
+                "phase": "closed",
+                "pending": 0,
+                "aborted": true,
+                "inspectedScopeActiveHere": false
+              }
+            ],
+            "messages": [
+              "memory-core: dream diary entry written for deep phase [workspace=<state>/diary-offline-queue-v2/2-outside-scope]."
+            ],
+            "diarySha256": "5a9c944884cb0a932ace0b5d52e1042ce29a94d7098f41239afb3efeaff95e0e"
+          }
+        ],
+        "sourceHashes": {
+          "node_modules/openclaw/dist/async-work-scope-BYeX3gh6.mjs": "e820957a70b90a0b3d5d3dbb65ea07f88991d696d193c87798df9e33afb3fd3c",
+          "node_modules/openclaw/dist/async-work-resources-Dpudqxo5.mjs": "a7dc31e0ccdf63526ac2e0bdd25503304f8ddaa4cf849279503dd1491a848113",
+          "node_modules/openclaw/dist/dreaming-narrative-B8Hp3Mc_.mjs": "db2106633d04a70616bb0b9596d9c35f506d984312325f57e6a32fbfbf46ed79",
+          "node_modules/openclaw/dist/dreaming-state-VYUvbU-n.mjs": "8676156b95cc8b73d0cc830e1305bc3460eb90f2bf1114d9e5a6b008269a3e2c",
+          "node_modules/openclaw/dist/plugin-state-store-BPUaLoVD.mjs": "4d010227d5baea72f1dfc1e117efe2cc1eb596eeab579e6c92c047abf75f7efc",
+          "node_modules/openclaw/dist/background-work-DsUCV0EB.mjs": "562572ca17f7abd417c4ff09e4378f8450100d776f2dfa3fa4b5b6bbaf0a2e68",
+          "node_modules/openclaw/dist/command-queue-fmu8Xs-B.mjs": "f47273cff222c711e51f62a7b5ebae896be5959874f2e049f3ab2cbf260ae3da"
+        },
+        "conclusion": "A detached Diary can inherit an owner that closes before native resource registration. The same error occurs offline without any budget gate. Closing-but-not-closed accepts work; prior resource registration or awaiting keeps ownership alive in these controls. This establishes a possible mechanism, not the cause of the original paid failure or an SDK-specific defect.",
+        "limits": [
+          "Completion and its delay are fixtures, not native model execution.",
+          "No Gateway authorization, full embedded generation, native cron sweep or SDK transport is run here.",
+          "The fixture ignores cancellation; successful closing-phase controls do not prove a real provider would succeed.",
+          "No production runtime or scope policy was changed."
+        ]
+      }
+    },
+    "strictOriginalProtocolReplay": {
+      "kind": "strict replay of recorded native JSONL through installed wheel and existing replay relay",
+      "counts": {
+        "sdk-live": 32,
+        "sdk-fresh": 4
+      },
+      "matchedRequests": 36,
+      "tapeSha256": {
+        "sdk-live": "61a9ebb3f84a4b44f3ea3292c34f4d21103331301aa7be07ec3251669b908762",
+        "sdk-fresh": "8114301046f7e0e46c1a8e6e9c688e051f0abc92391bfd4691a2512678129baa"
+      },
+      "modelCalls": 0,
+      "nativeEngineCalls": 0,
+      "limits": "Recorded responses only; checks adapter fidelity, not native Diary scheduling or a fresh model result."
+    }
+  },
+  "previousOctober17Evidence": {
+    "newThisTurn": false,
+    "originalComparison": "19/20; original SDK deep Diary failure has no scope identity or ownership stack.",
+    "matchedRealPair": "10 state files restored byte-for-byte at the same path; eligible native route passed; SDK rejection was confounded by local output reservation denial.",
+    "healthyMatchedContinuation": "Same snapshot, four further real calls, all three SDK publishers completed without a production SDK fix. This is not a resolution.",
+    "blockedScope": "47000:0:149; create 553, deep queue 653/start 654, drain 655/begin-close 656/closed 657, tracker capture 658, rejection 660.",
+    "healthyScope": "54310:0:153; deep queue 1106/start 1107 and track 1108 while open; drain 1655/closed 1657 later.",
+    "snapshotManifestReverified": {
+      "workspace/memory/2026-10-18.md": "da07a52966213d0fdc2d7b38209c4ecb4dc8e09a158ae379773460a89fc85847",
+      "workspace/memory/preference.md": "f9b3ccf138d97457e001fa6944ead75fb0d654751ccd0d500944d1c4c0855284",
+      "state/state/openclaw.sqlite": "99d5b24c06de1b043904e4cb992e47fce73d5ab06abf3e726efe22a8163ebdb5",
+      "state/state/openclaw-quarantine.sqlite": "64d5d58eba71a0403e6988bc511cc5ae3a160a0843e244bab0929ef77798a9aa",
+      "state/agents/main/agent/openclaw-agent.sqlite": "1d461f4da834f34270bed52124b2ee2c23d5bcaa1fcc4a8dcafd9c6ea0811b58",
+      "state/agents/main/agent/openclaw-agent.sqlite.generation-writer.sqlite": "609ef21cc8d3a4e84971a674664bbcb1c546d9735ea38e87ada590cd28f1c597",
+      "state/agents/main/agent/openclaw-agent.sqlite.reindex-lock.sqlite": "0474e82cc62f5be291ec7be79e8b756084d1ee238043332ebc0c492eb2cac35f",
+      "state/agents/main/agent/openclaw-agent.sqlite-shm": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb",
+      "state/agents/main/agent/openclaw-agent.sqlite-wal": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "state/agents/main/agent/openclaw-agent.sqlite.generation-lock.sqlite": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "retainedIdentityReplay": "Earlier same-action replay on two blank real native corpora passed five assertions. Not rerun here; it did not run maintenance.",
+    "references": [
+      ".lab-test-parity/sdk/w-174f6b4c4afc58929cf3257153f77297bffd758a/openclaw.log (background error line 134; deep failure 135; fallback 136; stop 139)",
+      ".lab-test-scope-diagnosis/eligible-pair/result.json",
+      ".lab-test-scope-diagnosis/eligible-pair/scope-events-blocked.jsonl",
+      ".lab-test-scope-diagnosis/eligible-pair/continuation.json",
+      ".lab-test-scope-diagnosis/eligible-pair/scope-events.jsonl",
+      "reports/native-sdk-parity.json: boundedPublisherDiagnosis, scopeDiagnostic and diagnosticReplay"
+    ],
+    "originalLogSha256": "143628acb78f564d4508d32bad39b5f2fbf09e3f8020a78728cb8a2075ca4002",
+    "backgroundLaneObservedInOriginalLog": true
+  },
+  "interpretation": {
+    "demonstrated": "The real native detached Diary and resource wrapper can produce the exact closed-owner error without a budget denial. The real background queue retains the closed owner. With identical completion payloads, changing registration/drain order changes the result.",
+    "notDemonstrated": [
+      "The original uninstrumented failure followed this exact order.",
+      "Python SDK caused an ownership difference under matched state.",
+      "A supported SDK fix is required or has been implemented.",
+      "Fixture text is genuine model-generated Diary output.",
+      "Full Gateway authorization, embedded generation and provider cancellation were executed by the offline experiment."
+    ],
+    "controls": "Open owner, closing-but-not-closed owner with pending work, registration before drain, awaited non-detached Diary and no ambient owner all published fixture text in three repeats per route. The closing controls ignore provider cancellation and prove only scope admission behavior."
+  },
+  "stoppingRationale": [
+    "New offline native tests now establish a concrete ownership mechanism without spending tokens.",
+    "Historical healthy matched native/SDK work already passed; another unmodified paid repeat could add a sample but would not reconstruct the original missing ownership stack or demonstrate a route-specific defect.",
+    "Forcing delays or changing ownership in a live run would test an induced trigger, already isolated offline, not repair the original verdict.",
+    "No supported SDK correction follows from this evidence. Changing native detachment, cancellation or drain policy would cross the no-fork boundary.",
+    "The next causal evidence needed is an unmodified full native rejection with owner creation, registration and cleanup timing plus matched SDK/direct inputs. That remains unresolved; useful future investigation is not claimed exhausted."
+  ],
+  "skips": {
+    "typescript": [
+      "\ufe63 REAL optional selected model: agentic memory flush, compaction, reset capture and recall (0.342291ms) # Choose a genuine local model or explicitly approved native provider; no simulated model.",
+      "\ufe63 REAL optional selected text model: native dreaming narrative (0.373167ms) # Choose a genuine local model or explicitly approved native provider; no simulated model.",
+      "\ufe63 MODEL-01 REAL fixed native embedding search and source read (0.363625ms) # Explicit finite real-model case selection is required. Historical audits are separate.",
+      "\ufe63 MODEL-02/03/04 REAL fixed native conversation, extraction, flush and compaction (0.065416ms) # Explicit finite real-model case selection is required. Historical audits are separate.",
+      "\ufe63 MODEL-05/06 REAL fixed native duplicate merge and complete model diary (0.051291ms) # Explicit finite real-model case selection is required. Historical audits are separate.",
+      "\ufe63 MODEL-07 changed-fact supersession (0.04525ms) # OpenClaw 2026.9.9 Markdown indexing supplies no supersedesKey; native supersession requires matching provenance and durable lineage. The SDK cannot manufacture it.",
+      "\ufe63 REAL optional selected embeddings: ready client semantic recall (0.3665ms) # Choose genuine local embeddings or explicitly approved native compatible embeddings; no fake semantic acceptance.",
+      "\ufe63 REAL optional selected embeddings: semantic recall without shared query words (0.357084ms) # Choose genuine local embeddings or explicitly approved native compatible embeddings; no fake semantic acceptance."
+    ],
+    "python": [
+      {
+        "case": "MODEL-07 changed-fact supersession",
+        "reason": "Pinned Markdown indexing produces no supersedesKey or matching durable lineage. SDK cannot fabricate it.",
+        "relevance": "Unsupported feature boundary; not evidence for or against Diary ownership."
+      }
+    ],
+    "relevance": {
+      "DiaryRelated": [
+        "Optional native dreaming narrative",
+        "MODEL-05/06 complete model Diary and duplicate merge"
+      ],
+      "OtherLiveLifecycle": [
+        "Optional flush/compaction",
+        "MODEL-02/03/04 conversation/extraction/flush/compaction"
+      ],
+      "EmbeddingOnly": [
+        "MODEL-01",
+        "ready-client semantic recall",
+        "semantic recall without shared words"
+      ],
+      "Unsupported": [
+        "MODEL-07 in both suites"
+      ]
+    },
+    "qualification": "The skipped live Diary tests mean no fresh full-provider Diary acceptance this turn. Offline controls and historical live receipts remain separate."
+  },
+  "coverage": {
+    "changedPathCoverageMeasuredThisTurn": false,
+    "qualification": "Test results and source hashes were measured. No fresh statement, branch or changed-path coverage percentage was collected. Older execution-line metrics are not branch coverage."
+  },
+  "preparatoryAttempts": [
+    {
+      "path": ".lab-test-sdk-closeout/diary-offline.log",
+      "result": "failed: first harness timed out; native dreaming state binding had not been configured. Added real native plugin-state binding, then used fresh output directories."
+    },
+    {
+      "path": ".lab-test-sdk-closeout/diary-offline-configured/receipt.json",
+      "result": "18 preliminary controls passed before adding explicit ambient-scope identity assertions."
+    },
+    {
+      "path": ".lab-test-sdk-closeout/diary-offline-final/receipt.json",
+      "result": "18 preliminary controls passed with ambient identity assertions."
+    },
+    {
+      "path": ".lab-test-sdk-closeout/diary-offline-native-queue/receipt.json",
+      "result": "18 preliminary controls passed after adding the actual native background queue."
+    },
+    {
+      "path": ".lab-test-sdk-closeout/report-tests-diary-audit.log",
+      "result": "Report edit initially failed import due to a missing string-concatenation operator. Corrected locally; final affected report regression passed in report-tests-diary-final.log. This was not a native Diary failure."
+    }
+  ],
+  "repeatCommands": [
+    "node_modules/node/bin/node examples/scope-diagnosis/offline-lifecycle.mjs \"$PWD\" \"$PWD/.lab-test-sdk-closeout/NEW-DIRECT\"",
+    "node_modules/node/bin/node examples/scope-diagnosis/offline-lifecycle.mjs \"$PWD\" \"$PWD/.lab-test-sdk-closeout/NEW-QUEUE\" --background-queue"
+  ],
+  "ledgerUnchanged": true,
+  "publication": "Local only; no push, PR or merge.",
+  "affectedPathValidation": {
+    "offlineHarness": "36 final native controls passed; 6 expected fallbacks are successful negative controls, not failed assertions.",
+    "recordedProtocolReplay": "36 recorded requests matched through installed wheel.",
+    "reportRegression": "1 passed after the report change.",
+    "syntax": "node --check, Python compileall, git diff --check passed.",
+    "fullRegressionRerunAfterAudit": false,
+    "reason": "No SDK, TypeScript production source, dependency or runtime changed. Fresh full regression results remain in the October 23 closeout; only the diagnostic harness, report and docs changed.",
+    "changedPathCoverage": "not measured"
+  }
+}
