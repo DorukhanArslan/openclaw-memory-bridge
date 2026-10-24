@@ -93,3 +93,34 @@ test("pinned Markdown provenance cannot satisfy native supersession's mandatory 
     "unsupported by this pinned SDK Markdown path",
   );
 });
+
+test("pinned native session ingestion also has no supersession lineage producer", () => {
+  // Compatibility inspection, not a model-backed supersession acceptance test.
+  const session = readFileSync(
+    new URL(
+      "../node_modules/openclaw/dist/session-files-DVVT4Ngb.mjs",
+      import.meta.url,
+    ),
+    "utf8",
+  );
+  const start = session.indexOf("const memoryProvenance = {");
+  assert.ok(start >= 0);
+  const provenance = session.slice(start, session.indexOf("\n\t\t\t};", start));
+  assert.match(provenance, /originClass: classifySessionMessageOrigin/);
+  assert.match(provenance, /sessionKind/);
+  assert.match(provenance, /observedAt/);
+  assert.doesNotMatch(provenance, /supersedesKey/);
+  assert.match(
+    session,
+    /lineProvenance\.push\(\.\.\.renderedLines\.map\(\(\) => memoryProvenance\)\)/,
+  );
+  const ingestion = readFileSync(
+    new URL(
+      "../node_modules/openclaw/dist/session-ingestion-Dy5uAq-_.mjs",
+      import.meta.url,
+    ),
+    "utf8",
+  );
+  assert.match(ingestion, /entry\.lineProvenance\[index\]/);
+  assert.doesNotMatch(ingestion, /supersedesKey/);
+});

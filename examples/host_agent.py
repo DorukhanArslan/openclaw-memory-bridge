@@ -9,7 +9,7 @@ import re
 from pathlib import Path
 import stat
 import urllib.request
-from openclaw_memory_bridge import BridgeConfig, MemoryClient, MemoryScope
+from openclaw_memory_bridge import BridgeConfig, FoundationError, MemoryClient, MemoryScope, MemoryTools
 
 HOST_ENVELOPE_USD = ((600000 + 24 * 1024) * 18 + 12288 * 30) / 1e6
 MODEL = "openai/gpt-6-sol"
@@ -68,28 +68,19 @@ class Provider:
         return value["choices"][0]["message"], value.get("usage")
 
 
-def schema(name, description, properties, required):
-    return {"type": "function", "function": {"name": name, "description": description,
-             "parameters": {"type": "object", "properties": properties, "required": required, "additionalProperties": False}}}
-
-STRING = {"type": "string"}
-TOOLS = [schema("memory_search", "Search the user's persistent memory. Read source before answering personal questions.", {"query": STRING}, ["query"]),
-         schema("memory_get", "Read saved source lines by path returned by search.", {"path": STRING}, ["path"]),
-         schema("memory_save", "Replace the complete canonical preference note. Preserve other current facts. Automatically indexes.", {"text": STRING}, ["text"]),
-         schema("memory_save_daily", "Replace today's complete synthetic daily note, preserving today's events. Automatically indexes.", {"text": STRING}, ["text"])]
-
 class HostAgent:
     def __init__(self, provider, memory, scope, day):
         self.provider, self.memory, self.scope, self.day = provider, memory, scope, day
         self.messages = [{"role": "system", "content": "You are a synthetic gardening assistant. All personal facts must come from user input or memory tools. Use memory tools to save requested preferences and daily events; never claim a write without a successful tool result. Search and read current sources for recall. Keep answers short with source citations. You own this conversation; OpenClaw only provides memory and maintenance. Today's date is " + day}]
         self.trace = []
+        self.tools = MemoryTools(memory, scope, day)
 
     def turn(self, text):
         self.messages.append({"role": "user", "content": text})
         step = {"user": text, "calls": [], "reply": None}
         self.trace.append(step)
         for _ in range(6):
-            message, usage = self.provider.complete(self.messages, TOOLS)
+            message, usage = self.provider.complete(self.messages, self.tools.definitions)
             self.messages.append(message)
             calls = message.get("tool_calls") or []
             step["calls"].append({"assistant": message, "usage": usage, "results": []})
@@ -99,17 +90,13 @@ class HostAgent:
                     raise RuntimeError("Empty final host answer.")
                 return step["reply"]
             for call in calls:
-                args = json.loads(call["function"]["arguments"])
+                args = None
                 name = call["function"]["name"]
-                if name == "memory_search": result = self.memory.search(self.scope, args["query"])
-                elif name == "memory_get": result = self.memory.get(self.scope, args["path"])
-                elif name == "memory_save":
-                    result = self.memory.write(self.scope, "preference", args["text"])
-                    result["index"] = self.memory.index(self.scope)
-                elif name == "memory_save_daily":
-                    result = self.memory.write_daily(self.scope, self.day, args["text"])
-                    result["index"] = self.memory.index(self.scope)
-                else: raise RuntimeError("Unknown host tool.")
+                try:
+                    args = json.loads(call["function"]["arguments"])
+                    result = self.tools.execute(name, args)
+                except (FoundationError, ValueError) as error:
+                    result = {"ok": False, "error": {"code": getattr(error, "code", "invalid_tool"), "message": str(error)}}
                 step["calls"][-1]["results"].append({"name": name, "args": args, "result": result})
                 self.messages.append({"role": "tool", "tool_call_id": call["id"], "content": json.dumps(result)})
         raise RuntimeError("Host tool-loop turn limit exceeded.")
