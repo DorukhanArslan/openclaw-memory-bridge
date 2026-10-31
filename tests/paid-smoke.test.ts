@@ -142,12 +142,12 @@ async function withFixture(
     const request = {
       path: req.url ?? "",
       body,
-      started: Date.now(),
+      started: performance.now(),
       closed: undefined as number | undefined,
     };
     requests.push(request);
     res.on("close", () => {
-      request.closed = Date.now();
+      request.closed = performance.now();
     });
     if (req.url?.endsWith("/chat/completions")) {
       config = JSON.parse(await readFile(lab.config, "utf8"));
@@ -322,9 +322,25 @@ test("NATIVE MOCK SMOKE: fixed completion bounds, one index/query, zero embeddin
 for (const mode of ["chat429", "chat503", "chatstall"] as const) {
   test(`NATIVE MOCK SMOKE: ${mode} terminates one completion without hidden retry or query`, {
     timeout: 120000,
-  }, async () => {
-    await withFixture(mode, async ({ run, requests }) => {
-      await assert.rejects(run());
+  }, async (t) => {
+    const completionDispatches: number[] = [];
+    if (mode === "chatstall") {
+      const originalFetch = globalThis.fetch;
+      t.mock.method(
+        globalThis,
+        "fetch",
+        (...args: Parameters<typeof fetch>) => {
+          const body = args[1]?.body;
+          if (typeof body === "string" && JSON.parse(body).tool === "llm-task")
+            completionDispatches.push(performance.now());
+          return originalFetch(...args);
+        },
+      );
+    }
+    await withFixture(mode, async ({ lab, run, requests }) => {
+      if (mode === "chatstall")
+        await assert.rejects(run(), /Gateway tool llm-task failed \(500\)/);
+      else await assert.rejects(run());
       const chat = requests.filter((r) => r.path.endsWith("/chat/completions"));
       assert.equal(chat.length, 1);
       assert.equal(
@@ -332,11 +348,30 @@ for (const mode of ["chat429", "chat503", "chatstall"] as const) {
         1,
       );
       if (mode === "chatstall") {
+        assert.equal(completionDispatches.length, 1);
+        const dispatched = completionDispatches[0];
+        assert.ok(dispatched !== undefined);
         assert.ok(chat[0]?.closed);
-        assert.ok(chat[0].closed - chat[0].started >= 14000);
+        assert.ok(chat[0].started >= dispatched);
+        assert.ok(chat[0].closed > chat[0].started);
+        assert.match(
+          await readFile(join(lab.directory, "openclaw.log"), "utf8"),
+          new RegExp(
+            `Plugin LLM completion timed out after ${SMOKE.timeoutMs}ms`,
+          ),
+        );
+        // The pinned isolated-completion deadline includes lazy runtime/model
+        // preparation, so provider HTTP lifetime is only the remaining budget.
+        // Measure from Gateway tool dispatch with bounded preparation/scheduler
+        // overhead, rather than requiring a fresh 15s after provider arrival.
+        const elapsed = chat[0].closed - dispatched;
         assert.ok(
-          chat[0].closed - chat[0].started < 25000,
-          "Native 15s abort has bounded scheduler tolerance.",
+          elapsed >= SMOKE.timeoutMs - 1000,
+          "The completion must not abort before its native deadline.",
+        );
+        assert.ok(
+          elapsed < SMOKE.timeoutMs + 10000,
+          "Native 15s abort has bounded preparation/scheduler tolerance.",
         );
       }
     });
