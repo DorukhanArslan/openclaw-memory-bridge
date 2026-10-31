@@ -143,6 +143,9 @@ class FoundationClient:
                 self.poisoned = True
                 raise FoundationError("Foundation emitted a malformed error.", "protocol_error")
             raise FoundationError(str(error.get("message", "Unknown foundation error")), str(error.get("code", "engine_error")))
+        if "result" not in response:
+            self.poisoned = True
+            raise FoundationError("Foundation emitted a success response without a result.", "protocol_error")
         return response["result"]
 
     def close(self) -> None:

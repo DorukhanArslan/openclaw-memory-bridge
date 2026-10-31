@@ -26,6 +26,8 @@ for await(const line of createInterface({input:process.stdin})) {
  if(r.op==='malformed') {console.log('not-json');continue;}
  if(r.op==='mismatch') {console.log(JSON.stringify({v:1,id:'wrong',ok:true,result:{}}));continue;}
  if(r.op==='bad-error') {console.log(JSON.stringify({v:1,id:r.id,ok:false,error:'bad'}));continue;}
+ if(r.op==='missing-result') {console.log(JSON.stringify({v:1,id:r.id,ok:true}));continue;}
+ if(r.op==='falsey-result') {console.log(JSON.stringify({v:1,id:r.id,ok:true,result:r.args.value}));continue;}
  if(r.op==='error') {console.log(JSON.stringify({v:1,id:r.id,ok:false,error:{code:'invalid_request',message:'Unsupported operation.'}}));continue;}
  console.log(JSON.stringify({v:1,id:r.id,ok:true,result:{fixture:true}}));
  if(r.op==='shutdown') {process.stdin.destroy();break;}
@@ -61,6 +63,24 @@ for await(const line of createInterface({input:process.stdin})) {
                     with self.assertRaises(ValueError):
                         MemoryClient(replace(self.config, timeout=timeout))
                     start.assert_not_called()
+
+    def test_missing_success_result_poisoning(self):
+        with MemoryClient(self.config) as client:
+            with self.assertRaises(FoundationError) as caught:
+                client.call("missing-result")
+            self.assertEqual(caught.exception.code, "protocol_error")
+            self.assertTrue(client.poisoned)
+            with self.assertRaises(FoundationError) as caught:
+                client.call("valid")
+            self.assertEqual(caught.exception.code, "transport_failed")
+
+    def test_falsey_success_results_keep_stream_usable(self):
+        with MemoryClient(self.config) as client:
+            for value in [None, False, 0, "", [], {}]:
+                with self.subTest(value=value):
+                    self.assertEqual(client.call("falsey-result", value=value), value)
+                    self.assertFalse(client.poisoned)
+            self.assertTrue(client.call("valid")["fixture"])
 
     def test_maintenance_receipt_timeout_covers_the_native_envelope(self):
         # A labelled echo fixture checks transport policy without waiting for
