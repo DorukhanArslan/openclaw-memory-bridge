@@ -170,6 +170,44 @@ class ReadmeSDKCases(unittest.TestCase):
         self.assertEqual(self.note_file().read_bytes(), original)
         self.assertTrue(self.client.search(self.scope, "cobalt")["results"])
 
+    def test_SDK_10_profile_source_read_is_bounded_and_scoped(self):
+        """SDK-10: read a real USER.md search citation; fixture setup is host-owned."""
+        profile = self.root / self.scope.routing_workspace / "workspace/USER.md"
+        profile.parent.mkdir(parents=True)
+        # Synthetic host fixture only. This does not add a profile-write SDK API
+        # or attribute the file to a model-generated conversation.
+        profile.write_text(
+            "# Synthetic user profile\nName: Vega.\nDrink: rooibos tea.\nGarden: orchids.\n"
+        )
+        self.client.index(self.scope)
+        hits = self.client.search(self.scope, "rooibos")["results"]
+        hit = next(hit for hit in hits if hit["path"] == "USER.md")
+        source = self.client.get(
+            self.scope, hit["path"], start=hit["startLine"],
+            lines=hit["endLine"] - hit["startLine"] + 1,
+        )
+        self.assertEqual(source["status"], "ok")
+        self.assertEqual(source["path"], "USER.md")
+        self.assertEqual(source["from"], hit["startLine"])
+        self.assertIn("rooibos tea", source["text"])
+        excerpt = self.client.get(self.scope, "USER.md", start=3, lines=1)
+        self.assertEqual(excerpt["from"], 3)
+        self.assertEqual(excerpt["lines"], 1)
+        # Native memory_get may append a continuation hint after the excerpt.
+        self.assertEqual(excerpt["text"].splitlines()[0], "Drink: rooibos tea.")
+        self.assertNotIn("Name: Vega.", excerpt["text"])
+        self.assertNotIn("Garden: orchids.", excerpt["text"])
+        for other in [MemoryScope("observatory", "sam", "first"),
+                      MemoryScope("separate", "alex", "first")]:
+            self.assertEqual(self.client.get(other, "USER.md")["status"], "not_found")
+        outside = self.root / "outside-profile.md"
+        outside.write_text("SYNTHETIC_OUTSIDE_PROFILE_MUST_NOT_BE_READ")
+        profile.unlink()
+        profile.symlink_to(outside)
+        blocked = self.client.get(self.scope, "USER.md")
+        self.assertIn(blocked["status"], ["error", "not_found"])
+        self.assertNotIn(outside.read_text(), json.dumps(blocked))
+
 
 if __name__ == "__main__":
     unittest.main()

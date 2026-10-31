@@ -27,7 +27,7 @@ Follow the [conversation and file changes](reports/chatbot-memory-demo.html). Th
 | --- | --- |
 | 1. Load context before reply | Maya: `USER.md` injects 262 characters. `BOOTSTRAP.md` is absent; other missing templates have placeholders. |
 | 2. Keep profile and daily event | Maya: native tools change `USER.md` and a dated note. No harness prewrite. |
-| 3. Keyword recall + source | Maya: native search/get pass. Python search passes; `get("USER.md")` rejects that path. |
+| 3. Keyword recall + source | Recorded Maya run: native search/get passed; Python search passed and `get("USER.md")` was rejected. The current SDK also supports scoped profile reads. |
 | 4. Semantic recall + source | Separate Zephyr run: “pedal-powered commuting” finds a bicycle note with real embeddings. No search-time bot reply. |
 | 5. Change preference | Maya: mint → rooibos; new-session recall passes. Native supersession is unavailable through this version’s SDK Markdown path: indexing supplies no `supersedesKey` lineage. |
 | 6. Flush and compact context | Maya continuation: native flush succeeds; compaction commits (9,447 → 1,182 tokens). Daily note writes are attributed to agent tools; summary can describe older state. |
@@ -76,6 +76,8 @@ with MemoryClient(BridgeConfig(Path.cwd(), Path.cwd() / ".lab" / "sdk")) as memo
 ```
 
 Call `index` after `write` or `delete`. Reuse the root for persistence. Close the client after a transport timeout before retry decisions. `run_maintenance` reserves a 40-minute response window for native polling and publication bounds; ordinary operations keep `BridgeConfig.timeout`. Reports redact workstation paths before JSON/HTML output.
+
+To read an existing native user profile, call `memory.get(scope, "USER.md", start=1, lines=40)`, or pass the path and source-line range returned by search. The read uses the selected workspace/user scope and the native memory API. `start` must be a positive integer and `lines` must be 1–200; native excerpts may include a continuation hint. The SDK does not create or write `USER.md` automatically. A missing profile returns the native `status: "not_found"` result. Earlier recorded profile-read rejections remain unchanged in the historical reports.
 
 ## Independent host-agent example
 

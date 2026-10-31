@@ -2905,12 +2905,12 @@ export class Lab {
 
   async get(path: string, from = 1, lines = 40) {
     if (
-      !/^(MEMORY\.md|DREAMS\.md|memory\/(?:[a-z][a-z0-9-]{0,47}|\d{4}-\d{2}-\d{2}(?:-\d{4}(?:-\d+)?)?|dreaming\/(?:light|rem|deep)\/\d{4}-\d{2}-\d{2})\.md)$/.test(
+      !/^(USER\.md|MEMORY\.md|DREAMS\.md|memory\/(?:[a-z][a-z0-9-]{0,47}|\d{4}-\d{2}-\d{2}(?:-\d{4}(?:-\d+)?)?|dreaming\/(?:light|rem|deep)\/\d{4}-\d{2}-\d{2})\.md)$/.test(
         path,
       )
     )
       throw new Error(
-        "Read a lab note, daily note, native dreaming phase report, MEMORY.md or DREAMS.md path.",
+        "Read a lab note, daily note, native dreaming phase report, USER.md, MEMORY.md or DREAMS.md path.",
       );
     if (
       !Number.isInteger(from) ||

@@ -4,6 +4,41 @@ import { join } from "node:path";
 import { test } from "node:test";
 import { Lab, PROJECT } from "../src/lab.ts";
 
+test("PROFILE: canonical USER.md reaches native reads; invalid paths and ranges stop before Gateway", async () => {
+  const lab = new Lab("profile-validation");
+  let starts = 0;
+  lab.start = async () => {
+    starts++;
+    throw new Error("Native read boundary reached");
+  };
+  await assert.rejects(
+    lab.get("USER.md", 2, 1),
+    /Native read boundary reached/,
+  );
+  assert.equal(starts, 1);
+  for (const path of [
+    "../USER.md",
+    "./USER.md",
+    "/USER.md",
+    "memory/../USER.md",
+    "user.md",
+    "USER.md#L2",
+    "USER.md/extra",
+  ])
+    await assert.rejects(lab.get(path), /Read a lab note/);
+  for (const [from, lines] of [
+    [0, 1],
+    [1, 0],
+    [1, 201],
+    [1.5, 1],
+  ] as const)
+    await assert.rejects(
+      lab.get("USER.md", from, lines),
+      /positive line numbers/,
+    );
+  assert.equal(starts, 1);
+});
+
 test("REAL OpenClaw: write, keyword recall, sources, update, deletion, persistence and workspace separation", {
   timeout: 300000,
 }, async (t) => {

@@ -13,6 +13,8 @@ See the repository [README](https://github.com/DorukhanArslan/openclaw-memory-br
 
 The client provides note write/delete, index/search/get, status/restart, and session/dreaming inspection. It provides no chat wrapper or external-context flush/compaction. Reindex after note changes. Close the client after a transport timeout. Installing the package alone writes no memory notes.
 
+`memory.get(scope, "USER.md", start=1, lines=40)` reads an existing native profile through the same scoped bridge as note reads. You can also use the `USER.md` path and line range returned by search. `start` must be a positive integer and `lines` must be 1–200. Native excerpts may append a continuation hint. A missing profile returns the native `status: "not_found"` result. This adds no profile-write API and does not create a profile automatically; the host or native agent owns that file. Reads retain native workspace and symlink protections.
+
 Manual native maintenance: `write_daily(scope, day, text)` replaces a canonical daily source; call `index` afterward. `configure_maintenance(scope, cumulative_limit_usd=50, host_reserve_usd=...)` selects the approved finite lab profile; `run_maintenance(scope)` returns native backfill, cron, publisher, status and diary receipts. `explain_promotion(scope, selector)` inspects native provenance. Model calls need the authorized foundation environment. Scheduling is manual and the retained ledger is shared across this SDK root.
 
 Your external Python agent owns chat and context policy. The SDK does not flush or compact foreign message history, authenticate users, or provide tenant security through scope routing.
