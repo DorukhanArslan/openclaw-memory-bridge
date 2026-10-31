@@ -1,18 +1,78 @@
 """Observability-only patch of a disposable OpenClaw copy. No production writes."""
 from pathlib import Path
-import argparse,difflib,hashlib,json,subprocess
+import argparse,hashlib,json,subprocess
+
+
+def replace_once(text, before, after, label):
+    count = text.count(before)
+    if count != 1:
+        raise ValueError(f'{label}: expected one instrumentation marker, found {count}')
+    return text.replace(before, after, 1)
+
+
+def destination(runtime, relative, source=None, missing=False):
+    """Only independent regular files form an isolated runtime copy."""
+    target = runtime / relative
+    current = runtime
+    for part in relative.parts:
+        current = current / part
+        if current.is_symlink():
+            raise ValueError(f'Instrumentation target must not contain symlinks: {relative}')
+    if not target.parent.is_dir():
+        raise ValueError(f'Instrumentation target parent is missing: {relative}')
+    if target.exists():
+        if not target.is_file() or target.stat().st_nlink != 1:
+            raise ValueError(f'Instrumentation target must be an independent regular file: {relative}')
+        if source is not None and target.samefile(source):
+            raise ValueError(f'Instrumentation target aliases production: {relative}')
+    elif not missing:
+        raise ValueError(f'Instrumentation target is missing from the copy: {relative}')
+    return target
+
+
+def verify_production_hashes(original, manifest):
+    for item in manifest:
+        actual = hashlib.sha256((original / item['file']).read_bytes()).hexdigest()
+        if actual != item['originalSha256']:
+            raise RuntimeError(f'Production source changed: {item["file"]}')
+    return True
 
 
 def instrument(original, runtime, observer):
-    manifest=[];patches=[]
-    for source in (original/'node_modules/openclaw/dist').rglob('*'):
+    original = Path(original).resolve(strict=True)
+    runtime = Path(runtime).resolve(strict=True)
+    if original == runtime or original in runtime.parents or runtime in original.parents:
+        raise ValueError('Production and disposable runtime roots must be disjoint')
+    if not original.is_dir() or not runtime.is_dir():
+        raise ValueError('Production and disposable runtime roots must be directories')
+    manifest=[];patches=[];planned=[]
+
+    def plan(relative, before, after):
+        target = destination(runtime, relative, original / relative)
+        if target.read_bytes() != before:
+            raise ValueError(f'Disposable copy differs from production: {relative}')
+        planned.append((relative, before, after.encode('utf8')))
+        manifest.append({'file':str(relative),'originalSha256':hashlib.sha256(before).hexdigest(),'instrumentedSha256':hashlib.sha256(after.encode('utf8')).hexdigest()})
+        # Bundled runtime files contain large repeated sections. Use the native
+        # diff implementation rather than quadratic Python sequence matching.
+        diff = subprocess.run(
+            ['/usr/bin/diff', '-u', '-L', str(relative), '-L', str(relative),
+             str(original / relative), '-'],
+            input=after, capture_output=True, text=True,
+        )
+        if diff.returncode not in (0, 1):
+            raise RuntimeError(f'Could not prepare instrumentation diff: {relative}')
+        patches.append(diff.stdout)
+
+    for source in sorted((original/'node_modules/openclaw/dist').rglob('*')):
         if not source.is_file() or source.suffix not in ['.js','.mjs']:continue
-        text=source.read_text(errors='strict')
+        before=source.read_bytes();text=before.decode('utf8')
         marker='AsyncWorkScope = class AsyncWorkScope {'
         if marker not in text:continue
+        if text.count(marker) != 1:raise ValueError(f'Expected one scope definition: {source.relative_to(original)}')
         point=text.index(marker);start=text.rfind('\n',0,point)+1;prefix=text[start:point];indent='\t' if prefix=='\t' else '';ending='\n'+indent+'};';end=text.index(ending,point)+len(ending);body=text[start:end]
-        if 'Async work scope is closed' not in body:continue
-        assert 'const owner = currentWorkScope.getStore();' in body
+        if 'Async work scope is closed' not in body:raise ValueError(f'Unrecognized scope implementation: {source.relative_to(original)}')
+        if 'const owner = currentWorkScope.getStore();' not in body:raise ValueError(f'Missing scope owner contract: {source.relative_to(original)}')
         def emit(kind):return f'globalThis[Symbol.for("openclaw.scopeDiagnostic")]?.(this, "{kind}", currentWorkScope.getStore());'
         replacements=[
             ('this.phase = "open";', 'this.phase = "open";\n\t\t'+emit('create')),
@@ -27,35 +87,42 @@ def instrument(original, runtime, observer):
         ]
         changed=body
         for old,new in replacements:
-            assert changed.count(old)==1,(str(source),old,changed.count(old))
-            changed=changed.replace(old,new)
+            changed=replace_once(changed,old,new,str(source.relative_to(original)))
         output=text[:start]+changed+text[end:]
         capture='function captureAsyncWorkTracker() {\n\tconst scope = currentWorkScope.getStore();'
-        if capture in output:output=output.replace(capture,capture+'\n\tglobalThis[Symbol.for("openclaw.scopeDiagnostic")]?.(scope, "tracker-capture", scope);',1)
-        probe='globalThis[Symbol.for("openclaw.scopeContextProbe")] = (kind, narrativePhase) => { const scope = currentWorkScope.getStore(); globalThis[Symbol.for("openclaw.scopeDiagnostic")]?.(scope, kind, scope, narrativePhase); };\n'
+        if capture in output:output=replace_once(output,capture,capture+'\n\tglobalThis[Symbol.for("openclaw.scopeDiagnostic")]?.(scope, "tracker-capture", scope);',str(source.relative_to(original)))
+        probe='globalThis[Symbol.for("openclaw.scopeContextProbe")] = (kind, narrativePhase, exceptionStack) => { const scope = currentWorkScope.getStore(); globalThis[Symbol.for("openclaw.scopeDiagnostic")]?.(scope, kind, scope, narrativePhase, exceptionStack); };\n'
         probe_point=output.rfind('\n',0,output.index(marker))+1
         output=output[:probe_point]+probe+output[probe_point:]
         relative=source.relative_to(original)
-        target=runtime/relative;target.write_text(output)
-        manifest.append({'file':str(relative),'originalSha256':hashlib.sha256(source.read_bytes()).hexdigest(),'instrumentedSha256':hashlib.sha256(target.read_bytes()).hexdigest()})
-        diff=subprocess.run(['/usr/bin/diff','-u','-L',str(relative),'-L',str(relative),str(source),str(target)],capture_output=True,text=True)
-        assert diff.returncode in [0,1]
-        patches.append(diff.stdout)
+        plan(relative,before,output)
+    if not planned:raise ValueError('No supported AsyncWorkScope definitions found')
     narrative=Path('node_modules/openclaw/dist/dreaming-narrative-B8Hp3Mc_.mjs')
-    before=(original/narrative).read_text();after=before.replace('async function generateAndAppendDreamNarrative(params) {','async function generateAndAppendDreamNarrative(params) {\n\tglobalThis[Symbol.for("openclaw.scopeContextProbe")]?.("narrative-start", params.data.phase);').replace('if (detached) {\n\t\tqueueMicrotask','if (detached) {\n\t\tglobalThis[Symbol.for("openclaw.scopeContextProbe")]?.("narrative-queue", rest.data.phase);\n\t\tqueueMicrotask')
-    (runtime/narrative).write_text(after)
-    manifest.append({'file':str(narrative),'originalSha256':hashlib.sha256(before.encode()).hexdigest(),'instrumentedSha256':hashlib.sha256(after.encode()).hexdigest()})
-    patches.extend(difflib.unified_diff(before.splitlines(True),after.splitlines(True),fromfile=str(narrative),tofile=str(narrative)))
-    bootstrap=runtime/'src/native-bootstrap.ts';before=(original/'src/native-bootstrap.ts').read_text();after='import "./scope-observer.mjs";\n'+before;bootstrap.write_text(after)
-    patches.extend(difflib.unified_diff(before.splitlines(True),after.splitlines(True),fromfile='src/native-bootstrap.ts',tofile='src/native-bootstrap.ts'))
-    manifest.append({'file':'src/native-bootstrap.ts','originalSha256':hashlib.sha256(before.encode()).hexdigest(),'instrumentedSha256':hashlib.sha256(after.encode()).hexdigest()})
-    (runtime/'src/scope-observer.mjs').write_text(observer)
+    before=(original/narrative).read_bytes();after=before.decode('utf8')
+    replacements=[
+        ('async function generateAndAppendDreamNarrative(params) {','async function generateAndAppendDreamNarrative(params) {\n\tglobalThis[Symbol.for("openclaw.scopeContextProbe")]?.("narrative-start", params.data.phase);'),
+        ('if (detached) {\n\t\tqueueMicrotask','if (detached) {\n\t\tglobalThis[Symbol.for("openclaw.scopeContextProbe")]?.("narrative-queue", rest.data.phase);\n\t\tqueueMicrotask'),
+        ('narrative = (await params.subagent.complete({','globalThis[Symbol.for("openclaw.scopeContextProbe")]?.("narrative-completion-enter", params.data.phase);\n\t\t\t\tnarrative = (await params.subagent.complete({'),
+        ('} catch (error) {\n\t\t\tif (!model || !isConfiguredModelUnavailableNarrativeError(error)) throw error;','} catch (error) {\n\t\t\tglobalThis[Symbol.for("openclaw.scopeContextProbe")]?.("narrative-completion-error", params.data.phase, error instanceof Error && error.message === "Async work scope is closed" ? error.stack : undefined);\n\t\t\tif (!model || !isConfiguredModelUnavailableNarrativeError(error)) throw error;'),
+    ]
+    for old,new in replacements:after=replace_once(after,old,new,str(narrative))
+    plan(narrative,before,after)
+    bootstrap=Path('src/native-bootstrap.ts');before=(original/bootstrap).read_bytes();after='import "./scope-observer.mjs";\n'+before.decode('utf8')
+    plan(bootstrap,before,after)
+    observer_path=Path('src/scope-observer.mjs')
+    if destination(runtime,observer_path,missing=True).exists():
+        raise ValueError('Disposable observer already exists; preserve the previous capture')
+    verify_production_hashes(original,manifest)
+    for relative,before,after in planned:
+        target=destination(runtime,relative,original/relative)
+        if target.read_bytes()!=before:raise ValueError(f'Disposable copy changed during preparation: {relative}')
+        target.write_bytes(after)
+    destination(runtime,observer_path,missing=True).write_text(observer)
+    verify_production_hashes(original,manifest)
     return manifest,''.join(patches)
 
-if __name__=='__main__':
-    parser=argparse.ArgumentParser();parser.add_argument('original',type=Path);parser.add_argument('runtime',type=Path);parser.add_argument('case',type=Path);args=parser.parse_args()
-    case=args.case.resolve()
-    observer='''import {appendFileSync,readFileSync} from 'node:fs';
+def observer_source(case):
+    return '''import {appendFileSync,readFileSync} from 'node:fs';
 import {threadId} from 'node:worker_threads';
 const file=__TRACE__;
 let label='unknown';try{label=JSON.parse(readFileSync(__LABEL__,'utf8')).run;}catch{}
@@ -65,12 +132,19 @@ globalThis[Symbol.for('openclaw.scopeDiagnostic')]=(scope,kind,owner,narrativePh
  try{
   const entry={run:label,pid:process.pid,threadId,sequence:++sequence,timeMs:Date.now(),kind,scope:id(scope),phase:scope?.phase,owner:id(owner),ownerPhase:owner?.phase,pending:scope?.pending?.size,narrativePhase};
   if(exceptionStack)entry.exceptionStack=exceptionStack;
-  if(['create','begin-close','drain-start','closed','reject-run','reject-track','tracker-capture','narrative-queue','narrative-start'].includes(kind))entry.stack=new Error('scope diagnostic').stack;
+  if(['create','begin-close','drain-start','closed','reject-run','reject-track','tracker-capture','narrative-queue','narrative-start','narrative-completion-enter','narrative-completion-error'].includes(kind))entry.stack=new Error('scope diagnostic').stack;
   appendFileSync(file,JSON.stringify(entry)+'\\n');
  }catch{} // Observation failure must not affect the native operation.
 };
 '''.replace('__TRACE__',json.dumps(str(case/'scope-events.jsonl'))).replace('__LABEL__',json.dumps(str(case/'current-run.json')))
+
+
+if __name__=='__main__':
+    parser=argparse.ArgumentParser();parser.add_argument('original',type=Path);parser.add_argument('runtime',type=Path);parser.add_argument('case',type=Path);args=parser.parse_args()
+    case=args.case.resolve()
+    observer=observer_source(case)
     manifest,patch=instrument(args.original.resolve(),args.runtime.resolve(),observer)
-    (case/'instrumentation.json').write_text(json.dumps({'purpose':'Temporary scope observation only; no ownership, prompt, queue, delay or return-value changes','files':manifest,'observerSha256':hashlib.sha256(observer.encode()).hexdigest()},indent=2)+'\n')
+    retained=verify_production_hashes(args.original,manifest)
+    (case/'instrumentation.json').write_text(json.dumps({'purpose':'Temporary scope observation only; no ownership, prompt, queue, delay or return-value changes','files':manifest,'observerSha256':hashlib.sha256(observer.encode()).hexdigest(),'productionHashesRetained':retained},indent=2)+'\n')
     (case/'instrumentation.patch').write_text(patch)
-    print(json.dumps({'instrumentedDefinitions':len(manifest)-2,'productionHashesRetained':True}))
+    print(json.dumps({'instrumentedDefinitions':len(manifest)-2,'productionHashesRetained':retained}))
