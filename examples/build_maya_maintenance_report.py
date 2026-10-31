@@ -1,9 +1,17 @@
 """Curate a genuine continuation. Never run a model or edit memory records."""
 import json
 from pathlib import Path
+import sys
 
 foundation = Path(__file__).resolve().parents[1]
-raw = json.loads((foundation / 'evidence/maya-maintenance-2026-10-13/acceptance.json').read_text())
+sys.path.insert(0, str(foundation / 'scripts'))
+from evidence_status import EvidenceInputError, evidence_path, require_json_inputs
+
+raw_path = evidence_path(foundation, 'evidence/maya-maintenance-2026-10-13/acceptance.json')
+try:
+    raw = require_json_inputs([raw_path])[raw_path]
+except EvidenceInputError as error:
+    raise SystemExit(str(error)) from None
 workspace = foundation / '.lab-test-e2e-conversation/w-c4b42d5e46db88eb0f9c6660f653a2158b1cfe11/workspace'
 
 def clean(value):

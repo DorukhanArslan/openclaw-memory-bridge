@@ -1,12 +1,39 @@
 """Build a feature tour from real records. Never dispatch models or modify memory."""
 import json
 from pathlib import Path
+import sys
 
 foundation = Path(__file__).resolve().parents[1]
 reports = foundation / 'reports'
+sys.path.insert(0, str(foundation / 'scripts'))
+from evidence_status import EvidenceInputError, evidence_path, require_json_inputs
+
+required_inputs = [
+    foundation / 'reports/chatbot-memory-demo.json',
+    foundation / 'reports/maya-app-cases.json',
+    *[evidence_path(foundation, 'evidence/' + case + '/acceptance.json')
+      for case in ['lifecycle-acceptance', 'provenance-merge-acceptance', 'live-smoke']],
+]
+required_inputs.extend(path for path in [reports / name for name in [
+    'maya-maintenance.json', 'host-agent-memory.json', 'sdk-consolidation.json'
+]] if path.exists())
+try:
+    records = require_json_inputs(required_inputs)
+except EvidenceInputError as error:
+    raise SystemExit(str(error)) from None
+# These text inputs are consumed after report construction; validate them before
+# any generated JSON can replace an existing historical report.
+try:
+    base_page = (reports / 'chatbot-memory-demo.html').read_text()
+    readme_markdown = (foundation / 'README.md').read_text()
+except OSError as error:
+    raise SystemExit(f'Report text input is unavailable: {error.filename}') from None
+if '<main>' not in base_page:
+    raise SystemExit('Report template is missing <main>: reports/chatbot-memory-demo.html')
 
 def load(path):
-    return json.loads((foundation / path).read_text())
+    resolved = evidence_path(foundation, path) if path.startswith('evidence/') else foundation / path
+    return records[resolved]
 
 def clean(value):
     text = json.dumps(value, ensure_ascii=False).replace(str(foundation), '<foundation>').replace(str(foundation.parent / 'openclaw-chatbot-consumer'), '<consumer>')
@@ -45,7 +72,6 @@ for c in capabilities:
     for name in c['pinnedCode']:
         assert (foundation / 'node_modules/openclaw/dist' / name).is_file(), name
 inventory = {'engine':'OpenClaw 2026.9.9','runtime':'Node 24.16.0','scope':'Installed builtin Memory Core and current bridge access; not every OpenClaw plugin or option is a tested demo.','sourceNote':'Pinned package code and bundled docs were inspected. Online docs may describe newer behavior. No internal engine module is imported by the bridge.','repositoryAccess':['src/lab.ts','src/stdio.ts','src/gateway.ts','python/src/openclaw_memory_bridge/client.py'],'features':capabilities}
-(reports / 'memory-capabilities.json').write_text(json.dumps(inventory, indent=2)+'\n')
 
 cases=[]
 def case(id, title, run, input, bot, trigger, changes, gain, status, features, output=None):
@@ -78,7 +104,7 @@ case('C12','Restart, update, delete and separate scopes','maya-app-tour',[s['inp
 case('C13','Remaining native options','inventory-only',None,None,'No execution',None,'Ranking, backfill, trusted trigger recall, policy/forget and extended corpora are described with their access limits.','not a passed demonstration',['ranking','trusted-pre-reply','index-maintenance','historical-backfill','admission-forget','extra-multimodal-cjk','session-wiki-corpora'])
 status={'sameMayaContinuousAllFeatures':False,'bootstrapTemplateLoad':'not demonstrated; USER.md load verified','MayaAutomaticFlush':'not observed','MayaCompaction':'not run','MayaPostDreamNativeAgent':'blocked by input-byte admission; bot is null','PythonUSERGet':'rejected adapter path; native get and Python search evidence retained','changedFactSupersession':'unsupported through pinned SDK Markdown path: missing supersedesKey provenance; no trusted setter','diaryCurrentPreference':'older mint fragment remains','newPaidRuns':0,'historicalRunsAreNotContinuousWithMaya':True,'budget':{'cumulativeLimitUsd':5,'lastMeasuredUsedUsdBeforeFinalAnswer':maya['measuredProviderUsageBeforeFinal']['usedUsd'],'retainedE2ERequests':maya['ledger']['requests'],'remainingSerializedInputBytes':maya['limits']['inputBytes']-maya['ledger']['inputBytes'],'existingFullFlushEnvelopeUsd':4.83,'minimumTotalWithLastMeasuredUsageUsd':round(maya['measuredProviderUsageBeforeFinal']['usedUsd']+4.83,8),'note':'Final answer cost was not resampled. No new envelope or ledger reset was introduced.'}}
 maintenance_path=reports / 'maya-maintenance.json'
-maintenance=json.loads(maintenance_path.read_text()) if maintenance_path.exists() else None
+maintenance=records.get(maintenance_path)
 if maintenance:
     for index, step in enumerate(maintenance['steps'], start=14):
         case(f'C{index:02}', step['id'].replace('-', ' ').capitalize(), maintenance['runId'], step.get('input'), step.get('bot'), step['trigger'], step.get('changes'), 'Linked real Maya continuation: native maintenance or source-grounded recall; source files stay authoritative.', 'real continuation pass', ['flush-compaction'] if index in [14,15,16,17] else ['dreaming','persistence','source'], step)
@@ -94,26 +120,22 @@ if maintenance:
             f['coverage']='real same-Maya continuation: native flush succeeded, compaction committed, current-source recall passed'
             f['boundary']='Thresholds/retention are explicit test settings. No SDK trigger. Summary may describe older state; no separate flush-only note write was isolated.'
         if f['id']=='persistence':f['coverage']='new native Maya session after dreaming/Gateway restart passed; fresh SDK and Vega evidence also retained'
-    (reports / 'memory-capabilities.json').write_text(json.dumps(inventory,indent=2)+'\n')
 host_path=reports / 'host-agent-memory.json'
-host=json.loads(host_path.read_text()) if host_path.exists() else None
+host=records.get(host_path)
 if host:
     status['independentPythonHost']={'checks':host['checks'], 'externalContext':'Native flush/compaction do not manage the external host context.', 'cumulativeBudgetSnapshot':host['afterBudget'], 'diaryCorrection':'Initial interruption retained; same-ledger continuation published light/REM/deep model entries.'}
     for f in capabilities:
         if f['id']=='dreaming':f['coverage']+='; independent Python host SDK run publishes all three model phases after an observed correction'
         if f['id']=='app-crud-scopes':f['coverage']+='; independent primary Python agent performs real tool-driven writes/update and cross-route recall checks'
-    (reports / 'memory-capabilities.json').write_text(json.dumps(inventory,indent=2)+'\n')
 coverage={'scope':inventory['scope'],'cases':[{k:c[k] for k in ['id','title','runId','status','featureIds']} for c in cases],'gaps':status}
-(reports / 'memory-case-coverage.json').write_text(json.dumps(coverage,indent=2)+'\n')
-story=clean({'title':'OpenClaw memory feature tour','narrative':'Maya is the main recorded conversation. Separate Zephyr, Borealis and Vega records demonstrate optional capabilities; the app tour is a fresh no-key run. Case order is a learning path, not a stitched continuous transcript. The October 13 maintenance is a real continuation of the retained Maya main session, with earlier failures left visible.','readmeMarkdown':(foundation / 'README.md').read_text(),'cases':cases,'runs':{'maya-chat-2026-10-12':maya, **({maintenance['runId']:maintenance} if maintenance else {})},'capabilityInventory':inventory,'gaps':status,'independentPythonHost':host,'sdkConsolidation':load('reports/sdk-consolidation.json') if (reports/'sdk-consolidation.json').exists() else None})
-(reports / 'memory-story.json').write_text(json.dumps(story,indent=2,ensure_ascii=False)+'\n')
+story=clean({'title':'OpenClaw memory feature tour','narrative':'Maya is the main recorded conversation. Separate Zephyr, Borealis and Vega records demonstrate optional capabilities; the app tour is a fresh no-key run. Case order is a learning path, not a stitched continuous transcript. The October 13 maintenance is a real continuation of the retained Maya main session, with earlier failures left visible.','readmeMarkdown':readme_markdown,'cases':cases,'runs':{'maya-chat-2026-10-12':maya, **({maintenance['runId']:maintenance} if maintenance else {})},'capabilityInventory':inventory,'gaps':status,'independentPythonHost':host,'sdkConsolidation':records.get(reports / 'sdk-consolidation.json')})
 print(json.dumps({'cases':len(cases),'capabilities':len(capabilities),'newPaidRuns':status['newPaidRuns']}))
 
 # Update only the presentation. The original Maya replay JSON remains unchanged.
 import html
 import re
 page_path = reports / 'chatbot-memory-demo.html'
-page = page_path.read_text()
+page = base_page
 page = re.sub(r'<!-- memory-feature-tour:start -->.*?<!-- memory-feature-tour:end -->', '', page, flags=re.S)
 page = page.replace('href="readme-proposal.html">README and case matrix proposal', 'href="../README.md">Applied README')
 page = page.replace('<title>OpenClaw conversation replay</title>', '<title>OpenClaw memory feature tour</title>')
@@ -142,4 +164,13 @@ summary+='</section><!-- memory-feature-tour:end -->'
 page=page.replace('<main>', '<main>'+summary, 1)
 if maintenance:
     page=page.replace('<h1>One conversation. Real memory changes.</h1>', '<h1>Original October 12 conversation</h1><p>The failed calls and unobserved flush below are preserved historical results. The linked October 13 native continuation appears above.</p>')
-page_path.write_text(page)
+# Construct every result before replacing any existing report. Missing source
+# fields or malformed retained records must not leave partially rebuilt history.
+outputs = {
+    reports / 'memory-capabilities.json': json.dumps(inventory, indent=2)+'\n',
+    reports / 'memory-case-coverage.json': json.dumps(coverage, indent=2)+'\n',
+    reports / 'memory-story.json': json.dumps(story, indent=2, ensure_ascii=False)+'\n',
+    page_path: page,
+}
+for path, content in outputs.items():
+    path.write_text(content)

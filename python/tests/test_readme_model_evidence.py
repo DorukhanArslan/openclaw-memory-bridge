@@ -1,18 +1,28 @@
 """MODEL cases audit retained genuine provider evidence. They send no model requests.
-Missing records are skipped. An evidence audit is not a fresh model acceptance.
+Missing records skip by default; BRIDGE_REQUIRE_MODEL_EVIDENCE=1 makes them fail.
+An evidence audit is not a fresh model acceptance.
 """
-import json
+import importlib.util
 import os
 from pathlib import Path
 import unittest
 
 
+ROOT = Path(os.environ["FOUNDATION_ROOT"])
+spec = importlib.util.spec_from_file_location("historical_evidence_status", ROOT / "scripts/evidence_status.py")
+evidence = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(evidence)
+
+
 class RecordedNativeModelCases(unittest.TestCase):
     def record(self, relative):
-        path = Path(os.environ["FOUNDATION_ROOT"]) / relative
-        if not path.is_file():
-            self.skipTest("Historical genuine-model record is not available; do not substitute a mock.")
-        return json.loads(path.read_text())
+        required = evidence.model_evidence_required()
+        try:
+            return evidence.load_record(ROOT, relative)
+        except evidence.MissingEvidenceError as error:
+            if required:
+                self.fail(str(error))
+            self.skipTest(str(error))
 
     def lifecycle(self):
         return self.record("evidence/lifecycle-acceptance/acceptance.json")

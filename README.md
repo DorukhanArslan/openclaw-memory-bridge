@@ -140,4 +140,6 @@ npm test
 
 Tests distinguish real engine checks, transport fixtures, recorded model evidence, and live-model skips. See [coverage](reports/memory-case-coverage.json) and [test rounds](reports/test-report.html). [Runtime licenses and notices](THIRD_PARTY.md) remain intact.
 
+Historical raw model records are optional in a clean checkout. Use `python3 scripts/evidence_status.py --json` to inspect their availability, or require them with `BRIDGE_REQUIRE_MODEL_EVIDENCE=1` when running the historical Python audits. Reproduce four committed HTML reports without model calls using `python3 scripts/render_reports.py --output-dir .bootstrap/rendered-reports`. See [retained evidence and report reproduction](reports/README.md) for external evidence directories, strict audit behavior, and builders that still need original retained context.
+
 Upstream: [builtin memory](https://docs.openclaw.ai/concepts/memory-builtin), [embedding](https://docs.openclaw.ai/gateway/embedding), [Gateway tools](https://docs.openclaw.ai/gateway/tools-invoke-http-api). The inventory checks the pinned release.
