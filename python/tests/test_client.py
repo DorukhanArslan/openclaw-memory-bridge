@@ -54,6 +54,14 @@ for await(const line of createInterface({input:process.stdin})) {
                 client.call("valid", text="x" * 128000)
             self.assertTrue(client.call("valid")["fixture"])
 
+    def test_invalid_timeout_is_rejected_before_process_start(self):
+        for timeout in [0, -1, float("nan"), float("inf"), float("-inf")]:
+            with self.subTest(timeout=timeout):
+                with patch("openclaw_memory_bridge.client.subprocess.Popen") as start:
+                    with self.assertRaises(ValueError):
+                        MemoryClient(replace(self.config, timeout=timeout))
+                    start.assert_not_called()
+
     def test_maintenance_receipt_timeout_covers_the_native_envelope(self):
         # A labelled echo fixture checks transport policy without waiting for
         # minutes or dispatching a native/model operation.

@@ -4,6 +4,7 @@ from __future__ import annotations
 import json
 import os
 import hashlib
+from math import isfinite
 import re
 from dataclasses import dataclass
 from pathlib import Path
@@ -58,8 +59,8 @@ class FoundationClient:
         self.foundation = Path(foundation).resolve()
         self.root = Path(root).resolve()
         self.timeout = timeout
-        if timeout <= 0:
-            raise ValueError("timeout must be positive")
+        if not isfinite(timeout) or timeout <= 0:
+            raise ValueError("timeout must be finite and positive")
         self.sequence = 0
         self.lock = Lock()
         self.poisoned = False
