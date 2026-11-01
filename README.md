@@ -132,6 +132,8 @@ The [ready Gateway client](src/gateway.ts) only searches and reads an existing l
 
 Embeddings and maintenance can need a model. `vector` selects a local embedding endpoint; approved provider selection uses native configuration and an environment SecretRef. Keep keys in ignored `.env` and tokens on the server. Services stay on loopback. There is no invented memory-write endpoint.
 
+In cloud environments, the Python client and private native processes inherit only the supported proxy and CA variables from the runtime environment. OpenClaw selects the proxy and retains TLS verification; provider credentials still follow the explicit selection path. Supply network settings through the runtime environment rather than the project's `.env` loader. See [cloud networking and offline transport checks](examples/cloud-network.md) for the exact variables and verification scope.
+
 A diary or compacted summary can describe an old preference; check the current saved source. The linked Maya continuation now verifies native flush, compaction, and agent recall after dreaming/restart. Earlier failures remain visible. Live model tests require explicit configuration and a spending limit.
 
 ```sh

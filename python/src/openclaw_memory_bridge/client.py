@@ -11,13 +11,36 @@ from pathlib import Path
 from queue import Empty, Queue
 import subprocess
 from threading import Thread, Lock
-from typing import Any
+from typing import Any, Mapping
 
 
 # Backfill, repeated native CLI polling, cron completion and asynchronous
 # publishers have separate bounds. Keep their receipt stream alive through
 # the full server envelope without changing ordinary request timeouts.
 MAINTENANCE_RESPONSE_TIMEOUT = 2400
+
+# Transport settings are separate from provider credentials and runtime flags.
+# Preserve case and empty values: native proxy precedence belongs to OpenClaw.
+NETWORK_ENV_NAMES = (
+    "HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY", "NO_PROXY",
+    "http_proxy", "https_proxy", "all_proxy", "no_proxy",
+    "NODE_EXTRA_CA_CERTS", "SSL_CERT_FILE", "SSL_CERT_DIR",
+)
+
+
+def _network_environment(source: Mapping[str, str]) -> dict[str, str]:
+    result = {}
+    for name in NETWORK_ENV_NAMES:
+        try:
+            value = source[name]
+        except KeyError:
+            continue
+        if not isinstance(value, str) or len(value) > 16384 or any(
+            character in value for character in "\r\n\0"
+        ):
+            raise ValueError(f"Invalid network environment setting: {name}.")
+        result[name] = value
+    return result
 
 
 class FoundationError(RuntimeError):
@@ -72,7 +95,8 @@ class FoundationClient:
             [str(node), str(self.foundation / "src/stdio.ts"), str(self.root)],
             cwd=self.foundation, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
             stderr=subprocess.DEVNULL, text=True, bufsize=1,
-            env={"PATH": str(node.parent) + os.pathsep + "/usr/bin:/bin", "LANG": "en_US.UTF-8"},
+            env={"PATH": str(node.parent) + os.pathsep + "/usr/bin:/bin", "LANG": "en_US.UTF-8",
+                 **_network_environment(os.environ)},
         )
         self.reader = Thread(target=self._read, daemon=True)
         self.reader.start()

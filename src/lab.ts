@@ -33,6 +33,7 @@ import {
   readLifecycleLedger,
 } from "./lifecycle-request-budget.ts";
 import { maintenanceExitCode } from "./maintenance-status.ts";
+import { forwardNetworkEnvironment } from "./network-env.ts";
 import {
   confirmSmoke,
   fixtureEndpoint,
@@ -275,14 +276,19 @@ export class Lab {
   }
 
   private redact(text: string): string {
-    return redactCredentials(
-      text,
-      forwardCredentials(this.credentialNames(), process.env),
-    );
+    return redactCredentials(text, {
+      ...forwardCredentials(this.credentialNames(), process.env),
+      // Proxy URLs may contain authentication; keep them out of child logs.
+      ...Object.fromEntries(
+        Object.entries(forwardNetworkEnvironment(process.env)).filter(
+          ([name]) => /^(?:https?|all)_proxy$/i.test(name),
+        ),
+      ),
+    });
   }
 
   private env(): NodeJS.ProcessEnv {
-    // The operator opts in to exact provider names. All other environment stays isolated.
+    // Exact provider credentials and network inputs cross this boundary; shell state stays isolated.
     return {
       PATH: `${dirname(process.execPath)}:/usr/bin:/bin`,
       HOME: this.home,
@@ -300,6 +306,7 @@ export class Lab {
       ...(this.lifecycleLedger
         ? { OPENCLAW_LAB_LIFECYCLE_LEDGER: this.lifecycleLedger }
         : {}),
+      ...forwardNetworkEnvironment(process.env),
       ...forwardCredentials(this.credentialNames(), process.env),
     };
   }
