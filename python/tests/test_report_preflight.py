@@ -34,12 +34,14 @@ class ReportPreflightTests(unittest.TestCase):
         shutil.copy2(ROOT / "scripts/evidence_status.py", self.foundation / "scripts")
         for name in BUILDERS:
             shutil.copy2(ROOT / "examples" / name, self.foundation / "examples")
+        shutil.copy2(ROOT / "examples/conversation_report.py", self.foundation / "examples")
+        shutil.copy2(ROOT / "scripts/render_reports.py", self.foundation / "scripts")
         for name in [
             "maya-maintenance.json", "chatbot-memory-demo.json", "maya-app-cases.json",
             "memory-capabilities.json", "memory-case-coverage.json", "memory-story.json",
+            "conversation-validation.json",
         ]:
             (self.foundation / "reports" / name).write_text(json.dumps({"sentinel": name}))
-        (self.foundation / "reports/chatbot-memory-demo.html").write_text("<main>Original report</main>")
         (self.foundation / "README.md").write_text("Synthetic input-preflight fixture only.")
 
     def snapshot(self):
@@ -93,24 +95,19 @@ class ReportPreflightTests(unittest.TestCase):
         self.assertNotIn("Traceback", result.stderr)
         self.assertEqual(self.snapshot(), before)
 
-    def test_story_requires_base_html_before_constructing_outputs(self):
+    def test_story_requires_readme_before_constructing_outputs_without_base_html(self):
         for relative in BUILDERS["build_memory_story.py"]:
             path = self.foundation / "evidence" / relative
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text("{}")
-        template = self.foundation / "reports/chatbot-memory-demo.html"
-        for content in [None, "<body>No main element</body>"]:
-            with self.subTest(template=content):
-                if content is None:
-                    template.unlink()
-                else:
-                    template.write_text(content)
-                before = self.snapshot()
-                result = self.run_builder("build_memory_story.py")
-                self.assertNotEqual(result.returncode, 0)
-                self.assertIn("Report", result.stderr)
-                self.assertNotIn("Traceback", result.stderr)
-                self.assertEqual(self.snapshot(), before)
+        (self.foundation / "README.md").unlink()
+        before = self.snapshot()
+        result = self.run_builder("build_memory_story.py")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("Report text input is unavailable", result.stderr)
+        self.assertIn("README.md", result.stderr)
+        self.assertNotIn("Traceback", result.stderr)
+        self.assertEqual(self.snapshot(), before)
 
     def test_invalid_optional_story_input_fails_before_outputs(self):
         for relative in BUILDERS["build_memory_story.py"]:

@@ -22,7 +22,7 @@ def main(argv=None):
     outputs.add_argument("--output", type=Path)
     outputs.add_argument("--output-dir", type=Path)
     args = parser.parse_args(argv)
-    output = args.output or ((args.output_dir or root / "reports") / "test-report.html")
+    output = args.output or ((args.output_dir or root / ".bootstrap/rendered-reports") / "test-report.html")
     try:
         if output.resolve() == args.input.resolve() or (
             output.exists() and args.input.exists() and output.samefile(args.input)

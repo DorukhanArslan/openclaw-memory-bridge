@@ -7,9 +7,12 @@ foundation = Path(__file__).resolve().parents[1]
 reports = foundation / 'reports'
 sys.path.insert(0, str(foundation / 'scripts'))
 from evidence_status import EvidenceInputError, evidence_path, require_json_inputs
+from conversation_report import render
+from render_reports import rebase_conversation_links
 
 required_inputs = [
     foundation / 'reports/chatbot-memory-demo.json',
+    foundation / 'reports/conversation-validation.json',
     foundation / 'reports/maya-app-cases.json',
     *[evidence_path(foundation, 'evidence/' + case + '/acceptance.json')
       for case in ['lifecycle-acceptance', 'provenance-merge-acceptance', 'live-smoke']],
@@ -21,15 +24,12 @@ try:
     records = require_json_inputs(required_inputs)
 except EvidenceInputError as error:
     raise SystemExit(str(error)) from None
-# These text inputs are consumed after report construction; validate them before
-# any generated JSON can replace an existing historical report.
+# The README is consumed after report construction; validate it before any
+# generated JSON can replace an existing historical report.
 try:
-    base_page = (reports / 'chatbot-memory-demo.html').read_text()
     readme_markdown = (foundation / 'README.md').read_text()
 except OSError as error:
     raise SystemExit(f'Report text input is unavailable: {error.filename}') from None
-if '<main>' not in base_page:
-    raise SystemExit('Report template is missing <main>: reports/chatbot-memory-demo.html')
 
 def load(path):
     resolved = evidence_path(foundation, path) if path.startswith('evidence/') else foundation / path
@@ -131,39 +131,10 @@ coverage={'scope':inventory['scope'],'cases':[{k:c[k] for k in ['id','title','ru
 story=clean({'title':'OpenClaw memory feature tour','narrative':'Maya is the main recorded conversation. Separate Zephyr, Borealis and Vega records demonstrate optional capabilities; the app tour is a fresh no-key run. Case order is a learning path, not a stitched continuous transcript. The October 13 maintenance is a real continuation of the retained Maya main session, with earlier failures left visible.','readmeMarkdown':readme_markdown,'cases':cases,'runs':{'maya-chat-2026-10-12':maya, **({maintenance['runId']:maintenance} if maintenance else {})},'capabilityInventory':inventory,'gaps':status,'independentPythonHost':host,'sdkConsolidation':records.get(reports / 'sdk-consolidation.json')})
 print(json.dumps({'cases':len(cases),'capabilities':len(capabilities),'newPaidRuns':status['newPaidRuns']}))
 
-# Update only the presentation. The original Maya replay JSON remains unchanged.
-import html
-import re
-page_path = reports / 'chatbot-memory-demo.html'
-page = base_page
-page = re.sub(r'<!-- memory-feature-tour:start -->.*?<!-- memory-feature-tour:end -->', '', page, flags=re.S)
-page = page.replace('href="readme-proposal.html">README and case matrix proposal', 'href="../README.md">Applied README')
-page = page.replace('<title>OpenClaw conversation replay</title>', '<title>OpenClaw memory feature tour</title>')
-esc = lambda value: html.escape(str(value))
-summary = '<!-- memory-feature-tour:start --><section><h1>Memory feature tour</h1><p>'+esc(story['narrative'])+'</p><p><a href="memory-story.json">Complete transferable case payload</a> · <a href="memory-capabilities.json">Pinned capability inventory</a></p><table style="width:100%;border-collapse:collapse"><tr><th>Case</th><th>Gain</th><th>Evidence status</th></tr>'
-for c in cases:
-    summary += '<tr><td style="padding:10px;border:1px solid #ddd">'+esc(c['id']+' '+c['title'])+'</td><td style="padding:10px;border:1px solid #ddd">'+esc(c['gain'])+'</td><td style="padding:10px;border:1px solid #ddd">'+esc(c['status'])+'</td></tr>'
-summary += '</table><details><summary>Native options and explicit gaps</summary><pre>'+esc(json.dumps({'gaps':status,'features':capabilities},indent=2))+'</pre></details><h2>Separate recorded evidence and fresh app cases</h2><p>These exhibits do not continue Maya’s chat session. Null bot fields mean that no assistant reply is claimed.</p>'
-for c in cases:
-    if c['runId'] == 'maya-chat-2026-10-12' or c['runId'] == 'inventory-only':
-        continue
-    left='<span class="tag">'+esc(c['runId'])+'</span><h2>'+esc(c['title'])+'</h2><p class="label">Actual input or operator request</p><pre>'+esc(c['input'])+'</pre>'
-    left+='<p class="label">Real assistant output</p><p class="answer">'+esc(c['bot'])+'</p>' if c['bot'] else '<p>No assistant response is attributed to this operator/search step.</p>'
-    left+='<p class="note">'+esc(c['trigger'])+'</p><p>'+esc(c['gain'])+'</p><p class="note">'+esc(c['status'])+'</p>'
-    right='<h3>Recorded file changes</h3>'
-    if c['changes'] is None:
-        right+='<p>A Markdown diff was not sampled at this step. See native result evidence.</p>'
-    elif not c['changes']:
-        right+='<p>No recorded Markdown changes.</p>'
-    else:
-        for change in c['changes']:
-            right+='<details><summary>'+esc(change['path'])+'</summary><div class="diff"><div><b>Before</b><pre>'+esc(change['before'] if change['before'] is not None else '[absent]')+'</pre></div><div><b>After</b><pre>'+esc(change['after'] if change['after'] is not None else '[absent]')+'</pre></div></div></details>'
-    right+='<details><summary>Actual native/app result</summary><pre>'+esc(json.dumps(c['output'],indent=2,ensure_ascii=False))+'</pre></details>'
-    summary+='<section class="row"><article>'+left+'</article><aside>'+right+'</aside></section>'
-summary+='</section><!-- memory-feature-tour:end -->'
-page=page.replace('<main>', '<main>'+summary, 1)
-if maintenance:
-    page=page.replace('<h1>One conversation. Real memory changes.</h1>', '<h1>Original October 12 conversation</h1><p>The failed calls and unobserved flush below are preserved historical results. The linked October 13 native continuation appears above.</p>')
+# Render from curated JSON records; no existing HTML template is required.
+page_path = foundation / '.bootstrap/rendered-reports/chatbot-memory-demo.html'
+page = render(maya, story, records[reports / 'conversation-validation.json'])
+page = rebase_conversation_links(page, foundation, page_path.parent)
 # Construct every result before replacing any existing report. Missing source
 # fields or malformed retained records must not leave partially rebuilt history.
 outputs = {
@@ -173,4 +144,5 @@ outputs = {
     page_path: page,
 }
 for path, content in outputs.items():
+    path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(content)

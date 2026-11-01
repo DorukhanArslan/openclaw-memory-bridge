@@ -3,6 +3,7 @@ node_modules/
 .lab-test-*/
 .npm-cache/
 .bootstrap/
+reports/*.html
 .DS_Store
 *.log
 coverage/

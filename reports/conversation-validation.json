@@ -1,0 +1,52 @@
+{
+  "title": "Retained conversation report verification notes",
+  "provenance": {
+    "kind": "historical HTML transcription",
+    "source": "reports/chatbot-memory-demo.html",
+    "sourceCommit": "0447a5954e05db12ab1ac58887565b4c489e04e9",
+    "note": "These records preserve the two verification articles formerly present only in the tracked HTML. They describe historical runs; this extraction performs no new validation or model execution.",
+    "newExecution": false
+  },
+  "verifications": [
+    {
+      "id": "sdk-final-regression",
+      "title": "Final SDK completion verification",
+      "commit": "88c9ae808b6f60af1d81865831585aa0428e742b",
+      "typeScript": {
+        "passed": 113,
+        "skipped": 8,
+        "failed": 0,
+        "total": 121
+      },
+      "python": {
+        "passed": 22,
+        "skipped": 1,
+        "failed": 0,
+        "total": 23
+      },
+      "emphasizeCounts": false,
+      "lintAndTypecheck": "passed",
+      "note": "A separate real installed-SDK continuation verified native duplicate merge (Added 0 / Merged 1 / Superseded 0), source replacement and restart recall. Pinned Markdown provenance cannot express the native supersession lineage requirement."
+    },
+    {
+      "id": "final-no-key-validation",
+      "title": "Final no-key verification",
+      "commit": "b5d6edacd7175ab0948994e740100773b22942d4",
+      "typeScript": {
+        "passed": 110,
+        "skipped": 8,
+        "failed": 0,
+        "total": 118
+      },
+      "python": {
+        "passed": 22,
+        "skipped": 1,
+        "failed": 0,
+        "total": 23
+      },
+      "emphasizeCounts": true,
+      "lintAndTypecheck": "passed",
+      "note": "No new model calls. Paid ledger counters are unchanged. These results cover local no-key checks, labelled fixtures and existing evidence audits; they do not claim every native feature was exercised."
+    }
+  ]
+}

@@ -1,5 +1,4 @@
 """Replay recorded synthetic evidence; this script never calls a model or writes memory."""
-import html
 import json
 from pathlib import Path
 import sys
@@ -7,6 +6,8 @@ import sys
 foundation = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(foundation / 'scripts'))
 from evidence_status import EvidenceInputError, evidence_path, require_json_inputs
+from conversation_report import render_conversation
+from render_reports import rebase_conversation_links
 
 evidence = evidence_path(foundation, 'evidence/e2e-conversation')
 inputs = [evidence / name for name in ['conversation.json', 'sdk-recall.json', 'request-ledger.json']]
@@ -58,29 +59,13 @@ report = {'title': 'One synthetic conversation, real OpenClaw memory', 'model': 
 report = clean(report)
 output = foundation / 'reports/chatbot-memory-demo.json'
 
-def esc(s):
-    return html.escape(str(s))
-
-def render_step(s):
-    left = f'<span class="tag">{esc(s["kind"])}</span><h2>{esc(s["id"])}</h2>'
-    if s.get('user'): left += '<p class="label">User</p><p>' + esc(s['user']) + '</p>'
-    if s.get('bot'): left += '<p class="label">Real assistant output</p><p class="answer">' + esc(s['bot']) + '</p>'
-    elif s.get('failure'): left += '<p class="failed">' + esc(s['failure']) + '</p>'
-    else: left += '<p>No assistant response is attributed to this operator/read step.</p>'
-    for key in ['eventTrigger', 'boundary', 'adapter', 'currentTruthWarning']:
-        if s.get(key): left += '<p class="note">' + esc(s[key]) + '</p>'
-    right = '<h3>Files before / after</h3>'
-    if not s['changes']: right += '<p>Workspace memory files unchanged.</p>'
-    for c in s['changes']:
-        right += '<details open><summary>' + esc(c['path']) + '</summary><div class="diff"><div><b>Before</b><pre>' + esc(c['before'] if c['before'] is not None else '[absent]') + '</pre></div><div><b>After</b><pre>' + esc(c['after']) + '</pre></div></div></details>'
-    for key, title in [('toolCalls', 'Observed native tool calls'), ('toolResults', 'Native results matched by tool call ID'), ('bootstrapTrace', 'Actual native prompt-load trace'), ('diaryPhaseEvents', 'Native diary publication events'), ('sdk', 'Actual SDK retrieval'), ('responseEvidence', 'Real model response evidence')]:
-        if s.get(key): right += '<details><summary>' + title + '</summary><pre>' + esc(json.dumps(s[key], indent=2, ensure_ascii=False)) + '</pre></details>'
-    return '<section class="row"><article>' + left + '</article><aside>' + right + '</aside></section>'
-
-page = '<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>OpenClaw conversation replay</title><style>body{margin:0;background:#f4f6f7;color:#172b38;font:16px/1.55 system-ui}main{max-width:1380px;margin:auto;padding:32px}h1{font-size:34px}h2{font-size:22px}.row{display:grid;grid-template-columns:38% 62%;background:white;border:1px solid #d6e0e4;border-radius:12px;margin:24px 0;overflow:hidden}article,aside{padding:24px;min-width:0}aside{border-left:1px solid #e1e7eb;background:#fafcfc}.tag{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:#14636a}.label{font-size:13px;font-weight:700}.answer{background:#e9f5ef;padding:16px;border-radius:8px}.note{font-size:14px;color:#476170}.failed{background:#fff1dd;padding:16px}.diff{display:grid;grid-template-columns:1fr 1fr;gap:16px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.5 ui-monospace,monospace;background:#edf2f4;padding:12px;border-radius:6px}summary{cursor:pointer;font-weight:600}details{margin:12px 0}dt{font-weight:700}dd{margin:0 0 12px}a{color:#156773}@media(max-width:800px){.row,.diff{grid-template-columns:1fr}aside{border-left:0;border-top:1px solid #ddd}main{padding:16px}}</style><main><h1>One conversation. Real memory changes.</h1><p>Maya is a fictional gardener. Every shown assistant message is real model output. The harness did not prewrite workspace notes. Read the conversation on the left and exact file changes on the right.</p><p>Chat → preference update → new-session recall → native dreaming → SDK recall → application answer. Failed attempts remain visible. Automatic flush was not observed.</p><details><summary>Capabilities, boundaries and request ledger</summary><pre>' + esc(json.dumps({k: report[k] for k in ['status', 'limits', 'ledger', 'retainedPriorLedger']}, indent=2)) + '</pre><dl>' + ''.join('<dt>' + esc(k) + '</dt><dd>' + esc(v) + '</dd>' for k, v in report['roles'].items()) + '</dl></details>' + ''.join(render_step(s) for s in steps) + '<details><summary>Developer coverage and existing atomic checks</summary><p><a href="../README.md">Applied README</a> · <a href="test-report.html">Existing verification rounds</a> · <a href="chatbot-memory-demo.json">Sanitized replay JSON</a></p><p>This recorded replay does not replace the underlying atomic engine tests.</p></details></main></html>'
+page = render_conversation(report)
+html_output = foundation / '.bootstrap/rendered-reports/chatbot-memory-demo.html'
+page = rebase_conversation_links(page, foundation, html_output.parent)
 # Render both outputs before replacing either historical report.
 payload = json.dumps(report, indent=2, ensure_ascii=False) + '\n'
 output.write_text(payload)
-(foundation / 'reports/chatbot-memory-demo.html').write_text(page)
+html_output.parent.mkdir(parents=True, exist_ok=True)
+html_output.write_text(page)
 print(output)
 print('Actual model final answer:', bool(final))

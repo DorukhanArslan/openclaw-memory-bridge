@@ -21,7 +21,7 @@ Maya is a fictional gardener. She plans at 08:00, waters orchids on Monday, and 
 
 The native agent edits `USER.md`. In a new session it answers “rooibos tea” and “Monday”, citing `USER.md#L6-L7`. Native dreaming then promotes the orchid event from the daily note into `MEMORY.md`.
 
-Follow the [conversation and file changes](reports/chatbot-memory-demo.html). The [case payload](reports/memory-story.json) includes real inputs/outputs, triggers, changes, gains, and gaps from labelled runs. Cases are a learning path, **not one continuous run**.
+Follow the [conversation and file changes](reports/chatbot-memory-demo.json). The [case payload](reports/memory-story.json) includes real inputs/outputs, triggers, changes, gains, and gaps from labelled runs. Cases are a learning path, **not one continuous run**. [Generate the HTML views locally](reports/README.md#reproduce-five-html-reports-from-a-clean-checkout) to browse the reports.
 
 | Case and gain | Actual evidence and boundary |
 | --- | --- |
@@ -81,7 +81,7 @@ To read an existing native user profile, call `memory.get(scope, "USER.md", star
 
 ## Independent host-agent example
 
-[The example](examples/host_agent.py) runs a real Python model/tool loop using only the installed public SDK for memory. It writes and updates synthetic Maya’s notes, starts fresh host sessions, runs native dreaming, restarts the Gateway, and checks separate user/workspace corpora. [The latest report](reports/host-agent-memory.html) shows actual calls, source results, native receipts and the earlier diary interruption alongside its correction.
+[The example](examples/host_agent.py) runs a real Python model/tool loop using only the installed public SDK for memory. It writes and updates synthetic Maya’s notes, starts fresh host sessions, runs native dreaming, restarts the Gateway, and checks separate user/workspace corpora. [The latest report](reports/host-agent-memory.json) shows actual calls, source results, native receipts and the earlier diary interruption alongside its correction.
 
 From an independent directory, with Python 3.10+:
 
@@ -116,9 +116,9 @@ python examples/residence_acceptance.py --foundation "$PWD" --root "$PWD/.lab-te
 python examples/host_maintenance.py --foundation "$PWD" --root "$PWD/.lab-test-residence/memory" --workspace residence-lab --user synthetic-maya --runs 1 --host-reserve-usd 11.611008
 ```
 
-The residence test asks the model to update Ankara to Istanbul in the canonical profile, retain dated history, run native maintenance and recall facts after a bridge process restart. It refuses replay of a consumed host ledger. This tests explicit agent writes; it is not formal supersession. The scheduler has no daemon or automatic retries. The [English HTML report](reports/residence-memory.html) includes actual source, conversation and maintenance receipts; the JSON receipt is next to it.
+The residence test asks the model to update Ankara to Istanbul in the canonical profile, retain dated history, run native maintenance and recall facts after a bridge process restart. It refuses replay of a consumed host ledger. This tests explicit agent writes; it is not formal supersession. The scheduler has no daemon or automatic retries. The [report](reports/residence-memory.json) includes actual source, conversation and maintenance receipts.
 
-The deeper [native/SDK comparison](reports/native-sdk-parity.html) separates request and source fidelity from product behavior. Both real chats recalled Istanbul and jasmine tea; one native deep diary in the SDK run degraded. The report retains that failure, exact replay evidence, the lost-write-ack test, and clean-consumer reproduction commands. No production SDK change or exactly-once guarantee is claimed.
+The deeper [native/SDK comparison](reports/native-sdk-parity.json) separates request and source fidelity from product behavior. Both real chats recalled Istanbul and jasmine tea; one native deep diary in the SDK run degraded. The report retains that failure, exact replay evidence, the lost-write-ack test, and clean-consumer reproduction commands. No production SDK change or exactly-once guarantee is claimed.
 
 The October 23 SDK closeout keeps the original 19/20 failure. A later matched run published light, REM and deep diaries without a production SDK fix. The original failure did not reproduce under healthy admission; its cause remains unresolved. The report separates this result from the budget-denied diagnostic and records fresh wheel and regression checks. Your host still owns scheduling, conversation context, flush policy and recovery; formal old-fact supersession remains unsupported through this path.
 
@@ -140,10 +140,10 @@ npm run lint
 npm test
 ```
 
-Tests distinguish real engine checks, transport fixtures, recorded model evidence, and live-model skips. See [coverage](reports/memory-case-coverage.json) and [test rounds](reports/test-report.html). [Runtime licenses and notices](THIRD_PARTY.md) remain intact.
+Tests distinguish real engine checks, transport fixtures, recorded model evidence, and live-model skips. See [coverage](reports/memory-case-coverage.json) and [test rounds](reports/test-rounds.json). [Runtime licenses and notices](THIRD_PARTY.md) remain intact.
 
 The optional [native bootstrap template context check](examples/bootstrap-context.md) verifies actual template creation and prepared-prompt injection without a model call. It uses an isolated native workspace and leaves the lab's `skipBootstrap: true` default unchanged. This is separate from the historical Maya missing-template result and does not claim a completed bootstrap conversation.
 
-Historical raw model records are optional in a clean checkout. Use `python3 scripts/evidence_status.py --json` to inspect their availability, or require them with `BRIDGE_REQUIRE_MODEL_EVIDENCE=1` when running the historical Python audits. Reproduce four committed HTML reports without model calls using `python3 scripts/render_reports.py --output-dir .bootstrap/rendered-reports`. See [retained evidence and report reproduction](reports/README.md) for external evidence directories, strict audit behavior, and builders that still need original retained context.
+Historical raw model records are optional in a clean checkout. Use `python3 scripts/evidence_status.py --json` to inspect their availability, or require them with `BRIDGE_REQUIRE_MODEL_EVIDENCE=1` when running the historical Python audits. Reproduce all five HTML reports from tracked JSON without model calls using `python3 scripts/render_reports.py --output-dir .bootstrap/rendered-reports`, then open `.bootstrap/rendered-reports/chatbot-memory-demo.html` in your browser. Generated HTML stays outside Git. See [retained evidence and report reproduction](reports/README.md) for external evidence directories, strict audit behavior, and builders that still need original retained context.
 
 Upstream: [builtin memory](https://docs.openclaw.ai/concepts/memory-builtin), [embedding](https://docs.openclaw.ai/gateway/embedding), [Gateway tools](https://docs.openclaw.ai/gateway/tools-invoke-http-api). The inventory checks the pinned release.

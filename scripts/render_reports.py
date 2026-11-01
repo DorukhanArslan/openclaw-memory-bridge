@@ -1,12 +1,15 @@
-"""Regenerate four HTML views from tracked JSON without running acceptance flows."""
+"""Regenerate five HTML views from tracked JSON without running acceptance flows."""
 from __future__ import annotations
 
 import argparse
 import importlib.util
+import html
 import json
+import os
 from pathlib import Path
 import sys
 import tempfile
+from urllib.parse import quote
 
 
 REPORTS = (
@@ -14,7 +17,14 @@ REPORTS = (
     ("host-agent-memory", "host-agent-memory"),
     ("residence-memory", "residence-memory"),
     ("native-sdk-parity", "native-sdk-parity"),
+    ("chatbot-memory-demo", "chatbot-memory-demo"),
 )
+CONVERSATION_SOURCE_LINKS = {
+    "../README.md": "README.md",
+    "chatbot-memory-demo.json": "reports/chatbot-memory-demo.json",
+    "memory-capabilities.json": "reports/memory-capabilities.json",
+    "memory-story.json": "reports/memory-story.json",
+}
 
 
 def load_module(path, name):
@@ -22,6 +32,14 @@ def load_module(path, name):
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
+
+
+def rebase_conversation_links(page, foundation, output):
+    """Keep retained-source links usable from the selected HTML directory."""
+    for original, relative in CONVERSATION_SOURCE_LINKS.items():
+        destination = quote(os.path.relpath(foundation / relative, output), safe="/")
+        page = page.replace(f'href="{original}"', f'href="{html.escape(destination, quote=True)}"')
+    return page
 
 
 def validate_output(foundation, output):
@@ -48,6 +66,12 @@ def render_reports(foundation, output):
         if not isinstance(record, expected):
             raise ValueError(f"{path.name}: expected {expected.__name__}")
         records[stem] = record
+    for name in ["memory-story", "conversation-validation"]:
+        path = foundation / "reports" / f"{name}.json"
+        record = json.loads(path.read_text())
+        if not isinstance(record, dict):
+            raise ValueError(f"{path.name}: expected dict")
+        records[name] = record
 
     # The existing render functions are pure consumers of supplied records.
     # Local SDK source satisfies their imports in a dependency-free checkout;
@@ -60,6 +84,7 @@ def render_reports(foundation, output):
             "host-agent-memory": load_module(foundation / "examples/host_agent.py", "retained_host_report").render,
             "residence-memory": load_module(foundation / "examples/residence_acceptance.py", "retained_residence_report").render,
             "native-sdk-parity": load_module(foundation / "examples/parity/report.py", "retained_parity_report").render,
+            "chatbot-memory-demo": load_module(foundation / "examples/conversation_report.py", "retained_conversation_report").render,
         }
         rendered = {}
         with tempfile.TemporaryDirectory(prefix="bridge-report-render-") as folder:
@@ -67,6 +92,10 @@ def render_reports(foundation, output):
                 stage = Path(folder) / f"{stem}.html"
                 if stem == "test-report":
                     stage.write_text(renderers[stem](records[stem]))
+                elif stem == "chatbot-memory-demo":
+                    page = renderers[stem](records[stem], records["memory-story"],
+                                           records["conversation-validation"])
+                    stage.write_text(rebase_conversation_links(page, foundation, output))
                 else:
                     renderers[stem](records[stem], stage)
                 rendered[stem] = stage.read_bytes()
