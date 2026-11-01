@@ -3,6 +3,7 @@ import {
   admitLifecycleRequest,
   boundConsolidationUtilityRequest,
 } from "./lifecycle-request-budget.ts";
+import { startNativeUsageProxy } from "./native-usage-proxy.ts";
 
 // OpenClaw supplies Undici dispatchers. Node 24's older built-in fetch cannot
 // use their handler/options contract. Keep fetch and dispatchers in one runtime.
@@ -18,6 +19,11 @@ if (
   );
 
 globalThis.fetch = nativeRequire("undici/index.js").fetch;
+const stopUsageProxy = await startNativeUsageProxy();
+if (stopUsageProxy) {
+  process.once("beforeExit", () => void stopUsageProxy());
+  process.once("exit", () => void stopUsageProxy());
+}
 const ledger = process.env.OPENCLAW_LAB_LIFECYCLE_LEDGER;
 if (ledger) {
   const nativeFetch = globalThis.fetch;

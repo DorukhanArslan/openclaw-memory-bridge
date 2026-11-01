@@ -34,6 +34,7 @@ import {
 } from "./lifecycle-request-budget.ts";
 import { maintenanceExitCode } from "./maintenance-status.ts";
 import { forwardNetworkEnvironment } from "./network-env.ts";
+import { claimOneRunSmoke, oneRunSmokeBudget } from "./one-run-smoke.ts";
 import {
   confirmSmoke,
   fixtureEndpoint,
@@ -57,6 +58,14 @@ import {
 } from "./provider-handoff.ts";
 
 export const PROJECT = fileURLToPath(new URL("../", import.meta.url));
+export const ONE_RUN_SMOKE_ADMISSION = join(
+  PROJECT,
+  ".lab/one-run-smoke-admission.json",
+);
+export const ONE_RUN_SMOKE_RESULT = join(
+  PROJECT,
+  ".lab/one-run-smoke-result.json",
+);
 const NATIVE_PRELOAD = fileURLToPath(
   new URL("./native-bootstrap.ts", import.meta.url),
 );
@@ -958,10 +967,27 @@ export class Lab {
     try {
       await this.provision(); // No persisted smoke permission/settings.
       await this.validateConfig();
-      const budget = smokeBudget(
-        fixture?.status ?? (await this.providerUsage()),
-        confirmations,
-      );
+      const nativeBudget = fixture?.status ?? (await this.providerUsage());
+      let budget:
+        | ReturnType<typeof smokeBudget>
+        | ReturnType<typeof oneRunSmokeBudget>;
+      if (fixture) budget = smokeBudget(nativeBudget, confirmations);
+      else {
+        const approval = oneRunSmokeBudget(nativeBudget, confirmations);
+        await safeDir(dirname(ONE_RUN_SMOKE_ADMISSION));
+        try {
+          await lstat(ONE_RUN_SMOKE_RESULT);
+          throw new Error(
+            "A one-run smoke result already exists; do not replay.",
+          );
+        } catch (error) {
+          if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+        }
+        // Consume this current one-run approval before the first possible
+        // embedding or completion request. Uncertain failures stay consumed.
+        claimOneRunSmoke(ONE_RUN_SMOKE_ADMISSION, approval);
+        budget = approval;
+      }
       await this.writeNote("resident", SMOKE.note);
       const assertCorpus = async () => {
         if (
@@ -1026,7 +1052,23 @@ export class Lab {
         mode: fixture ? "native-runtime/mock-provider" : "real-provider",
         budget,
         completion: completion.json,
-        recall: { path: SMOKE.path, hits: recall.results.length },
+        completionModel: {
+          provider: completion.provider,
+          model: completion.model,
+        },
+        recall: {
+          path: SMOKE.path,
+          hits: recall.results.length,
+          query: SMOKE.query,
+          provider: recall.provider,
+          model: recall.model,
+        },
+        source: {
+          path: SMOKE.path,
+          from: 1,
+          requestedLines: 10,
+          text: source.text,
+        },
         inputUpperBound: contract.inputUpperBound,
         outputLimit: SMOKE.maxOutputTokens,
         wrapperRetries: 0,
@@ -1035,6 +1077,14 @@ export class Lab {
         estimatedUsd: SMOKE.estimatedUsd,
         testCeilingUsd: SMOKE.testCeilingUsd,
         estimateIsHardCap: false,
+        approval: fixture
+          ? "synthetic-provider fixture only"
+          : {
+              scope: "one-run-fixed-smoke",
+              receipt: ".lab/one-run-smoke-admission.json",
+              cumulativeHistoryVerified: false,
+              automaticReplayAllowed: false,
+            },
       };
     } finally {
       await this.stop();
