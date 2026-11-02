@@ -3295,7 +3295,7 @@ export class Lab {
     await this.start();
     const result = (await this.invoke(
       "memory_search",
-      { query, maxResults: 8, minScore: 0 },
+      { query, maxResults: 8, minScore: 0, corpus: "memory" },
       session,
     )) as SearchResult;
     if (

@@ -4,6 +4,10 @@ This project lets you test OpenClaw's existing memory engine through a local Typ
 
 **OpenClaw 2026.9.9**, **Node 24.16.0**. Synthetic data; trusted local operator.
 
+The delivered port covers Python memory write/update/delete, native indexing, search with source reads, workspace/user routing, and persistence across Gateway and client restarts. See the [delivery scope and verification](reports/port-delivery.md).
+
+The broader capability inventory describes optional coverage and upstream features. It is not a list of unfinished requirements for this port.
+
 ## Features
 
 - Native keyword search, optional semantic search, exact source reads, and persistent SQLite indexes.
