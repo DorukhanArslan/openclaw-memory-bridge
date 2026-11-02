@@ -150,6 +150,8 @@ The [one-user native lifecycle acceptance](examples/one-user-lifecycle.md) follo
 
 The separately authorized [maintenance follow-up](examples/one-user-maintenance-followup.md) continues the retained partial case with a new-day owner confirmation, native promotion and fresh-session recall after restart. It preserves the consumed original evidence and counts all previous reservations within the same conservative current-work estimate.
 
+[Durable comparison traces](examples/parity/README.md) retain native CLI streams, memory HTTP traffic and SDK protocol events before restart. A model-free runtime check verifies capture across SDK Gateway restart and native process replacement; historical missing traces remain missing.
+
 Historical raw model records are optional in a clean checkout. Use `python3 scripts/evidence_status.py --json` to inspect their availability, or require them with `BRIDGE_REQUIRE_MODEL_EVIDENCE=1` when running the historical Python audits. Reproduce all five HTML reports from tracked JSON without model calls using `python3 scripts/render_reports.py --output-dir .bootstrap/rendered-reports`, then open `.bootstrap/rendered-reports/chatbot-memory-demo.html` in your browser. Generated HTML stays outside Git. See [retained evidence and report reproduction](reports/README.md) for external evidence directories, strict audit behavior, and builders that still need original retained context.
 
 Upstream: [builtin memory](https://docs.openclaw.ai/concepts/memory-builtin), [embedding](https://docs.openclaw.ai/gateway/embedding), [Gateway tools](https://docs.openclaw.ai/gateway/tools-invoke-http-api). The inventory checks the pinned release.

@@ -1,7 +1,7 @@
 """Replay genuine model tool actions on two blank, matched native corpora.
 No model calls, edited actions, replaced answers, or maintenance are used.
 """
-import argparse,copy,hashlib,json,sys
+import argparse,copy,hashlib,json,sys,uuid
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
 sys.path.insert(0,str(HERE))
@@ -9,7 +9,8 @@ sys.path.insert(0,str(HERE.parent))
 from openclaw_memory_bridge import BridgeConfig,MemoryClient,MemoryScope,MemoryTools
 from host_agent import Provider,HOST_ENVELOPE_USD,sanitize_report
 from native import DirectNative
-from run import DirectTools,proxy
+from run import DirectTools,proxy,save_trace_manifest
+from parity.trace import TraceJournal
 
 
 def main():
@@ -24,13 +25,19 @@ def main():
  actions=[{'name':call['name'],'args':call['args']} for turn in r['runs']['sdk']['conversation'][:2] for c in turn['calls'] for call in c['results']]
  diagnostic={'contract':spec,'actions':actions,'calls':{'native':[],'sdk':[]},'probes':{},'checks':{}}
  with MemoryClient(BridgeConfig(f,sdkroot,300)) as m:m.configure_maintenance(scope,cumulative_limit_usd=50,host_reserve_usd=HOST_ENVELOPE_USD)
- template=json.loads((directory/'openclaw.json').read_text());native=DirectNative(f,root/'diagnostic-direct',template,directory,ledger,provider.key)
- sdkproxy=proxy(f,root,'diagnostic-sdk')
+ trace_dir=root/'diagnostic-traces';trace_dir.mkdir(mode=0o700)
+ capture_id=uuid.uuid4().hex
+ journal=TraceJournal(trace_dir/'native.jsonl',capture_id=capture_id,route='native',secrets=[provider.key])
+ diagnostic['traceCapture']={'schemaVersion':1,'captureId':capture_id,'complete':False,'futureOnly':True}
+ diagnostic['checks']['captureComplete']=False
+ template=json.loads((directory/'openclaw.json').read_text());native=DirectNative(f,root/'diagnostic-direct',template,directory,ledger,provider.key,trace=journal)
+ sdkproxy=proxy(f,root,'diagnostic-sdk',trace_dir=trace_dir,capture_id=capture_id)
  try:
   with MemoryClient(BridgeConfig(sdkproxy,sdkroot,300)) as m:
    tools={'native':DirectTools(native,scope,r['day'],MemoryTools(m,scope,r['day']).definitions),'sdk':MemoryTools(m,scope,r['day'])}
    assert not list(native.notes.glob('*.md')) and not list((directory/'workspace/memory').glob('*.md'))
    for name,tool in tools.items():
+    journal.barrier('before diagnostic '+name+' actions')
     for action in actions:
      result=tool.execute(action['name'],copy.deepcopy(action['args']))
      diagnostic['calls'][name].append({'request':copy.deepcopy(action),'result':result})
@@ -49,9 +56,18 @@ def main():
   diagnostic['checks']['noNewProviderRequests']=before==json.loads(ledger.read_text())
   diagnostic['nativeLedgerBefore']=before;diagnostic['nativeLedgerAfter']=json.loads(ledger.read_text())
   diagnostic['observedAtEquality']=[[h.get('provenance',{}).get('observedAt') for h in p['results']] for p in diagnostic['probes']['native']]==[[h.get('provenance',{}).get('observedAt') for h in p['results']] for p in diagnostic['probes']['sdk']]
-  r['diagnosticReplay']=sanitize_report(diagnostic,foundation=f,state=root)
+  r['diagnosticReplay']=sanitize_report(journal.redact(diagnostic),foundation=f,state=root)
   a.report.write_text(json.dumps(r,indent=2)+'\n');print(json.dumps({'diagnosticChecks':diagnostic['checks'],'observedAtEquality':diagnostic['observedAtEquality']}))
- finally:native.close()
+ finally:
+  try:
+   native.close();journal.finish()
+   diagnostic['traceCapture']=save_trace_manifest(trace_dir,capture_id,['native.jsonl','diagnostic-sdk-protocol.jsonl','diagnostic-sdk-http.jsonl'])
+   diagnostic['checks']['captureComplete']=diagnostic['traceCapture']['complete']
+  except Exception:
+   diagnostic['checks']['captureComplete']=False
+   diagnostic['traceCapture']={**diagnostic['traceCapture'],'complete':False,'error':'Capture did not finish; retain all prefixes.'}
+  r['diagnosticReplay']=sanitize_report(journal.redact(diagnostic),foundation=f,state=root)
+  a.report.write_text(json.dumps(r,indent=2)+'\n')
  return 0 if all(diagnostic['checks'].values()) else 2
 
 if __name__=='__main__':raise SystemExit(main())
