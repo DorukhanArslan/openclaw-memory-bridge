@@ -2704,24 +2704,29 @@ export class Lab {
   async promote(apply = false, testThresholds = false) {
     await this.stop();
     return JSON.parse(
-      await this.native([
-        "memory",
-        "promote",
-        "--agent",
-        "main",
-        "--json",
-        ...(apply ? ["--apply"] : []),
-        ...(testThresholds
-          ? [
-              "--min-score",
-              "0",
-              "--min-recall-count",
-              "0",
-              "--min-unique-queries",
-              "0",
-            ]
-          : []),
-      ]),
+      await this.native(
+        [
+          "memory",
+          "promote",
+          "--agent",
+          "main",
+          "--json",
+          ...(apply ? ["--apply"] : []),
+          ...(testThresholds
+            ? [
+                "--min-score",
+                "0",
+                "--min-recall-count",
+                "0",
+                "--min-unique-queries",
+                "0",
+              ]
+            : []),
+        ],
+        120000,
+        false,
+        true,
+      ),
     ) as unknown;
   }
   async explain(selector: string) {
