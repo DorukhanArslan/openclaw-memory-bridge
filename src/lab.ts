@@ -36,6 +36,24 @@ import { maintenanceExitCode } from "./maintenance-status.ts";
 import { forwardNetworkEnvironment } from "./network-env.ts";
 import { claimOneRunSmoke, oneRunSmokeBudget } from "./one-run-smoke.ts";
 import {
+  claimOneUserActivation,
+  ONE_USER_DIRECTORY,
+  ONE_USER_LEDGER,
+  readOneUserLedger,
+  validateOneUserContext,
+} from "./one-user-budget.ts";
+import {
+  claimOneUserFollowupActivation,
+  claimOneUserFollowupCompletion,
+  claimOneUserFollowupPreparationRepair,
+  ONE_USER_FOLLOWUP_DIRECTORY,
+  ONE_USER_FOLLOWUP_LEDGER,
+  ONE_USER_FOLLOWUP_PREPARATION_REPAIR_REPORT,
+  type OneUserFollowupQuota,
+  readOneUserFollowupLedger,
+  validateOneUserFollowupContext,
+} from "./one-user-followup-budget.ts";
+import {
   confirmSmoke,
   fixtureEndpoint,
   SMOKE,
@@ -189,6 +207,9 @@ export class Lab {
   private compactionTest = false;
   private smoke?: { fixtureUrl?: string };
   private lifecycleLedger?: string;
+  private oneUserLedger?: string;
+  private oneUserFollowupLedger?: string;
+  private oneUserMaintenance = false;
   private conversationDemo = false;
   private conversationAnswerOnly = false;
   private maintenanceRunning = false;
@@ -315,6 +336,12 @@ export class Lab {
       ...(this.lifecycleLedger
         ? { OPENCLAW_LAB_LIFECYCLE_LEDGER: this.lifecycleLedger }
         : {}),
+      ...(this.oneUserLedger
+        ? { BRIDGE_ONE_USER_LEDGER: this.oneUserLedger }
+        : {}),
+      ...(this.oneUserFollowupLedger
+        ? { BRIDGE_ONE_USER_FOLLOWUP_LEDGER: this.oneUserFollowupLedger }
+        : {}),
       ...forwardNetworkEnvironment(process.env),
       ...forwardCredentials(this.credentialNames(), process.env),
     };
@@ -322,6 +349,10 @@ export class Lab {
 
   private async provision() {
     await noSymlink(this.config);
+    const finiteOneUser = Boolean(
+      this.oneUserLedger || this.oneUserFollowupLedger,
+    );
+    const supervised = Boolean(this.lifecycleLedger || finiteOneUser);
     const search =
       this.settings.provider === "none"
         ? { provider: "none", sources: ["memory"], fallback: "none" }
@@ -367,7 +398,7 @@ export class Lab {
               skipBootstrap: true,
               userTimezone: "UTC",
               heartbeat: { every: "0m" },
-              ...(this.lifecycleLedger
+              ...(supervised
                 ? {
                     params: { maxTokens: this.conversationDemo ? 512 : 1024 },
                     thinkingDefault: "off",
@@ -414,7 +445,7 @@ export class Lab {
           ...(this.settings.textModel
             ? {
                 models:
-                  this.smoke || this.lifecycleLedger
+                  this.smoke || supervised
                     ? {
                         catalogRefresh: { enabled: false },
                         providers: {
@@ -431,11 +462,13 @@ export class Lab {
                                 id: "openai/gpt-6-sol",
                                 name: "GPT-6 Sol bounded smoke",
                                 reasoning: true,
-                                maxTokens: this.lifecycleLedger
-                                  ? this.conversationDemo
-                                    ? 512
-                                    : 1024
-                                  : SMOKE.maxOutputTokens,
+                                maxTokens: finiteOneUser
+                                  ? 2048
+                                  : this.lifecycleLedger
+                                    ? this.conversationDemo
+                                      ? 512
+                                      : 1024
+                                    : SMOKE.maxOutputTokens,
                                 compat: {
                                   maxTokensField: "max_completion_tokens",
                                   thinkingFormat: "openrouter",
@@ -450,6 +483,9 @@ export class Lab {
             : {}),
           plugins: {
             entries: {
+              ...(this.oneUserFollowupLedger
+                ? { "active-memory": { enabled: false } }
+                : {}),
               ...(this.smoke || this.conversationAnswerOnly
                 ? {
                     "llm-task": {
@@ -474,7 +510,7 @@ export class Lab {
                     enabled: this.settings.dreaming ?? false,
                     frequency: "0 0 1 1 *",
                     timezone: "UTC",
-                    ...(this.lifecycleLedger
+                    ...(supervised
                       ? {
                           execution: {
                             defaults: { model: PAID_SELECTION.chat },
@@ -518,7 +554,8 @@ export class Lab {
           memory: {
             search: {
               ...search,
-              rememberAcrossConversations: Boolean(this.lifecycleLedger),
+              rememberAcrossConversations:
+                supervised && !this.oneUserFollowupLedger,
               query: { minScore: 0 },
             },
           },
@@ -537,14 +574,17 @@ export class Lab {
             ],
           },
           browser: { enabled: false },
-          ...(this.smoke || this.settings.managedMaintenance
-            ? { cron: { enabled: this.maintenanceRunning } }
-            : {}),
+          ...(finiteOneUser
+            ? { cron: { enabled: this.oneUserMaintenance } }
+            : this.smoke || this.settings.managedMaintenance
+              ? { cron: { enabled: this.maintenanceRunning } }
+              : {}),
           update: { checkOnStart: false, auto: { enabled: false } },
           telemetry: { enabled: false },
           logging: {
             file: join(this.directory, "openclaw.log"),
             consoleLevel: "error",
+            ...(finiteOneUser ? { level: "debug" } : {}),
           },
         },
         null,
@@ -756,7 +796,11 @@ export class Lab {
     if (boundedIndex) {
       if (!this.smoke || args.join(" ") !== "memory index --force --agent main")
         throw new Error("Invalid bounded smoke index operation.");
-    } else if (!this.lifecycleLedger)
+    } else if (
+      !this.lifecycleLedger &&
+      !this.oneUserLedger &&
+      !this.oneUserFollowupLedger
+    )
       assertNativeOperationAllowed(this.credentialNames().length > 0, args);
     const child = spawn(
       process.execPath,
@@ -1105,6 +1149,301 @@ export class Lab {
       llmSlug: false,
       transcriptSearch: false,
     };
+  }
+
+  /** A newly authorized single-user scenario; no historical ledger is reused. */
+  async boundedOneUserLifecycle(
+    checkpoint: (value: Record<string, unknown>) => Promise<void>,
+  ) {
+    await verifySmokeRuntime();
+    requireEnvironment([PAID_SELECTION.keyEnv]);
+    if (
+      this.name !== "one-user" ||
+      this.root !== join(ONE_USER_DIRECTORY, "corpus") ||
+      !this.locked ||
+      this.lifecycleLedger ||
+      this.oneUserLedger ||
+      this.oneUserFollowupLedger ||
+      this.smoke ||
+      this.settings.provider !== "none" ||
+      this.settings.textModel ||
+      (await this.listNotes()).length
+    )
+      throw new Error(
+        "One-user acceptance requires its fresh approved corpus.",
+      );
+    const { runOneUserLifecycle } = await import("./one-user-lifecycle.ts");
+    // This durable activation also blocks direct-method retries after a
+    // zero-dispatch setup failure; the CLI admission alone is not sufficient.
+    claimOneUserActivation(ONE_USER_LEDGER);
+    let activated = false;
+    const finish = async () => {
+      try {
+        await this.stop();
+      } finally {
+        this.oneUserLedger = undefined;
+        this.oneUserMaintenance = false;
+        this.conversationDemo = false;
+        this.settings = { provider: "none", dreaming: false };
+        await this.saveSettings();
+      }
+    };
+    try {
+      const result = await runOneUserLifecycle(this, {
+        ledgerPath: ONE_USER_LEDGER,
+        evidenceDirectory: ONE_USER_DIRECTORY,
+        activate: async (ledgerPath) => {
+          if (activated || ledgerPath !== ONE_USER_LEDGER)
+            throw new Error("Invalid one-user activation context.");
+          validateOneUserContext(ledgerPath);
+          activated = true;
+          this.oneUserLedger = ledgerPath;
+          this.oneUserMaintenance = false;
+          this.conversationDemo = true;
+          this.settings = {
+            provider: "none",
+            dreaming: false,
+            flush: "normal",
+            sessionMemory: true,
+            textModel: nativeModel(PAID_SELECTION.chat, PAID_SELECTION.keyEnv),
+          };
+          await this.saveSettings();
+          await this.validateConfig();
+        },
+        phase: async (phase) => {
+          if (!activated || !this.oneUserLedger)
+            throw new Error("The one-user scenario is not active.");
+          if (!["profile", "flush", "semantic", "maintenance"].includes(phase))
+            throw new Error("Invalid fixed one-user phase.");
+          await this.stop();
+          this.oneUserMaintenance = phase === "maintenance";
+          this.settings.flush = phase === "flush" ? "test" : "normal";
+          this.settings.dreaming = phase === "maintenance";
+          if (phase === "semantic") {
+            this.settings = {
+              ...this.settings,
+              provider: "openai-compatible",
+              baseUrl: PAID_SELECTION.embeddingUrl,
+              model: PAID_SELECTION.embedding,
+              keyEnv: PAID_SELECTION.keyEnv,
+            };
+          }
+          await this.saveSettings();
+        },
+        rpc: (method, params, timeout) => this.rpc(method, params, timeout),
+        localTurn: async (session, message) => {
+          if (!activated || !this.oneUserLedger)
+            throw new Error("The one-user scenario is not active.");
+          validId(session);
+          if (!message.trim() || Buffer.byteLength(message) > 64000)
+            throw new Error("Invalid fixed one-user message.");
+          await this.stop();
+          return JSON.parse(
+            await this.native(
+              [
+                "agent",
+                "--local",
+                "--agent",
+                "main",
+                "--session-key",
+                this.sessionKey(session),
+                "--message",
+                message,
+                "--thinking",
+                "off",
+                "--timeout",
+                "120",
+                "--json",
+              ],
+              150000,
+              false,
+              true,
+            ),
+          );
+        },
+        ownerTurn: async (session, message) => {
+          if (!activated || !this.oneUserLedger)
+            throw new Error("The one-user scenario is not active.");
+          if (
+            session !== "main" ||
+            !message.trim() ||
+            Buffer.byteLength(message) > 64000
+          )
+            throw new Error("Invalid fixed one-user owner turn.");
+          await this.start();
+          const { oneUserOwnerTurn } = await import("./one-user-owner-turn.ts");
+          return oneUserOwnerTurn({
+            url: `ws://127.0.0.1:${this.port}`,
+            token: this.token,
+            sessionKey: "agent:main:main",
+            message,
+          });
+        },
+        checkpoint: async (value) => {
+          value.requestLedger = readOneUserLedger(ONE_USER_LEDGER);
+          await checkpoint(JSON.parse(this.redact(JSON.stringify(value))));
+        },
+        finish,
+      });
+      result.requestLedger = readOneUserLedger(ONE_USER_LEDGER);
+      return result;
+    } finally {
+      await finish();
+    }
+  }
+
+  /** Explicitly authorized maintenance continuation; the original run stays consumed. */
+  async boundedOneUserFollowup(
+    checkpoint: (value: Record<string, unknown>) => Promise<void>,
+  ) {
+    return this.runOneUserFollowup(checkpoint);
+  }
+
+  /** One exact zero-dispatch readiness repair; all consumed records stay immutable. */
+  async repairOneUserFollowupPreparation(
+    quota: OneUserFollowupQuota,
+    checkpoint: (value: Record<string, unknown>) => Promise<void>,
+  ) {
+    return this.runOneUserFollowup(checkpoint, quota);
+  }
+
+  /** Continue only unwritten maintenance/recall stages from verified owned-source evidence. */
+  async completeOneUserFollowup(
+    quota: OneUserFollowupQuota,
+    checkpoint: (value: Record<string, unknown>) => Promise<void>,
+  ) {
+    return this.runOneUserFollowup(checkpoint, quota, true);
+  }
+
+  private async runOneUserFollowup(
+    checkpoint: (value: Record<string, unknown>) => Promise<void>,
+    preparationRepairQuota?: OneUserFollowupQuota,
+    completion = false,
+  ) {
+    await verifySmokeRuntime();
+    requireEnvironment([PAID_SELECTION.keyEnv]);
+    if (
+      this.name !== "one-user" ||
+      this.root !== join(ONE_USER_DIRECTORY, "corpus") ||
+      !this.locked ||
+      this.child ||
+      this.commands.size ||
+      this.lifecycleLedger ||
+      this.oneUserLedger ||
+      this.oneUserFollowupLedger ||
+      this.smoke ||
+      this.settings.provider !== "none" ||
+      this.settings.textModel
+    )
+      throw new Error(
+        "One-user follow-up requires the retained, inactive corpus.",
+      );
+    const { runOneUserFollowup } = await import("./one-user-followup.ts");
+    if (completion && preparationRepairQuota)
+      claimOneUserFollowupCompletion(
+        ONE_USER_FOLLOWUP_LEDGER,
+        preparationRepairQuota,
+      );
+    else if (preparationRepairQuota)
+      claimOneUserFollowupPreparationRepair(
+        ONE_USER_FOLLOWUP_LEDGER,
+        preparationRepairQuota,
+      );
+    else claimOneUserFollowupActivation(ONE_USER_FOLLOWUP_LEDGER);
+    let activated = false;
+    const finish = async () => {
+      try {
+        await this.stop();
+      } finally {
+        this.oneUserFollowupLedger = undefined;
+        this.oneUserMaintenance = false;
+        this.conversationDemo = false;
+        this.settings = { provider: "none", dreaming: false };
+        await this.saveSettings();
+      }
+    };
+    try {
+      const result = await runOneUserFollowup(this, {
+        ledgerPath: ONE_USER_FOLLOWUP_LEDGER,
+        evidenceDirectory: ONE_USER_FOLLOWUP_DIRECTORY,
+        ...(completion
+          ? {
+              completionCheckpoint: ONE_USER_FOLLOWUP_PREPARATION_REPAIR_REPORT,
+            }
+          : {}),
+        activate: async (ledgerPath) => {
+          if (activated || ledgerPath !== ONE_USER_FOLLOWUP_LEDGER)
+            throw new Error("Invalid one-user follow-up activation.");
+          validateOneUserFollowupContext(ledgerPath);
+          activated = true;
+          this.oneUserFollowupLedger = ledgerPath;
+          this.oneUserMaintenance = false;
+          this.conversationDemo = true;
+          this.settings = {
+            provider: "none",
+            dreaming: false,
+            flush: "normal",
+            sessionMemory: true,
+            textModel: nativeModel(PAID_SELECTION.chat, PAID_SELECTION.keyEnv),
+          };
+          await this.saveSettings();
+          await this.validateConfig();
+        },
+        phase: async (phase) => {
+          if (!activated || !this.oneUserFollowupLedger)
+            throw new Error("The one-user follow-up is not active.");
+          if (!["semantic", "maintenance", "recall"].includes(phase))
+            throw new Error("Invalid fixed one-user follow-up phase.");
+          await this.stop();
+          this.oneUserMaintenance = phase === "maintenance";
+          this.settings.dreaming = phase === "maintenance";
+          this.settings.flush = phase === "semantic" ? "normal" : undefined;
+          this.settings = {
+            ...this.settings,
+            provider: "openai-compatible",
+            baseUrl: PAID_SELECTION.embeddingUrl,
+            model: PAID_SELECTION.embedding,
+            keyEnv: PAID_SELECTION.keyEnv,
+          };
+          await this.saveSettings();
+        },
+        rpc: (method, params, timeout) => this.rpc(method, params, timeout),
+        ownerTurn: async (session, message) => {
+          if (!activated || !this.oneUserFollowupLedger)
+            throw new Error("The one-user follow-up is not active.");
+          if (
+            !["owner-followup", "followup-recall"].includes(session) ||
+            (completion && session !== "followup-recall") ||
+            !message.trim() ||
+            Buffer.byteLength(message) > 64000
+          )
+            throw new Error("Invalid fixed one-user follow-up turn.");
+          await this.start();
+          const { oneUserFollowupOwnerTurn } = await import(
+            "./one-user-owner-turn.ts"
+          );
+          return oneUserFollowupOwnerTurn({
+            url: `ws://127.0.0.1:${this.port}`,
+            token: this.token,
+            sessionKey: this.sessionKey(session),
+            message,
+          });
+        },
+        checkpoint: async (value) => {
+          value.requestLedger = readOneUserFollowupLedger(
+            ONE_USER_FOLLOWUP_LEDGER,
+          );
+          await checkpoint(JSON.parse(this.redact(JSON.stringify(value))));
+        },
+        finish,
+      });
+      result.requestLedger = readOneUserFollowupLedger(
+        ONE_USER_FOLLOWUP_LEDGER,
+      );
+      return result;
+    } finally {
+      await finish();
+    }
   }
 
   /** Fixed synthetic acceptance; temporary permission never leaves this operation. */
@@ -2863,7 +3202,11 @@ export class Lab {
   private async startGateway(boundedSmoke = false) {
     if (boundedSmoke) {
       if (!this.smoke) throw new Error("Invalid bounded Gateway startup.");
-    } else if (!this.lifecycleLedger)
+    } else if (
+      !this.lifecycleLedger &&
+      !this.oneUserLedger &&
+      !this.oneUserFollowupLedger
+    )
       assertGatewayAllowed(this.credentialNames().length > 0);
     if (this.child) return;
     this.port = await freePort();
