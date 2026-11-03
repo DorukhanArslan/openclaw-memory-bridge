@@ -39,6 +39,10 @@ jobs:
           python3 -m venv .bootstrap/python-ci
           .bootstrap/python-ci/bin/python -m pip install ./python
           .bootstrap/python-ci/bin/python -m unittest discover -s python/tests -v
+      - name: Test the separate chatbot SDK consumer
+        env:
+          FOUNDATION_ROOT: ${{ github.workspace }}
+        run: .bootstrap/python-ci/bin/python -m unittest discover -s apps/memory-chat -p 'test_*.py' -v
       - name: Check the client-only clean setup
         run: |
           client_dir=$(mktemp -d)

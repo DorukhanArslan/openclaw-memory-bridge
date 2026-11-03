@@ -5,6 +5,8 @@
       "src/**",
       "tests/**",
       "examples/**/*.ts",
+      "apps/**/*.ts",
+      "apps/**/*.js",
       "*.json",
       "!package-lock.json"
     ]

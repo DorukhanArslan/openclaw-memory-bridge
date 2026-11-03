@@ -8,6 +8,8 @@
     "lab": "node_modules/node/bin/node src/cli.ts",
     "start": "npm run lab -- shell",
     "demo": "npm run lab -- demo",
+    "chat": "node_modules/node/bin/node apps/memory-chat/start.ts",
+    "test:chat": ".bootstrap/python/bin/python -m unittest discover -s apps/memory-chat -p 'test_*.py' -v",
     "serve": "node_modules/node/bin/node src/stdio.ts",
     "test:protocol": "node_modules/node/bin/node --import ./src/load-env.ts --test tests/protocol.test.ts",
     "test:transport": "node_modules/node/bin/node --import ./src/load-env.ts --test tests/gateway.test.ts",

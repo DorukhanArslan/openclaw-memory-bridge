@@ -15,6 +15,18 @@ The broader capability inventory describes optional coverage and upstream featur
 - Native agent profile and daily notes, reset capture, flush, compaction, and light → REM → deep dreaming. The lab exposes native agent lifecycle controls; the Python SDK exposes memory access, daily notes, manual dreaming and maintenance inspection.
 - A managed private Gateway, a sequential JSONL bridge, and a read-only client for an existing loopback Gateway.
 
+## Interactive chat demo
+
+The [Memory Chat app](apps/memory-chat/README.md) is a separate consumer of the installed public Python SDK. Its OpenAI-style interface shows genuine model replies alongside actual SDK source excerpts, before/after changes, and tool results. New conversations preserve memory; the guided walkthrough also tests recall after Gateway and SDK restart. Export a run for read-only replay without further model calls.
+
+With the runtime and Python SDK installed and `OPENROUTER_API_KEY` set in the server environment:
+
+```sh
+npm run chat -- --budget-usd 1
+```
+
+Open `http://127.0.0.1:8765` on the computer running the server. The explicit estimated allowance is retained across restarts; it is not a provider billing hard cap. The app opens without making model calls. See [how the app connects to the SDK](apps/memory-chat/SDK-CONNECTION.md) for the exact ownership and integration boundary.
+
 ## One memory story
 
 Maya is a fictional gardener. She plans at 08:00, waters orchids on Monday, and changes her drink from mint tea to rooibos tea.
