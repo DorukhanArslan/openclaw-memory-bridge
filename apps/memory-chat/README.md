@@ -1,6 +1,6 @@
 # Memory Chat
 
-A local chatbot demo with an OpenAI-style interface, genuine model replies, and an optional inspector for saved memory, source changes, and executed tools. Start with ordinary chat; the guided walkthrough is an optional sidebar action. Memory operations use the installed public Python SDK.
+A local chatbot demo with an OpenAI-style interface and OpenClaw-managed conversation memory. Messages enter the native interactive agent through the installed public Python SDK. OpenClaw owns the conversation transcript, memory recall, tool execution, and pre-compaction flushing; the optional inspector shows recorded outcomes.
 
 ## Start
 
@@ -12,7 +12,7 @@ npm run chat -- --budget-usd 1
 
 Open the localhost URL printed by the server, normally `http://127.0.0.1:8765`. The server binds to loopback. A cloud machine's localhost is not your computer's localhost; this repository does not provide a public preview URL or tunnel. Run the app on your computer to open it there.
 
-Opening the page starts neither a model request nor the memory Gateway. Ordinary model chat can work while memory is unavailable. The SDK process is created only when a memory tool, explicit memory refresh, or restart needs it. Long operations show progress while the page continues polling cached state; **Stop** prevents further dispatches after the current operation.
+Opening the page starts no model request or memory Gateway. The first message creates the SDK connection and uses the native Gateway; there is no separate plain-chat fallback. Long operations show progress while the page continues polling cached state. You can draft another message, but it is not dispatched until the active operation finishes. **Stop** prevents subsequent model dispatches after the current bounded request.
 
 Sending messages or running guided steps can incur model charges. The allowance is a retained local estimate, not a provider billing hard cap. A new conversation, Stop, failed request, or restart does not refund it. Restart an existing positive allowance with the same `--budget-usd` value; changing the flag cannot replace its budget or policy. On a fresh root, omitting the flag disables model requests without consuming an allowance.
 
@@ -28,15 +28,19 @@ Set the API key in the server's environment before starting. It stays server-sid
 
 ## Try one continuous flow
 
-Use the optional walkthrough or send these messages yourself:
+Use fictional facts and send these messages yourself, or use the optional walkthrough:
 
-1. Save a fact: “My project's code name is Atlas and its delivery day is Friday. Remember both.” Inspect the actual saved source and tool results.
-2. Update one fact: “Change the code name to Nova. Keep the delivery day unchanged.” Inspect the source diff.
-3. Start a new conversation and ask for the code name and delivery day. The host conversation starts empty while the same memory corpus remains available.
-4. Restart memory, then ask again. The demo restarts the Gateway, closes the SDK connection, and creates a new connection when the next memory operation needs it.
-5. Export the run. Inspect the recorded messages, actual tool results, source snapshots, changes, and outcomes. The export describes that run; it is not a newly executed acceptance test.
+1. Say: “I drink my coffee without sugar.” An explicit “remember this” is not required to create a native conversation record.
+2. Ask a follow-up in the same chat. The native agent has the preceding turn in its conversation context.
+3. Click **New chat**, wait for memory preparation to finish, then ask: “How do I take my coffee?” The new session has empty conversation history; recall must use the retained native memory or earlier transcript.
+4. Restart memory and ask again. The Gateway and SDK reconnect to the same retained data.
+5. Export the run. Inspect the actual replies, native completion and persistence receipts, source reads, and operation outcomes.
 
-The inspector distinguishes assistant claims from completed SDK operations. Failed or stale memory reads are labelled; a genuine model reply remains visible even if memory or its later source snapshot fails. Unverified changes are not presented as successful writes. Existing demo data is preserved. Select a separate `--root /path/to/new-demo-data` when an empty corpus is required.
+New chat and restart wait for an explicit native index operation before opening fresh context. Native transcript indexing is otherwise asynchronous; successful completion of that operation establishes the demo's recall-preparation barrier. It can take time, with progress remaining available.
+
+A saved conversation and a curated long-term fact are different records. OpenClaw can recall earlier conversation text without writing every sentence into a preference note. Its normal agent policy and pre-compaction flush can write useful facts; the demo does not guarantee every utterance becomes an immediately curated permanent fact. Automatic dreaming is not scheduled by this demo.
+
+The inspector distinguishes assistant claims from completed native operations and labels unavailable or stale sources. A genuine reply is retained if later inspection fails. Existing data is preserved. Select a separate `--root /path/to/new-demo-data` only when an intentionally empty corpus is required; this does not reset an existing allowance.
 
 ## Replay an exported run
 
@@ -60,18 +64,20 @@ To run the server directly, use an interpreter with the SDK installed:
 python server.py --foundation /path/to/openclaw-memory-bridge --root /path/to/app-data --budget-usd 1
 ```
 
-That command is relative to this app's directory. Keep one server process per data root. This is a trusted local demo, not an authenticated multi-tenant service. Workspace/user routing does not provide authorization. Native automatic fact supersession remains unsupported through the pinned ingestion path, and native flush/compaction does not manage the Python host's chat history.
+That command is relative to this app's directory. Keep one server process per data root. This is a trusted local demo, not an authenticated multi-tenant service. Workspace/user routing does not provide authorization. Native automatic fact supersession remains unsupported through the pinned ingestion path. Native flush and compaction now operate on OpenClaw-owned sessions; they do not manage unrelated external Python histories.
 
 ## Verification
 
-Automated checks cover actual installed-SDK/OpenClaw operations, asynchronous jobs, cancellation, failure recovery, and replay. Automated model conversations use a labelled protocol fixture.
+Native-chat checks must distinguish protocol fixtures, actual native lifecycle operations, and genuine provider runs. A protocol fixture verifies integration and ordering without establishing model behavior. See test output and the captured run for the version being evaluated.
 
-A separate [genuine browser/model/SDK run](../../reports/memory-chat-live-run.json) passed in one retained corpus: ordinary chat without Gateway startup (2.4 seconds), save Atlas/Friday, recall in a new chat, update to Nova while preserving Friday, then restart and fresh-chat recall of Nova/Friday. Cached state reads took at most 165 ms during that run, with zero JavaScript errors. This exercised manual free chat; the guided button sequence has controlled-test coverage but was not fully live-tested. Existing data and scenario allowances remain preserved.
+The [native integration validation](../../reports/memory-chat-native-validation.json) used the production host, installed SDK and actual OpenClaw processes. A natural coffee preference was recorded, indexed before a fresh session, then retrieved with native session search and source reads. Exact encrypted tool continuations survived, and private model metadata stayed out of the export. Model replies in this run were labelled protocol fixtures; no paid provider request was made.
+
+The [earlier genuine browser/model/SDK run](../../reports/memory-chat-live-run.json) remains historical evidence for the former independent Python model/tool loop. It verified explicit note save, update, and recall, but does not establish the new native-chat path or automatic conversation recall. Existing records and consumed allowances are preserved.
 
 ## Troubleshooting
 
-After an ordinary provider failure, you can explicitly send another message in the same chat; the failed turn stays visible and is not retried automatically. Only an uncertain memory-write acknowledgement requires **New chat**. On startup, an interrupted blocked conversation opens a fresh host conversation while preserving its history, saved memory, and allowance.
+A Gateway failure now fails the native chat operation visibly; the app does not silently substitute an independent model conversation. Preserve the data directory and request records when reporting it. Cached state and inspector controls remain available while native work runs.
 
-**Stop** requests cancellation; an already-dispatched request can finish before cancellation is observed. No additional model or memory operation starts afterward, and its reservation remains charged. Provider requests have a 30-second transport timeout. A response that reaches its output limit is shown as partial, with a notice; no paid continuation is started automatically.
+**Stop** requests cancellation of subsequent dispatches. An already-dispatched request can finish before cancellation is observed, and its reservation remains charged. All native main-agent, recall-agent, and flush model requests pass through the same server-side broker and retained allowance. Completion requests outside an explicitly active chat operation are rejected; automatic background model spending is disabled. A provider failure closes that operation's admission window rather than authorizing an automatic paid retry.
 
-If memory fails, continue ordinary chat or use the inspector's explicit refresh/restart controls. Source panels show their unavailable/stale state. Preserve the data directory and request records when reporting a Gateway failure; the diagnostics do not establish the cause of unrelated historical failures.
+If preparation for a new conversation fails, do not treat that as successful fresh-context recall. The error remains visible and the previous data is retained. A completed assistant reply or a saved transcript alone is not proof that semantic indexing or long-term fact consolidation completed.

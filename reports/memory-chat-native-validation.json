@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 1,
+  "kind": "native-chat-integration-validation",
+  "evidenceKind": "real-native-runtime-with-labelled-model-protocol-fixture",
+  "genuineModel": false,
+  "paidProviderCalls": 0,
+  "nativeRuntime": "OpenClaw 2026.9.9",
+  "sourceReceiptSha256": "7d4fc72fb1397b0f617f559b67f859b727799702684bdde74e50a5f86c0a4032",
+  "test": "apps/memory-chat/test_native_runtime.py",
+  "method": "Production NativeChatDemo, installed public Python SDK, actual native Gateway, native transcripts, official index command, sessions_search and sessions_history. Model replies alone are protocol fixtures.",
+  "input": "I take my coffee without sugar.",
+  "explicitRememberInstruction": false,
+  "firstNativeSession": {
+    "sessionId": "f6cb1634-d1d1-4193-82f5-763e5ef3587d",
+    "sessionKey": "agent:main:explicit:c-017794bdf77d4e24bd0431a7",
+    "transcriptPersisted": true,
+    "indexed": true,
+    "pendingIndex": false
+  },
+  "freshConversation": {
+    "native": {
+      "sessionId": "09f1667f-23cf-4206-b548-8d7dac4fd801",
+      "sessionKey": "agent:main:explicit:c-2bdb4de9d39b4576b0ba2d64",
+      "transcriptPersisted": true,
+      "indexed": false,
+      "pendingIndex": true
+    },
+    "contextCopiedFromPreviousChat": false,
+    "question": "How do I take my coffee?",
+    "reply": "Protocol fixture: you take your coffee without sugar, verified through native session search and history."
+  },
+  "actualNativeSearchHit": {
+    "sessionKey": "agent:main:explicit:c-017794bdf77d4e24bd0431a7",
+    "timestamp": 1793744545784,
+    "role": "user",
+    "snippet": "I take my coffee without sugar.",
+    "score": 1e-06,
+    "sessionId": "f6cb1634-d1d1-4193-82f5-763e5ef3587d",
+    "messageId": "a08e9d2e-e62f-4f53-9fae-af8564f2b8d6"
+  },
+  "actualSourceRead": {
+    "sessionKey": "agent:main:explicit:c-017794bdf77d4e24bd0431a7",
+    "userText": "I take my coffee without sugar.",
+    "messageId": "a08e9d2e-e62f-4f53-9fae-af8564f2b8d6"
+  },
+  "encryptedContinuation": {
+    "checks": 2,
+    "exactToolIdsAndMetadataPreserved": true,
+    "privateMetadataExcludedFromExport": true
+  },
+  "simulatedModelRequests": [
+    {
+      "tools": [
+        "apply_patch",
+        "edit",
+        "memory_get",
+        "memory_search",
+        "read",
+        "sessions_history",
+        "sessions_search",
+        "write"
+      ],
+      "requestBytes": 18195,
+      "estimatedReservationUsd": 0.183211
+    },
+    {
+      "tools": [
+        "apply_patch",
+        "edit",
+        "memory_get",
+        "memory_search",
+        "read",
+        "sessions_history",
+        "sessions_search",
+        "write"
+      ],
+      "requestBytes": 18188,
+      "estimatedReservationUsd": 0.183148
+    },
+    {
+      "tools": [
+        "apply_patch",
+        "edit",
+        "memory_get",
+        "memory_search",
+        "read",
+        "sessions_history",
+        "sessions_search",
+        "write"
+      ],
+      "requestBytes": 19720,
+      "estimatedReservationUsd": 0.196936
+    },
+    {
+      "tools": [
+        "apply_patch",
+        "edit",
+        "memory_get",
+        "memory_search",
+        "read",
+        "sessions_history",
+        "sessions_search",
+        "write"
+      ],
+      "requestBytes": 22162,
+      "estimatedReservationUsd": 0.218914
+    }
+  ],
+  "estimatedReservationForEquivalentGenuineRequestsUsd": 0.782209,
+  "estimateContract": "These are conservative local allowance estimates for fixture request sizes, not charges, a provider invoice or a prediction of a genuine model run.",
+  "elapsedSeconds": 70.35,
+  "status": "passed",
+  "limits": [
+    "The fixture selects tools and replies; this does not establish genuine model behavior.",
+    "Automatic dreaming is not scheduled by this demo.",
+    "Transcript persistence and recall do not guarantee that every utterance becomes a curated permanent fact.",
+    "The earlier genuine-provider report describes the independent host loop and is not evidence for this native path."
+  ]
+}

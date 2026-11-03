@@ -78,6 +78,10 @@
     return Boolean(state?.conversation?.blocked);
   }
 
+  function conversationReadOnly() {
+    return Boolean(state?.conversation?.readOnly);
+  }
+
   function modelAllowed() {
     if (!state?.model?.ready) return false;
     const remaining = Number(state.budget?.remainingUsd);
@@ -88,6 +92,7 @@
     const busy = isBusy();
     const replay = Boolean(state && state.mode === "replay");
     const blocked = conversationBlocked();
+    const readOnly = conversationReadOnly();
     document.querySelectorAll("[data-mutates]").forEach((button) => {
       button.disabled = !state || busy || replay;
     });
@@ -95,18 +100,19 @@
       button.disabled = busy;
     });
     document.querySelectorAll("[data-prompt]").forEach((button) => {
-      button.disabled = !state || replay || blocked;
+      button.disabled = !state || replay || blocked || readOnly;
     });
     $("refresh-memory").disabled = !state || refreshing;
     $("refresh-memory").title = busy
       ? "Refresh operation status"
       : "Refresh memory";
     $("message-input").disabled =
-      !state || replay || blocked || (!busy && !modelAllowed());
+      !state || replay || blocked || readOnly || (!busy && !modelAllowed());
     $("send-message").disabled =
       busy ||
       replay ||
       blocked ||
+      readOnly ||
       !modelAllowed() ||
       !$("message-input").value.trim();
     $("send-message").classList.toggle(
@@ -118,6 +124,7 @@
       busy ||
       replay ||
       blocked ||
+      readOnly ||
       (!state.tour?.done && !modelAllowed());
     $("chat-form").setAttribute("aria-busy", String(busy));
     $("export-run").setAttribute("aria-disabled", String(!state));
@@ -321,7 +328,10 @@
       avatar.append(icon("spark"));
       const dots = el("span", "typing");
       dots.setAttribute("role", "status");
-      dots.setAttribute("aria-label", "Waiting for the real model response");
+      dots.setAttribute(
+        "aria-label",
+        state.job?.label || "Request in progress",
+      );
       for (let i = 0; i < 3; i += 1) dots.append(el("i"));
       row.append(
         avatar,
@@ -343,6 +353,38 @@
   function renderMemory() {
     if (!changedView("memory", state.memory)) return;
     const files = Array.isArray(state.memory.files) ? state.memory.files : [];
+    const lifecycle = state.memory.lifecycle;
+    const native = lifecycle?.mode === "native-chat";
+    $("conversation-memory").hidden = !native;
+    if (native) {
+      let title = "Conversation memory";
+      let copy =
+        "OpenClaw saves conversation history as you chat. Curated memory notes are shown separately below.";
+      if (lifecycle.error) {
+        title = "Conversation memory needs attention";
+        copy = lifecycle.error;
+      } else if (lifecycle.pendingIndex) {
+        title = lifecycle.transcriptPersisted
+          ? "Conversation saved"
+          : "Preparing conversation memory";
+        copy =
+          "Choose New chat to prepare this conversation for recall before starting the next one.";
+      } else if (lifecycle.indexed) {
+        title = "Available across chats";
+        copy =
+          "Saved conversation history is ready for recall in a new chat. This is separate from curated memory notes.";
+      } else if (lifecycle.transcriptPersisted) {
+        title = "Conversation saved";
+        copy =
+          "Your messages are stored in conversation history. Recall readiness is shown here when verified.";
+      }
+      $("conversation-memory-title").textContent = title;
+      $("conversation-memory-copy").textContent = copy;
+      $("conversation-memory").classList.toggle(
+        "needs-attention",
+        Boolean(lifecycle.error),
+      );
+    }
     $("memory-count").textContent = String(files.length);
     $("memory-revision").textContent = state.memory.revision
       ? `capture ${String(state.memory.revision).slice(0, 9)}`
@@ -354,7 +396,9 @@
       ? "Memory is unavailable"
       : "Previously captured sources";
     $("memory-warning-copy").textContent = unavailable
-      ? "Chat still works. Saved facts could not be verified." +
+      ? (native
+          ? "OpenClaw could not verify the saved sources."
+          : "Chat still works. Saved facts could not be verified.") +
         (files.length
           ? " These excerpts are from the last verified capture."
           : "")
@@ -372,8 +416,10 @@
       emptyPanel(
         target,
         "file",
-        "No sources read yet",
-        "Ask the assistant to remember something. SDK output from the sources used will appear here.",
+        native ? "No memory notes read yet" : "No sources read yet",
+        native
+          ? "Conversation history can support recall without a separate note for every message. Source excerpts appear here when read."
+          : "Ask the assistant to remember something. SDK output from the sources used will appear here.",
       );
       return;
     }
@@ -577,12 +623,17 @@
           "/" +
           (tour.total || 5)
         : "Guided walkthrough";
-    $("tour-next").title = blocked
-      ? "Start a new chat to continue the walkthrough using the saved memory."
-      : tour.label || "Try a real memory flow, one step at a time";
+    $("tour-next").title = conversationReadOnly()
+      ? "Start a new chat to use conversation memory."
+      : blocked
+        ? "Start a new chat to continue the walkthrough using the saved memory."
+        : tour.label || "Try a real memory flow, one step at a time";
     if (replay)
       $("composer-note").textContent =
         "This is a read-only run capture. Explore the conversation, sources, and executed actions.";
+    else if (conversationReadOnly())
+      $("composer-note").textContent =
+        "This earlier demo conversation is read-only. Start a new chat to use conversation memory.";
     else if (blocked)
       $("composer-note").textContent =
         "This conversation stopped after a failed operation. Start a new chat to keep using the saved memory.";
@@ -725,7 +776,7 @@
   async function mutate(path, body, options = {}) {
     if (
       isBusy() ||
-      (conversationBlocked() &&
+      ((conversationBlocked() || conversationReadOnly()) &&
         ["/api/chat", "/api/tour/next"].includes(path)) ||
       (state && state.mode === "replay" && path !== "/api/conversations/select")
     )
@@ -777,7 +828,13 @@
   $("chat-form").addEventListener("submit", (event) => {
     event.preventDefault();
     const message = $("message-input").value.trim();
-    if (!message || !modelAllowed() || isBusy() || conversationBlocked())
+    if (
+      !message ||
+      !modelAllowed() ||
+      isBusy() ||
+      conversationBlocked() ||
+      conversationReadOnly()
+    )
       return;
     mutate("/api/chat", { message }, { message, focusInput: true });
   });

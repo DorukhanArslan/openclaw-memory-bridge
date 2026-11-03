@@ -98,6 +98,41 @@ for await(const line of createInterface({input:process.stdin})) {
                         receive.assert_called_once_with(configured)
                     self.assertFalse(client.poisoned)
 
+    def test_native_chat_maps_scoped_calls_and_has_a_bounded_receipt_timeout(self):
+        scope = MemoryScope("chat", "alex", "one")
+        with MemoryClient(self.config) as client:
+            with patch.object(client, "call", return_value={"fixture": True}) as call:
+                client.configure_chat(scope, model_url="http://127.0.0.1:9917/v1")
+                call.assert_called_once_with("configure_chat", scope.routing_workspace,
+                                             modelUrl="http://127.0.0.1:9917/v1")
+                call.reset_mock()
+                client.chat(scope, "A fictional project uses cobalt markers.")
+                call.assert_called_once_with("chat", scope.routing_workspace, session="one",
+                                             message="A fictional project uses cobalt markers.")
+                call.reset_mock()
+                client.start_chat(scope, "A fictional project uses cobalt markers.")
+                call.assert_called_once_with("chat_start", scope.routing_workspace, session="one",
+                                             message="A fictional project uses cobalt markers.")
+                call.reset_mock()
+                client.wait_chat(scope, "fixture-run")
+                call.assert_called_once_with("chat_wait", scope.routing_workspace, session="one",
+                                             runId="fixture-run")
+                call.reset_mock()
+                client.abort_chat(scope, "fixture-run")
+                call.assert_called_once_with("chat_abort", scope.routing_workspace, session="one",
+                                             runId="fixture-run")
+            with patch.object(client, "_receive", wraps=client._receive) as receive:
+                self.assertTrue(client.chat(scope, "Labelled protocol fixture.")["fixture"])
+                receive.assert_called_once_with(300)
+                receive.reset_mock()
+                self.assertTrue(client.call("valid")["fixture"])
+                receive.assert_called_once_with(self.config.timeout)
+            for operation, timeout in [("chat_start", 90), ("chat_wait", 60), ("chat_abort", 60)]:
+                with self.subTest(operation=operation):
+                    with patch.object(client, "_receive", wraps=client._receive) as receive:
+                        self.assertTrue(client.call(operation)["fixture"])
+                        receive.assert_called_once_with(timeout)
+
     def test_uncertain_transport_poisoning(self):
         for operation in ["timeout", "malformed", "mismatch", "bad-error"]:
             with self.subTest(operation=operation):

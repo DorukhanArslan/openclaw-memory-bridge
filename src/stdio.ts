@@ -22,6 +22,11 @@ const operations = new Set([
   "session_history",
   "session_state",
   "session_reset",
+  "configure_chat",
+  "chat",
+  "chat_start",
+  "chat_wait",
+  "chat_abort",
   "dream_status",
   "dream_diary",
 ]);
@@ -49,6 +54,28 @@ async function dispatch(
     labs.set(workspace, lab);
   }
   switch (op) {
+    case "configure_chat":
+      return lab.configureChat(string(args.modelUrl, "modelUrl"));
+    case "chat":
+      return lab.chat(
+        string(args.session, "session"),
+        string(args.message, "message"),
+      );
+    case "chat_start":
+      return lab.startChat(
+        string(args.session, "session"),
+        string(args.message, "message"),
+      );
+    case "chat_wait":
+      return lab.waitChat(
+        string(args.session, "session"),
+        string(args.runId, "runId"),
+      );
+    case "chat_abort":
+      return lab.abortChat(
+        string(args.session, "session"),
+        string(args.runId, "runId"),
+      );
     case "configure":
       if (typeof args.ingestion !== "boolean")
         throw new Error("Supply ingestion as a boolean.");

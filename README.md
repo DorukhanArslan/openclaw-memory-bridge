@@ -12,12 +12,12 @@ The broader capability inventory describes optional coverage and upstream featur
 
 - Native keyword search, optional semantic search, exact source reads, and persistent SQLite indexes.
 - Application note write, update, and delete. Separate workspace/user routes.
-- Native agent profile and daily notes, reset capture, flush, compaction, and light → REM → deep dreaming. The lab exposes native agent lifecycle controls; the Python SDK exposes memory access, daily notes, manual dreaming and maintenance inspection.
+- Native agent profile and daily notes, reset capture, flush, compaction, and light → REM → deep dreaming. The lab and Python SDK expose native interactive chat alongside memory access, daily notes, manual dreaming, and maintenance inspection.
 - A managed private Gateway, a sequential JSONL bridge, and a read-only client for an existing loopback Gateway.
 
 ## Interactive chat demo
 
-The [Memory Chat app](apps/memory-chat/README.md) is a separate consumer of the installed public Python SDK. Its OpenAI-style interface shows genuine model replies alongside actual SDK source excerpts, before/after changes, and tool results. New conversations preserve memory; the guided walkthrough also tests recall after Gateway and SDK restart. Export a run for read-only replay without further model calls.
+The [Memory Chat app](apps/memory-chat/README.md) is a separate consumer of the installed public Python SDK. Its OpenAI-style interface sends messages through OpenClaw's native interactive agent, which owns conversation history, recall, tools, and pre-compaction flushing. Say “I drink my coffee without sugar,” open a new chat after memory preparation finishes, then ask “How do I take my coffee?” The inspector distinguishes saved conversations, indexing, and curated notes. Export a run for read-only replay without further model calls.
 
 With the runtime and Python SDK installed and `OPENROUTER_API_KEY` set in the server environment:
 
@@ -88,10 +88,11 @@ with MemoryClient(BridgeConfig(Path.cwd(), Path.cwd() / ".lab" / "sdk")) as memo
         for h in hits
     )
     print(context)
-    # Your app supplies this context to its model. The SDK does not send chat.
+    # This memory-only example supplies context to an independent host model.
+    # configure_chat + chat also support OpenClaw-managed conversations.
 ```
 
-Call `index` after `write` or `delete`. Reuse the root for persistence. Close the client after a transport timeout before retry decisions. `run_maintenance` reserves a 40-minute response window for native polling and publication bounds; ordinary operations keep `BridgeConfig.timeout`. Reports redact workstation paths before JSON/HTML output.
+Call `index` after `write` or `delete`. Reuse the root for persistence. Close the client after a transport timeout before retry decisions. `run_maintenance` reserves a 40-minute response window for native polling and publication bounds; `chat` also allows for native startup and completion polling. Ordinary memory operations keep `BridgeConfig.timeout`. Reports redact workstation paths before JSON/HTML output.
 
 To read an existing native user profile, call `memory.get(scope, "USER.md", start=1, lines=40)`, or pass the path and source-line range returned by search. The read uses the selected workspace/user scope and the native memory API. `start` must be a positive integer and `lines` must be 1–200; native excerpts may include a continuation hint. The SDK does not create or write `USER.md` automatically. A missing profile returns the native `status: "not_found"` result. Earlier recorded profile-read rejections remain unchanged in the historical reports.
 
@@ -121,7 +122,7 @@ Read-only comparison on October 17 also found no supported producer in the offic
 
 ## Native, SDK, and operator scope
 
-OpenClaw owns retrieval, storage, provenance, and agent maintenance. Adapters own note writes, routing, processes, and prompt insertion. The SDK adds daily-note writes, status/restart, session/dreaming inspection, and explicit `configure_maintenance` / `run_maintenance` / `explain_promotion`. The native run stages canonical daily notes, triggers OpenClaw’s managed dreaming job, and observes its real diary publishers before shutting down. Scheduling stays manual; one retained finite request ledger is shared by the SDK root. Model configuration is currently the approved OpenRouter GPT-6 Sol lab profile.
+OpenClaw owns retrieval, storage, provenance, and native agent maintenance. Adapters own application note writes, routing, and process supervision. The SDK exposes `configure_chat` / `chat` for native interactive conversations, daily-note writes, status/restart, session/dreaming inspection, and explicit `configure_maintenance` / `run_maintenance` / `explain_promotion`. The native run stages canonical daily notes, triggers OpenClaw’s managed dreaming job, and observes its real diary publishers before shutting down. Scheduling stays manual; one retained finite request ledger is shared by the SDK root. Model configuration is currently the approved OpenRouter GPT-6 Sol lab profile.
 
 The primary agent and tool loop stay in your Python app. The SDK has no chat wrapper. Native flush and compaction manage OpenClaw-owned sessions; external Python message history remains the host’s responsibility. A daily-note write is an application checkpoint, not a native flush. Supplied scope IDs are trusted routing inputs; your host supplies authentication and deployment isolation.
 
@@ -136,13 +137,13 @@ The residence test asks the model to update Ankara to Istanbul in the canonical 
 
 The deeper [native/SDK comparison](reports/native-sdk-parity.json) separates request and source fidelity from product behavior. Both real chats recalled Istanbul and jasmine tea; one native deep diary in the SDK run degraded. The report retains that failure, exact replay evidence, the lost-write-ack test, and clean-consumer reproduction commands. No production SDK change or exactly-once guarantee is claimed.
 
-The October 23 SDK closeout keeps the original 19/20 failure. A later matched run published light, REM and deep diaries without a production SDK fix. The original failure did not reproduce under healthy admission; its cause remains unresolved. The report separates this result from the budget-denied diagnostic and records fresh wheel and regression checks. Your host still owns scheduling, conversation context, flush policy and recovery; formal old-fact supersession remains unsupported through this path.
+The October 23 SDK closeout keeps the original 19/20 failure. A later matched run published light, REM and deep diaries without a production SDK fix. The original failure did not reproduce under healthy admission; its cause remains unresolved. The report separates this result from the budget-denied diagnostic and records fresh wheel and regression checks. Independent host loops still own scheduling, external conversation context, flush policy and recovery; formal old-fact supersession remains unsupported through this path.
 
 The [Diary closeout audit](reports/sdk-diary-closeout-audit.json) separates new offline experiments from prior model evidence. Thirty-six controls used the real native Diary/scope/resource code, with a fixture completion; half also used the native background queue. Closing an inherited owner before resource registration produced the native error and fallback without a budget denial. This is a possible mechanism, not proof of the original cause or an SDK defect.
 
 The [ready Gateway client](src/gateway.ts) only searches and reads an existing loopback Gateway. Use `bash scripts/install.sh --client-only` and [the example](examples/ready_gateway.ts). Supply `BRIDGE_GATEWAY_URL` and `BRIDGE_GATEWAY_TOKEN` through the authorized server environment. JSONL operations are defined in [src/stdio.ts](src/stdio.ts).
 
-“All features” means the pinned builtin Memory Core and this bridge's access paths. The [inventory](reports/memory-capabilities.json) also identifies untested ranking, provenance, backfill, policy/forget, extra-path, CJK, and multimodal options. Active-memory, Honcho, LanceDB, and wiki integrations are outside this lab.
+“All features” means the pinned builtin Memory Core and this bridge's access paths. The [inventory](reports/memory-capabilities.json) also identifies untested ranking, provenance, backfill, policy/forget, extra-path, CJK, and multimodal options. The native chat profile uses Active Memory for eligible private sessions. Honcho, LanceDB, and wiki integrations remain outside this lab.
 
 ## Limits and checks
 

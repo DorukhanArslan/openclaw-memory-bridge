@@ -217,6 +217,9 @@ export class Lab {
   private conversationDemo = false;
   private conversationAnswerOnly = false;
   private maintenanceRunning = false;
+  // The host owns this loopback model endpoint and its request allowance.
+  // It is deliberately process-local: restarting a client must rebind it.
+  private nativeChat?: { baseUrl: string; model: string };
 
   constructor(name = "alpha", root = join(PROJECT, ".lab")) {
     this.root = resolve(root);
@@ -299,6 +302,7 @@ export class Lab {
   }
 
   private credentialNames(): string[] {
+    if (this.nativeChat) return [];
     return [
       ...(this.settings.provider === "openai-compatible" && this.settings.keyEnv
         ? [this.settings.keyEnv]
@@ -307,6 +311,14 @@ export class Lab {
         ? [this.settings.textModel.keyEnv]
         : []),
     ];
+  }
+
+  private textModelReference(model: TextModel) {
+    // Provider identity also selects native transcript replay compatibility.
+    // The OpenRouter credential still lives only in the host's loopback broker.
+    return this.nativeChat
+      ? `openrouter/${this.nativeChat.model}`
+      : textModelRef(model);
   }
 
   private redact(text: string): string {
@@ -354,20 +366,30 @@ export class Lab {
 
   private async provision() {
     await noSymlink(this.config);
+    const settings: Settings = this.nativeChat
+      ? {
+          provider: "none",
+          textModel: this.nativeChat,
+          sessionMemory: true,
+          flush: "normal",
+          dreaming: false,
+          managedMaintenance: false,
+        }
+      : this.settings;
     const finiteOneUser = Boolean(
       this.oneUserLedger || this.oneUserFollowupLedger,
     );
     const supervised = Boolean(this.lifecycleLedger || finiteOneUser);
     const search =
-      this.settings.provider === "none"
+      settings.provider === "none"
         ? { provider: "none", sources: ["memory"], fallback: "none" }
         : {
             provider: "openai-compatible",
-            model: this.settings.model,
+            model: settings.model,
             remote: {
-              baseUrl: this.settings.baseUrl,
-              apiKey: this.settings.keyEnv
-                ? secretRef(this.settings.keyEnv)
+              baseUrl: settings.baseUrl,
+              apiKey: settings.keyEnv
+                ? secretRef(settings.keyEnv)
                 : "local-lab-placeholder",
             },
             sources: ["memory"],
@@ -403,9 +425,12 @@ export class Lab {
               skipBootstrap: true,
               userTimezone: "UTC",
               heartbeat: { every: "0m" },
-              ...(supervised
+              ...(supervised || this.nativeChat
                 ? {
-                    params: { maxTokens: this.conversationDemo ? 512 : 1024 },
+                    params: {
+                      maxTokens:
+                        this.nativeChat || this.conversationDemo ? 512 : 1024,
+                    },
                     thinkingDefault: "off",
                     timeoutSeconds: 60,
                     embeddedAgent: { cyberFailover: { mode: "off" } },
@@ -416,25 +441,23 @@ export class Lab {
                 ...(this.compactionTest
                   ? { keepRecentTokens: 512, recentTurnsPreserve: 1 }
                   : {}),
-                ...(this.settings.textModel
-                  ? { model: textModelRef(this.settings.textModel) }
+                ...(settings.textModel
+                  ? { model: this.textModelReference(settings.textModel) }
                   : {}),
                 memoryFlush: {
-                  enabled: Boolean(
-                    this.settings.flush && this.settings.textModel,
-                  ),
-                  ...(this.settings.textModel
-                    ? { model: textModelRef(this.settings.textModel) }
+                  enabled: Boolean(settings.flush && settings.textModel),
+                  ...(settings.textModel
+                    ? { model: this.textModelReference(settings.textModel) }
                     : {}),
                   softThresholdTokens: 4000,
                   forceFlushTranscriptBytes:
-                    this.settings.flush === "test" ? 1024 : "2mb",
+                    settings.flush === "test" ? 1024 : "2mb",
                 },
               },
-              ...(this.settings.textModel
+              ...(settings.textModel
                 ? {
                     model: {
-                      primary: textModelRef(this.settings.textModel),
+                      primary: this.textModelReference(settings.textModel),
                       fallbacks: [],
                     },
                   }
@@ -447,10 +470,28 @@ export class Lab {
               },
             },
           },
-          ...(this.settings.textModel
+          ...(settings.textModel
             ? {
-                models:
-                  this.smoke || supervised
+                models: this.nativeChat
+                  ? {
+                      catalogRefresh: { enabled: false },
+                      providers: {
+                        openrouter: {
+                          api: "openai-completions",
+                          baseUrl: this.nativeChat.baseUrl,
+                          apiKey: "local-lab-placeholder",
+                          models: [
+                            {
+                              id: this.nativeChat.model,
+                              name: "Host-bounded native chat",
+                              maxTokens: 512,
+                              compat: { thinkingFormat: "openrouter" },
+                            },
+                          ],
+                        },
+                      },
+                    }
+                  : this.smoke || supervised
                     ? {
                         catalogRefresh: { enabled: false },
                         providers: {
@@ -483,11 +524,14 @@ export class Lab {
                           },
                         },
                       }
-                    : textModelConfig(this.settings.textModel),
+                    : textModelConfig(settings.textModel),
               }
             : {}),
           plugins: {
             entries: {
+              ...(this.nativeChat
+                ? { "active-memory": { enabled: true } }
+                : {}),
               ...(this.oneUserFollowupLedger
                 ? { "active-memory": { enabled: false } }
                 : {}),
@@ -512,7 +556,7 @@ export class Lab {
               "memory-core": {
                 config: {
                   dreaming: {
-                    enabled: this.settings.dreaming ?? false,
+                    enabled: settings.dreaming ?? false,
                     frequency: "0 0 1 1 *",
                     timezone: "UTC",
                     ...(supervised
@@ -546,10 +590,10 @@ export class Lab {
           },
           hooks: {
             internal: {
-              enabled: this.settings.sessionMemory ?? false,
+              enabled: settings.sessionMemory ?? false,
               entries: {
                 "session-memory": {
-                  enabled: this.settings.sessionMemory ?? false,
+                  enabled: settings.sessionMemory ?? false,
                   messages: 25,
                   llmSlug: false,
                 },
@@ -559,31 +603,38 @@ export class Lab {
           memory: {
             search: {
               ...search,
+              ...(this.nativeChat ? { sources: ["memory", "sessions"] } : {}),
               rememberAcrossConversations:
-                supervised && !this.oneUserFollowupLedger,
+                Boolean(this.nativeChat) ||
+                (supervised && !this.oneUserFollowupLedger),
               query: { minScore: 0 },
             },
           },
           tools: {
-            ...(this.conversationDemo
+            ...(this.conversationDemo || this.nativeChat
               ? { codeMode: false, toolSearch: false }
               : {}),
             fs: { workspaceOnly: true },
             allow: [
               "memory_search",
               "memory_get",
+              ...(this.nativeChat
+                ? ["sessions_search", "sessions_history"]
+                : []),
               ...(this.smoke || this.conversationAnswerOnly
                 ? ["llm-task"]
                 : []),
-              ...(this.settings.flush ? ["read", "write", "edit"] : []),
+              ...(settings.flush ? ["read", "write", "edit"] : []),
             ],
           },
           browser: { enabled: false },
-          ...(finiteOneUser
-            ? { cron: { enabled: this.oneUserMaintenance } }
-            : this.smoke || this.settings.managedMaintenance
-              ? { cron: { enabled: this.maintenanceRunning } }
-              : {}),
+          ...(this.nativeChat
+            ? { cron: { enabled: false } }
+            : finiteOneUser
+              ? { cron: { enabled: this.oneUserMaintenance } }
+              : this.smoke || settings.managedMaintenance
+                ? { cron: { enabled: this.maintenanceRunning } }
+                : {}),
           update: { checkOnStart: false, auto: { enabled: false } },
           telemetry: { enabled: false },
           logging: {
@@ -913,6 +964,36 @@ export class Lab {
       baseUrl: localEndpoint(url),
       requires:
         "A running local OpenAI-compatible chat completion server; no credentials are inherited.",
+    };
+  }
+
+  /** Bind a host-owned, allowance-enforcing local model to native chat.
+   * The URL is not persisted in reusable settings; it must be rebound after
+   * constructing a new bridge process. OpenClaw owns transcript and recall.
+   */
+  async configureChat(url: string) {
+    const baseUrl = localEndpoint(url);
+    if (
+      this.lifecycleLedger ||
+      this.oneUserLedger ||
+      this.oneUserFollowupLedger
+    )
+      throw new Error(
+        "Native chat cannot replace an active historical admission context.",
+      );
+    await this.stop();
+    this.nativeChat = { baseUrl, model: "openai/gpt-6-sol" };
+    await this.provision();
+    return {
+      native: "OpenClaw persistent interactive chat",
+      model: this.textModelReference(this.nativeChat),
+      processLocal: true,
+      sessionSources: ["memory", "sessions"],
+      rememberAcrossConversations: true,
+      memoryFlush: true,
+      automaticDreaming: false,
+      requires:
+        "The host must enforce admission and pricing at its loopback model endpoint.",
     };
   }
 
@@ -2509,7 +2590,7 @@ export class Lab {
   }
 
   private sessionKey(session: string) {
-    return `agent:main:${validId(session)}`;
+    return `agent:main:${this.nativeChat ? "explicit:" : ""}${validId(session)}`;
   }
 
   /** Fixed Maya continuation after explicit cumulative 50 USD approval. */
@@ -2782,12 +2863,11 @@ export class Lab {
   }
 
   async createSession(session: string) {
+    const model = this.nativeChat ?? this.settings.textModel;
     return this.rpc("sessions.create", {
       key: this.sessionKey(session),
       agentId: "main",
-      ...(this.settings.textModel
-        ? { model: textModelRef(this.settings.textModel) }
-        : {}),
+      ...(model ? { model: this.textModelReference(model) } : {}),
     });
   }
 
@@ -2852,7 +2932,7 @@ export class Lab {
   }
 
   async resetSession(session: string, reason: "new" | "reset" = "reset") {
-    if (!this.settings.sessionMemory)
+    if (!this.nativeChat && !this.settings.sessionMemory)
       throw new Error(
         "Enable ingestion on before testing native reset-to-memory capture.",
       );
@@ -2906,13 +2986,16 @@ export class Lab {
     );
   }
 
-  async chat(session: string, text: string) {
-    if (!this.settings.textModel)
+  async startChat(session: string, text: string) {
+    if (!this.nativeChat && !this.settings.textModel)
       throw new Error(
         "Select a native tool-capable text model before real chat execution.",
       );
-    if (!text.trim() || Buffer.byteLength(text) > 64000)
-      throw new Error("Supply a synthetic chat turn, at most 64 KB.");
+    const inputLimit = this.nativeChat ? 8000 : 64000;
+    if (!text.trim() || Buffer.byteLength(text) > inputLimit)
+      throw new Error(
+        `Supply a nonempty chat turn, at most ${inputLimit} UTF-8 bytes.`,
+      );
     await this.createSession(session);
     const accepted = (await this.rpc("chat.send", {
       sessionKey: this.sessionKey(session),
@@ -2921,34 +3004,62 @@ export class Lab {
       idempotencyKey: randomBytes(16).toString("hex"),
       deliver: false,
       thinking: "off",
-      timeoutMs: 180000,
+      timeoutMs: this.nativeChat ? 60000 : 180000,
     })) as { runId?: string };
     if (!accepted.runId)
       throw new Error(`Native chat had no run ID: ${JSON.stringify(accepted)}`);
-    const deadline = Date.now() + 200000;
-    while (Date.now() < deadline) {
-      const completion = (await this.rpc("agent.wait", {
-        runId: accepted.runId,
-        timeoutMs: 10000,
-      })) as { status?: string };
-      if (completion.status === "timeout" || completion.status === "pending")
-        continue;
-      if (completion.status !== "ok")
-        throw new Error(
-          `Native agent did not succeed: ${JSON.stringify(completion)}`,
-        );
-      return {
-        accepted,
-        completion,
-        history: await this.sessionHistory(session),
-        state: await this.sessionState(session),
-      };
-    }
-    await this.rpc("chat.abort", {
+    return accepted;
+  }
+
+  async waitChat(session: string, runId: string) {
+    validId(session);
+    if (!runId.trim() || runId.length > 200)
+      throw new Error(
+        "Supply the exact native run ID returned by chat admission.",
+      );
+    const completion = (await this.rpc("agent.wait", {
+      runId,
+      timeoutMs: 1000,
+    })) as { status?: string };
+    if (completion.status === "timeout" || completion.status === "pending")
+      return { completion };
+    if (completion.status !== "ok")
+      throw new Error(
+        `Native agent did not succeed: ${JSON.stringify(completion)}`,
+      );
+    return {
+      completion,
+      history: await this.sessionHistory(session),
+      state: await this.sessionState(session),
+    };
+  }
+
+  async abortChat(session: string, runId: string) {
+    validId(session);
+    if (!runId.trim() || runId.length > 200)
+      throw new Error(
+        "Supply the exact native run ID returned by chat admission.",
+      );
+    return this.rpc("chat.abort", {
       sessionKey: this.sessionKey(session),
       agentId: "main",
-      runId: accepted.runId,
+      runId,
     });
+  }
+
+  async chat(session: string, text: string) {
+    const accepted = await this.startChat(session, text);
+    const deadline = Date.now() + (this.nativeChat ? 90000 : 200000);
+    while (Date.now() < deadline) {
+      const result = await this.waitChat(session, accepted.runId as string);
+      if (
+        result.completion.status === "timeout" ||
+        result.completion.status === "pending"
+      )
+        continue;
+      return { accepted, ...result };
+    }
+    await this.abortChat(session, accepted.runId as string);
     throw new Error(
       "Native agent completion timed out; the exact run was aborted.",
     );
@@ -3175,7 +3286,7 @@ export class Lab {
         tool,
         args,
         agentId: "main",
-        sessionKey: `agent:main:${session}`,
+        sessionKey: this.sessionKey(session),
       }),
       signal: AbortSignal.timeout(40000),
     });

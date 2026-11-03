@@ -18,6 +18,8 @@ from typing import Any, Mapping
 # publishers have separate bounds. Keep their receipt stream alive through
 # the full server envelope without changing ordinary request timeouts.
 MAINTENANCE_RESPONSE_TIMEOUT = 2400
+NATIVE_CHAT_RESPONSE_TIMEOUT = 300
+NATIVE_CHAT_CONTROL_TIMEOUTS = {"chat_start": 90, "chat_wait": 60, "chat_abort": 60}
 
 # Transport settings are separate from provider credentials and runtime flags.
 # Preserve case and empty values: native proxy precedence belongs to OpenClaw.
@@ -156,7 +158,13 @@ class FoundationClient:
         except (BrokenPipeError, OSError) as error:
             self.poisoned = True
             raise FoundationError("Foundation input stream failed.", "transport_failed") from error
-        response_timeout = max(self.timeout, MAINTENANCE_RESPONSE_TIMEOUT) if op == "run_maintenance" else self.timeout
+        response_timeout = self.timeout
+        if op == "run_maintenance":
+            response_timeout = max(self.timeout, MAINTENANCE_RESPONSE_TIMEOUT)
+        elif op == "chat":
+            response_timeout = max(self.timeout, NATIVE_CHAT_RESPONSE_TIMEOUT)
+        elif op in NATIVE_CHAT_CONTROL_TIMEOUTS:
+            response_timeout = max(self.timeout, NATIVE_CHAT_CONTROL_TIMEOUTS[op])
         response = self._receive(response_timeout)
         if response.get("v") != 1 or response.get("id") != request_id:
             self.poisoned = True
@@ -204,6 +212,37 @@ class MemoryClient(FoundationClient):
 
     def configure(self, scope: MemoryScope, *, ingestion: bool = False):
         return self.call("configure", scope.routing_workspace, ingestion=ingestion)
+
+    def configure_chat(self, scope: MemoryScope, *, model_url: str):
+        """Bind a host-owned loopback model endpoint to native persistent chat.
+
+        The host must enforce its provider allowance at that endpoint. Rebind
+        after constructing a new client; the live URL is not reusable settings.
+        Native OpenClaw owns transcripts, recall and pre-compaction flushing.
+        """
+        return self.call("configure_chat", scope.routing_workspace, modelUrl=model_url)
+
+    def chat(self, scope: MemoryScope, message: str):
+        """Run a native interactive turn and await its completion receipt.
+
+        Returns actual admission/completion/history/state receipts. Call index
+        before a fresh conversation when immediate semantic recall is required;
+        native background indexing alone is eventually consistent.
+        A session ID routes native conversation context, not injected history.
+        """
+        return self.call("chat", scope.routing_workspace, session=scope.session, message=message)
+
+    def start_chat(self, scope: MemoryScope, message: str):
+        """Admit one native turn and return its exact run ID; never replay it."""
+        return self.call("chat_start", scope.routing_workspace, session=scope.session, message=message)
+
+    def wait_chat(self, scope: MemoryScope, run_id: str):
+        """Poll the exact run; pending receipts contain no invented answer."""
+        return self.call("chat_wait", scope.routing_workspace, session=scope.session, runId=run_id)
+
+    def abort_chat(self, scope: MemoryScope, run_id: str):
+        """Request native cancellation scoped to this session and exact run."""
+        return self.call("chat_abort", scope.routing_workspace, session=scope.session, runId=run_id)
 
     def write(self, scope: MemoryScope, note_id: str, text: str):
         return self.call("write", scope.routing_workspace, noteId=note_id, text=text)

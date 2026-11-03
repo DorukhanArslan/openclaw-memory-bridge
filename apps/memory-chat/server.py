@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 from copy import deepcopy
+from dataclasses import replace
 from datetime import datetime, timezone
 import difflib
 import hashlib
@@ -42,6 +43,13 @@ No automatic native flush, compaction or maintenance is performed by this demo.
 TOUR = [
     "Save the Atlas project",
     "Update the code name to Nova",
+    "Recall in a new conversation",
+    "Restart and recall again",
+    "Complete the run capture",
+]
+NATIVE_TOUR = [
+    "Share a preference naturally",
+    "Update the project detail",
     "Recall in a new conversation",
     "Restart and recall again",
     "Complete the run capture",
@@ -603,6 +611,356 @@ class ChatDemo:
                 self._lock_fd = None
                 self._lock_path.unlink(missing_ok=True)
 
+def native_text(content):
+    """Only public text blocks, never thinking or provider continuation data."""
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        return "\n".join(block["text"] for block in content
+                         if isinstance(block, dict) and block.get("type") == "text"
+                         and isinstance(block.get("text"), str))
+    return ""
+
+
+class NativeChatDemo(ChatDemo):
+    """Production consumer: OpenClaw owns the actual conversation lifecycle.
+
+    ChatDemo remains the independent tool-host example used by its controlled
+    tests. This class never falls back to that model loop when native chat fails.
+    """
+
+    def __init__(self, foundation, root, provider, *, client_factory=None, broker_factory=None):
+        self.broker = None
+        self._native_configured = False
+        self._native_turn = None
+        super().__init__(foundation, root, provider, client_factory=client_factory)
+        self._config = replace(self._config, timeout=180)
+        try:
+            if self.conversation["messages"] and "native" not in self.conversation:
+                super().new_conversation()
+                self.notice = "Opened a new chat. Earlier demo conversations and saved notes were preserved."
+                self._save()
+            if broker_factory is None:
+                from native_provider import NativeProviderBroker
+                broker_factory = NativeProviderBroker
+            self.broker = broker_factory(provider, allow_request=self._native_allowed,
+                                         on_completion=self._native_completion).start()
+            self._publish()
+        except BaseException:
+            self.close()
+            raise
+
+    def _publish(self):
+        super()._publish()
+        if not self.conversations:
+            return
+        native = self.conversation.get("native", {})
+        lifecycle = {"mode": "native-chat", "transcriptPersisted": bool(native.get("transcriptPersisted")),
+                     "indexed": bool(native.get("indexed")),
+                     "pendingIndex": any(c.get("native", {}).get("pendingIndex")
+                                         or (c.get("native", {}).get("transcriptPersisted") and not c["native"].get("indexed"))
+                                         for c in self.conversations),
+                     "error": self.memory_error}
+        with self._view_lock:
+            self._published["memory"]["lifecycle"] = lifecycle
+            self._published["conversation"]["readOnly"] = bool(self.conversation["messages"] and "native" not in self.conversation)
+            self._published["tour"]["label"] = NATIVE_TOUR[min(self.tour_step, len(NATIVE_TOUR) - 1)]
+
+    def _clean(self, value):
+        value = super()._clean(value)
+        url = getattr(self.broker, "base_url", None)
+        if isinstance(value, str) and url:
+            return value.replace(url, "<host-model-endpoint>")
+        return value
+
+    def _native_allowed(self):
+        self._check_stopping()
+        if self._native_turn is None:
+            raise RuntimeError("No explicit chat request is active; no model request was admitted.")
+        return True
+
+    def _native_completion(self, response, usage):
+        turn = self._native_turn
+        if turn is None:
+            return
+        message = {key: deepcopy(response[key]) for key in ["role", "content", "tool_calls"] if key in response}
+        turn["modelResponses"].append({"message": self._clean(message), "usage": usage, "observedAt": now()})
+        self.events.append({"kind": "model", "label": "OpenClaw model response", "status": "completed",
+                            "detail": {"model": MODEL, "usage": usage}})
+        if usage and usage.get("completion_truncated"):
+            self.notice = "The model reached its output limit. The displayed answer may be partial."
+        self._progress("OpenClaw is completing the conversation")
+
+    def _get_memory(self):
+        previous = self.memory
+        client = super()._get_memory()
+        if client is not previous:
+            self._native_configured = False
+        if not self._native_configured:
+            self._progress("Connecting the OpenClaw conversation")
+            client.configure_chat(self.scope, model_url=self.broker.base_url)
+            self._native_configured = True
+        return client
+
+    def _index_pending(self):
+        pending = [c for c in self.conversations if c.get("native", {}).get("pendingIndex")
+                   or (c.get("native", {}).get("transcriptPersisted") and not c["native"].get("indexed"))]
+        if not pending:
+            return
+        self._check_stopping()
+        self._progress("Preparing saved conversations for recall")
+        if self.memory is not None and getattr(self.memory, "poisoned", False):
+            self.memory.close()
+            self.memory = None
+            self._native_configured = False
+        try:
+            receipt = self._get_memory().index(self.scope)
+        except Exception as error:
+            self.memory_error = self._clean(str(error))[:12000]
+            self._save()
+            raise RuntimeError("The conversation is saved, but recall indexing failed. A new chat was not opened. " + self.memory_error) from error
+        for conversation in pending:
+            conversation["native"]["indexed"] = bool(conversation["native"].get("transcriptPersisted"))
+            conversation["native"]["pendingIndex"] = False
+        self.memory_error = None
+        self.events.append({"kind": "index", "label": "Saved conversations indexed", "status": "completed",
+                            "detail": self._clean(receipt)})
+        self._save()
+
+    def new_conversation(self):
+        with self._lock:
+            # Construction restores the page without starting native processes.
+            if self.broker is not None:
+                self._index_pending()
+            return super().new_conversation()
+
+    def _native_activity(self, history, turn):
+        requests = {}
+        for response in turn["modelResponses"]:
+            for call in response.get("message", {}).get("tool_calls", []):
+                function = call.get("function", {})
+                try:
+                    arguments = json.loads(function.get("arguments", "{}"))
+                except (ValueError, TypeError):
+                    arguments = {}
+                requests[call.get("id")] = {"name": function.get("name"), "arguments": arguments}
+        observed = {}
+        for group in history.get("activity", []):
+            for item in group.get("items", []):
+                call_id = item.get("toolCallId")
+                if item.get("kind") == "tool" and call_id in requests:
+                    observed[call_id] = item
+        for call_id, item in observed.items():
+            requested = requests[call_id]
+            status = item.get("status", "unknown")
+            if status == "completed" and item.get("phase") != "end":
+                status = "unknown"
+            detail = {"nativeActivity": {k: self._clean(item[k]) for k in ["phase", "status", "title", "summary", "error"] if k in item},
+                      "requestedArguments": self._clean(requested["arguments"])}
+            name = item.get("name") or requested["name"] or "Native tool"
+            self.events.append({"kind": "tool", "label": name, "status": status, "detail": detail})
+            if status != "completed" or not isinstance(requested["arguments"], dict):
+                continue
+            arguments = requested["arguments"]
+            path = arguments.get("path", arguments.get("file_path"))
+            if not isinstance(path, str):
+                continue
+            path = Path(path)
+            if path.is_absolute():
+                try:
+                    path = path.relative_to(self.root / "memory" / self.scope.routing_workspace / "workspace")
+                except ValueError:
+                    continue
+            if ".." in path.parts:
+                continue
+            source = path.as_posix()
+            self._observe({"path": source})
+            if name in {"write", "edit"} and source in self.observed_paths:
+                turn["attemptedWritePaths"].append(source)
+
+    def chat(self, message):
+        with self._lock:
+            self._check_stopping()
+            if not isinstance(message, str) or not message.strip() or len(message.encode()) > 8000:
+                raise ValueError("Send a nonempty message of at most 8000 UTF-8 bytes.")
+            if not self.provider.ready:
+                raise ValueError("Live chat requires a configured OpenRouter key and remaining demo allowance.")
+            if len(self.turns) >= MAX_TURNS:
+                raise ValueError("Demo turn limit reached; export the current run.")
+            conversation = self.conversation
+            if conversation["messages"] and "native" not in conversation:
+                raise ValueError("This earlier demo conversation is read-only. Start a new chat to use OpenClaw conversation memory.")
+            if conversation.get("blocked"):
+                raise ValueError("The previous native operation has an uncertain outcome. Start a new chat; saved memory and the allowance are preserved.")
+            self._turn_memory_failed = self._uncertain_write = False
+            self._turn_deadline = time.monotonic() + 120
+            self.events, self.changes, self.error, self.notice = [], [], None, None
+            turn = {"id": uuid.uuid4().hex, "conversationId": self.current, "user": message,
+                    "startedAt": now(), "status": "running", "before": deepcopy(self.files),
+                    "events": self.events, "modelResponses": [], "assistant": None, "attemptedWritePaths": []}
+            self.turns.append(turn)
+            visible_user = {"id": uuid.uuid4().hex, "role": "user", "content": message, "createdAt": now(), "status": "running"}
+            conversation["messages"].append(visible_user)
+            if len(conversation["messages"]) == 1:
+                conversation["title"] = message[:45]
+            self._native_turn = turn
+            native = conversation.setdefault("native", {})
+            native["pendingIndex"], native["indexed"] = True, False
+            self._save()
+            native_settled = False
+            abort_confirmed = False
+            dispatch_attempted = False
+            run_id = None
+            try:
+                self._progress("Waiting for the OpenClaw conversation")
+                client = self._get_memory()
+                with self.broker.turn():
+                    dispatch_attempted = True
+                    accepted = client.start_chat(self.scope, message)
+                    run_id = accepted.get("runId")
+                    if not isinstance(run_id, str) or not run_id:
+                        raise RuntimeError("OpenClaw did not acknowledge this conversation run.")
+                    try:
+                        while True:
+                            self._check_stopping()
+                            receipt = client.wait_chat(self.scope, run_id)
+                            status = receipt.get("completion", {}).get("status")
+                            if status in {"pending", "timeout"}:
+                                continue
+                            native_settled = True
+                            receipt["accepted"] = accepted
+                            break
+                    finally:
+                        if not native_settled:
+                            try:
+                                aborted = client.abort_chat(self.scope, run_id)
+                                abort_confirmed = bool(aborted.get("aborted"))
+                            except Exception:
+                                pass
+                self._check_stopping()
+                if receipt.get("completion", {}).get("status") != "ok":
+                    raise RuntimeError("OpenClaw did not confirm completion of this conversation turn.")
+                history = receipt.get("history", {})
+                messages = history.get("messages", [])
+                user_index = next((i for i in range(len(messages) - 1, -1, -1)
+                                   if messages[i].get("role") == "user"), None)
+                if user_index is None or message not in native_text(messages[user_index].get("content")):
+                    raise RuntimeError("OpenClaw did not return the submitted user turn in its saved history.")
+                native = {"sessionId": history.get("sessionId") or receipt.get("state", {}).get("session", {}).get("sessionId"),
+                          "sessionKey": history.get("sessionKey"), "transcriptPersisted": True,
+                          "indexed": False, "pendingIndex": True}
+                conversation["native"] = native
+                turn["native"] = deepcopy(native)
+                turn["nativeReceipt"] = self._clean({"accepted": receipt["accepted"], "completion": receipt["completion"],
+                                                     "sessionId": native["sessionId"], "sessionKey": native["sessionKey"]})
+                self.events.append({"kind": "conversation", "label": "Conversation saved by OpenClaw", "status": "completed",
+                                    "detail": turn["nativeReceipt"]})
+                new_messages = messages[user_index + 1:]
+                self._native_activity(history, turn)
+                # Tool receipts are observed native results; the host does not
+                # execute its own save/extraction loop or invent successful writes.
+                for entry in new_messages:
+                    if entry.get("role") in {"toolResult", "tool"}:
+                        name = entry.get("toolName", entry.get("name", "Native tool"))
+                        text = native_text(entry.get("content"))
+                        failed = bool(entry.get("isError"))
+                        self.events.append({"kind": "tool", "label": name,
+                                            "status": "failed" if failed else "completed",
+                                            "detail": {"result": self._clean(text)}})
+                        details = entry.get("details")
+                        if isinstance(details, dict):
+                            self._observe(details)
+                reply = next((native_text(entry.get("content")) for entry in reversed(new_messages)
+                              if entry.get("role") == "assistant" and native_text(entry.get("content")).strip()), None)
+                if not reply:
+                    raise RuntimeError("The native conversation completed without a visible model answer.")
+                conversation["messages"].append({"id": uuid.uuid4().hex, "role": "assistant", "content": reply, "createdAt": now()})
+                visible_user["status"] = turn["status"] = "completed"
+                turn["assistant"] = reply
+                self.memory_available, self.memory_error = True, None
+                self._publish()
+                return reply
+            except Exception as error:
+                turn["status"] = "cancelled" if isinstance(error, TurnCancelled) else "failed"
+                visible_user["status"] = turn["status"]
+                # A lost native receipt can include writes; never silently
+                # replay the user request into a new session.
+                conversation["blocked"] = bool(getattr(self.memory, "poisoned", False)) or (dispatch_attempted and not native_settled and not abort_confirmed)
+                self.error = self._clean(str(error))[:12000]
+                if not isinstance(error, TurnCancelled):
+                    self.memory_error = self.error
+                raise
+            finally:
+                self._native_turn = None
+                self._turn_deadline = None
+                conversation["updatedAt"], turn["finishedAt"] = now(), now()
+                if turn["status"] == "completed" and not self._cancel.is_set() and not self._stopping.is_set():
+                    try:
+                        self._snapshot()
+                    except Exception as error:
+                        self.memory_available = False
+                        self.memory_stale = bool(self.files)
+                        self.memory_error = self._clean(str(error))[:12000]
+                        turn["snapshotError"] = self.memory_error
+                turn["after"] = deepcopy(self.files)
+                turn["snapshotVerified"] = self.memory_available is True and not self.memory_stale and not turn.get("snapshotError")
+                known_before = {source["path"] for source in turn["before"]}
+                self.changes = [change for change in source_changes(turn["before"], self.files)
+                                if change["path"] in turn["attemptedWritePaths"] and change["path"] in known_before]
+                turn["changes"] = deepcopy(self.changes)
+                self._save()
+
+    def restart_memory(self):
+        with self._lock:
+            self._check_stopping()
+            self._index_pending()
+            self._progress("Restarting the OpenClaw conversation connection")
+            if self.memory is not None and getattr(self.memory, "poisoned", False):
+                self.memory.close()
+                self.memory = None
+            client = self._get_memory()
+            receipt = client.restart(self.scope)
+            client.close()
+            self.memory = None
+            self._native_configured = False
+            self.memory_available, self.memory_stale, self.memory_error = None, bool(self.files), None
+            super().new_conversation()
+            self.events = [{"kind": "restart", "label": "OpenClaw connection restarted", "status": "completed", "detail": self._clean(receipt)}]
+            self._save()
+
+    def tour_next(self):
+        with self._lock:
+            step = self.tour_step
+            if step >= len(TOUR):
+                return
+            if step == 0:
+                self.chat("I take my coffee without sugar, and my demo project's code name is Atlas.")
+                if not self.conversation.get("native", {}).get("transcriptPersisted"):
+                    raise RuntimeError("OpenClaw did not confirm the saved conversation.")
+            elif step == 1:
+                self.chat("My demo project's code name has changed to Nova. My coffee preference is unchanged.")
+            elif step in {2, 3}:
+                if step == 2:
+                    self.new_conversation()
+                else:
+                    self.restart_memory()
+                self.chat("How do I take my coffee, and what is my demo project's current code name?")
+                reply = (self.turns[-1].get("assistant") or "").casefold()
+                if "nova" not in reply or not any(word in reply for word in ["without sugar", "no sugar", "unsweetened", "şekersiz"]):
+                    raise RuntimeError("Recall was not verified. Your actual reply is kept; no step was automatically retried.")
+            else:
+                self.events.append({"kind": "capture", "label": "Run capture ready", "status": "completed", "detail": {"turns": len(self.turns), "export": "/api/export"}})
+            self.tour_step += 1
+            self._save()
+
+    def close(self):
+        try:
+            super().close()
+        finally:
+            if self.broker is not None:
+                self.broker.close()
+
+
 class ReplayDemo:
     """Read-only viewing of an exported run; no SDK or provider is constructed."""
     def __init__(self, path: Path):
@@ -634,6 +992,13 @@ class ReplayDemo:
             self._state["memory"]["revision"] = hashlib.sha256(json.dumps(self._state["memory"]["files"], sort_keys=True).encode()).hexdigest()
             self._state["events"] = deepcopy(turn.get("events", []))
             self._state["changes"] = deepcopy(turn.get("changes", []))
+        if self._state["memory"].get("lifecycle", {}).get("mode") == "native-chat":
+            native = selected.get("native", {})
+            self._state["memory"]["lifecycle"] = {
+                "mode": "native-chat", "transcriptPersisted": bool(native.get("transcriptPersisted")),
+                "indexed": bool(native.get("indexed")), "pendingIndex": bool(native.get("pendingIndex")),
+                "error": turn.get("snapshotError") if turn else None,
+            }
 
     def export(self) -> dict:
         return deepcopy(self.capture)
@@ -802,7 +1167,7 @@ def create_server(demo, host: str = "127.0.0.1", port: int = 8765) -> ThreadingH
                     return self._send(200, demo.state())
                 if method == "cancel":
                     return self._send(200, jobs.cancel())
-                if method in {"new_conversation", "select_conversation"}:
+                if method in {"new_conversation", "select_conversation"} and not (isinstance(demo, NativeChatDemo) and method == "new_conversation"):
                     return self._send(200, jobs.control(method, args))
                 return self._send(202, jobs.submit(method, args))
             except BlockingIOError as error:
@@ -836,7 +1201,7 @@ def main() -> None:
         else:
             private_directory(args.root)
             provider = Provider(args.root / "provider-ledger.json", args.budget_usd)
-            demo = ChatDemo(args.foundation, args.root, provider)
+            demo = NativeChatDemo(args.foundation, args.root, provider)
         server = create_server(demo, args.host, args.port)
         def stop(*_):
             demo.request_stop()
