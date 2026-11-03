@@ -36,11 +36,11 @@ You own this conversation; OpenClaw supplies memory, not your chat history.
 No automatic native flush, compaction or maintenance is performed by this demo.
 """
 TOUR = [
-    "Atlas bilgisini kaydet",
-    "Nova olarak güncelle",
-    "Yeni sohbette hatırla",
-    "Yeniden başlatıp hatırla",
-    "Çalışma kaydını tamamla",
+    "Save the Atlas project",
+    "Update the code name to Nova",
+    "Recall in a new conversation",
+    "Restart and recall again",
+    "Complete the run capture",
 ]
 
 
@@ -192,7 +192,7 @@ class ChatDemo:
 
     def _check_stopping(self) -> None:
         if self._stopping.is_set():
-            raise RuntimeError("Demo kapanıyor; yeni model veya yazma işlemi başlatılmadı.")
+            raise RuntimeError("The demo is shutting down; no further model or write operation was started.")
 
     def _snapshot(self) -> list[dict]:
         """Read observed sources through SDK get, never a native workspace/DB."""
@@ -229,7 +229,8 @@ class ChatDemo:
             conversation = self.conversation
             result = {"mode": "live", "model": {"name": MODEL, "ready": bool(self.provider.ready)},
                       "conversation": {k: conversation[k] for k in ["id", "messages"]},
-                      "conversations": [{k: c[k] for k in ["id", "title", "updatedAt"]} for c in reversed(self.conversations)],
+                      "conversations": [{"id": c["id"], "title": c["title"] if c["messages"] else "New chat",
+                                         "updatedAt": c["updatedAt"]} for c in reversed(self.conversations)],
                       "memory": {"files": self.files, "revision": revision}, "changes": self.changes,
                       "events": self.events, "budget": self.provider.state(), "busy": self.busy,
                       "error": self.error, "tour": {"step": self.tour_step, "total": len(TOUR),
@@ -244,7 +245,7 @@ class ChatDemo:
             if len(self.conversations) >= 50:
                 raise ValueError("Conversation limit reached; export this demo first.")
             self.current = "c-" + uuid.uuid4().hex[:24]
-            self.conversations.append({"id": self.current, "title": "Yeni sohbet", "updatedAt": now(),
+            self.conversations.append({"id": self.current, "title": "New chat", "updatedAt": now(),
                                        "messages": [], "modelMessages": [{"role": "system", "content": SYSTEM}],
                                        "blocked": False})
             self.changes, self.events, self.error = [], [], None
@@ -268,12 +269,12 @@ class ChatDemo:
             if not isinstance(message, str) or not message.strip() or len(message.encode()) > 8000:
                 raise ValueError("Send a nonempty message of at most 8000 UTF-8 bytes.")
             if not self.provider.ready:
-                raise ValueError("Gerçek sohbet için sunucuda OPENROUTER_API_KEY ve pozitif --budget-usd gerekli.")
+                raise ValueError("Live chat requires OPENROUTER_API_KEY and a positive --budget-usd allowance on the server.")
             if len(self.turns) >= MAX_TURNS:
                 raise ValueError("Demo turn limit reached; export the current run.")
             conversation = self.conversation
             if conversation.get("blocked"):
-                raise ValueError("Bu sohbet belirsiz bir işlemle durdu. Hafızayı koruyarak yeni sohbet aç.")
+                raise ValueError("This conversation stopped with an uncertain operation. Start a new chat to keep using the saved memory.")
             tools = self._MemoryTools(self.memory, self.scope, datetime.now(timezone.utc).date().isoformat())
             # These are the two public adapter write targets. Read them before
             # mutation even when this app has not observed the source before.
@@ -296,7 +297,7 @@ class ChatDemo:
                     response, usage = self.provider.complete(conversation["modelMessages"], tools.definitions)
                     turn["modelResponses"].append({"message": deepcopy(response), "usage": usage, "observedAt": now()})
                     conversation["modelMessages"].append(response)
-                    self.events.append({"kind": "model", "label": "Model yanıtı", "status": "completed",
+                    self.events.append({"kind": "model", "label": "Model response", "status": "completed",
                                         "detail": {"model": MODEL, "usage": usage}})
                     self._check_stopping()
                     calls = response.get("tool_calls") or []
@@ -357,7 +358,7 @@ class ChatDemo:
                     turn["snapshotError"] = self._clean(str(error))[:1000]
                     turn["status"] = "failed"
                     conversation["blocked"] = True
-                    self.error = "Kaynak görüntüsü doğrulanamadı; bu adım başarılı sayılmadı."
+                    self.error = "The source snapshot could not be verified; this step was not accepted as successful."
                     raise RuntimeError(self.error) from error
                 finally:
                     self._save()
@@ -378,7 +379,7 @@ class ChatDemo:
             self.memory = self._client_factory(self._config)
             self.new_conversation()
             self._snapshot()
-            self.events = [{"kind": "restart", "label": "Gateway ve SDK yeniden açıldı", "status": "completed", "detail": receipt}]
+            self.events = [{"kind": "restart", "label": "Gateway and SDK reopened", "status": "completed", "detail": receipt}]
             self._save()
 
     def tour_next(self) -> None:
@@ -387,21 +388,21 @@ class ChatDemo:
             if step >= len(TOUR):
                 return
             if step == 0:
-                self.chat("Bu bir demo: projemin kod adı Atlas, teslim günü cuma. İkisini kalıcı hafızaya kaydet; varsa diğer bilgilerimi koru.")
+                self.chat("This is a demo: my project's code name is Atlas and its delivery day is Friday. Save both in persistent memory and preserve any other saved facts.")
             elif step == 1:
-                self.chat("Demo projemin güncel kod adını Nova olarak değiştir. Cuma teslim gününü ve diğer bilgilerimi koru.")
+                self.chat("Change my demo project's current code name to Nova. Preserve its Friday delivery day and any other saved facts.")
             elif step in {2, 3}:
                 if step == 2:
                     self.new_conversation()
                 else:
                     self.restart_memory()
-                self.chat("Demo projemin güncel kod adı ve teslim günü ne? Hafızada ara, gerçek kaynağı oku ve kaynak yolunu belirterek cevapla.")
+                self.chat("What are my demo project's current code name and delivery day? Search memory, read the actual source, and cite its path in your answer.")
                 reply = (self.turns[-1].get("assistant") or "").casefold()
                 names = {e["label"] for e in self.events if e["kind"] == "tool" and e["status"] == "completed"}
-                if not ({"memory_search", "memory_get"} <= names and "nova" in reply and any(x in reply for x in ["cuma", "friday"])):
-                    raise RuntimeError("Tur doğrulaması geçmedi: kaynaklı güncel bilgiyle hatırlama gerekli.")
+                if not ({"memory_search", "memory_get"} <= names and "nova" in reply and any(day in reply for day in ["friday", "cuma"])):
+                    raise RuntimeError("Walkthrough validation failed: recall must use the current facts and observed source tools.")
             else:
-                self.events.append({"kind": "capture", "label": "Gerçek çalışma kaydı hazır", "status": "completed",
+                self.events.append({"kind": "capture", "label": "Run capture ready", "status": "completed",
                                     "detail": {"turns": len(self.turns), "export": "/api/export"}})
             if step in {0, 1}:
                 text = "\n".join(f["text"] for f in self.files if f["path"] == "memory/preference.md").casefold()
@@ -411,8 +412,8 @@ class ChatDemo:
                     and "index" in event.get("detail", {}).get("result", {})
                     for event in self.events if event["kind"] == "tool"
                 )
-                if not saved_and_indexed or expected not in text or not any(x in text for x in ["cuma", "friday"]):
-                    raise RuntimeError("Tur doğrulaması geçmedi: başarılı SDK yazma/indeksleme sonucu ve beklenen iki bilgi gerekli.")
+                if not saved_and_indexed or expected not in text or not any(day in text for day in ["friday", "cuma"]):
+                    raise RuntimeError("Walkthrough validation failed: a successful SDK save/index receipt and both expected facts are required.")
             self.tour_step += 1
             self._save()
 
@@ -558,7 +559,7 @@ def create_server(demo, host: str = "127.0.0.1", port: int = 8765) -> ThreadingH
                 if isinstance(demo, ReplayDemo) and method != "select_conversation":
                     return self._send(409, {"error": "Recorded runs are read-only; no model calls are made."})
                 if not demo._lock.acquire(blocking=False):
-                    return self._send(409, {"error": "Bir işlem devam ediyor; tamamlanmasını bekle."})
+                    return self._send(409, {"error": "An operation is already in progress. Wait for it to finish."})
                 try:
                     demo.busy = True
                     getattr(demo, method)(**args)

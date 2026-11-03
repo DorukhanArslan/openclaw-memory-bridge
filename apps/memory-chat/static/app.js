@@ -5,23 +5,23 @@
   let pendingMessage = null;
   let activeTab = "memory";
   let lastConversationId = null;
-  const money = new Intl.NumberFormat("tr-TR", {
+  const money = new Intl.NumberFormat("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 3,
   });
   const knownStatuses = {
-    ok: ["success", "Tamamlandı"],
-    success: ["success", "Tamamlandı"],
-    completed: ["success", "Tamamlandı"],
-    succeeded: ["success", "Tamamlandı"],
-    pass: ["success", "Doğrulandı"],
-    error: ["error", "Hata"],
-    failed: ["error", "Hata"],
-    pending: ["pending", "Sürüyor"],
-    running: ["pending", "Sürüyor"],
-    started: ["pending", "Başladı"],
-    info: ["", "Bilgi"],
-    warning: ["pending", "Uyarı"],
+    ok: ["success", "Completed"],
+    success: ["success", "Completed"],
+    completed: ["success", "Completed"],
+    succeeded: ["success", "Completed"],
+    pass: ["success", "Verified"],
+    error: ["error", "Error"],
+    failed: ["error", "Error"],
+    pending: ["pending", "Running"],
+    running: ["pending", "Running"],
+    started: ["pending", "Started"],
+    info: ["", "Info"],
+    warning: ["pending", "Warning"],
   };
 
   function el(tag, className, text) {
@@ -99,7 +99,7 @@
     $("toggle-inspector").setAttribute("aria-expanded", String(open));
     $("toggle-inspector").setAttribute(
       "aria-label",
-      open ? "Hafıza panelini kapat" : "Hafıza panelini aç",
+      open ? "Close memory panel" : "Open memory panel",
     );
     updateBackdrop();
   }
@@ -157,7 +157,7 @@
         el(
           "p",
           "sidebar-empty",
-          "İlk mesajınla birlikte sohbetin burada görünecek.",
+          "Your chats will appear here after your first message.",
         ),
       );
       return;
@@ -166,7 +166,7 @@
       const button = el(
         "button",
         "conversation-item",
-        conversation.title || "Yeni sohbet",
+        conversation.title || "New chat",
       );
       button.type = "button";
       button.classList.toggle(
@@ -175,7 +175,7 @@
       );
       if (conversation.id === state.conversation.id)
         button.setAttribute("aria-current", "page");
-      button.title = conversation.title || "Yeni sohbet";
+      button.title = conversation.title || "New chat";
       button.addEventListener("click", () => {
         if (conversation.id !== state.conversation.id)
           mutate(
@@ -200,7 +200,7 @@
       if (files.has(match[1])) {
         const citation = el("button", "citation", match[0].slice(1, -1));
         citation.type = "button";
-        citation.title = "Gerçek kaynağı aç";
+        citation.title = "Open the actual source";
         // Keep this source path after the match iterator advances.
         const citedPath = match[1];
         citation.addEventListener("click", () => {
@@ -224,7 +224,7 @@
   function messageNode(message) {
     const user = message.role === "user";
     const row = el("article", `message ${user ? "user" : "assistant"}`);
-    row.setAttribute("aria-label", user ? "Senin mesajın" : "Model yanıtı");
+    row.setAttribute("aria-label", user ? "Your message" : "Model response");
     const content = el("div", "message-content");
     if (user) content.textContent = message.content || "";
     else appendCitedText(content, message.content);
@@ -261,12 +261,12 @@
       avatar.append(icon("spark"));
       const dots = el("span", "typing");
       dots.setAttribute("role", "status");
-      dots.setAttribute("aria-label", "Gerçek model yanıtı bekleniyor");
+      dots.setAttribute("aria-label", "Waiting for the real model response");
       for (let i = 0; i < 3; i += 1) dots.append(el("i"));
       row.append(
         avatar,
         dots,
-        el("span", "typing-label", "Kaynaklar ve yanıt hazırlanıyor…"),
+        el("span", "typing-label", "Preparing sources and response…"),
       );
       target.append(row);
     }
@@ -280,8 +280,8 @@
     const files = Array.isArray(state.memory.files) ? state.memory.files : [];
     $("memory-count").textContent = String(files.length);
     $("memory-revision").textContent = state.memory.revision
-      ? `kayıt ${String(state.memory.revision).slice(0, 9)}`
-      : "kaynak okunmadı";
+      ? `capture ${String(state.memory.revision).slice(0, 9)}`
+      : "no sources read";
     const target = $("memory-files");
     const opened = new Set(
       [...target.querySelectorAll("details[open]")].map(
@@ -293,8 +293,8 @@
       emptyPanel(
         target,
         "file",
-        "Henüz okunmuş bir kaynak yok",
-        "Bir bilgiyi hatırlamasını iste. Kullanılan kaynakların SDK okuma çıktıları burada görünecek.",
+        "No sources read yet",
+        "Ask the assistant to remember something. SDK output from the sources used will appear here.",
       );
       return;
     }
@@ -308,11 +308,11 @@
       const source = el("pre", "source-text", file.text || "");
       const metadata = el("div", "file-meta");
       metadata.append(
-        el("span", "", `SDK özeti ${(file.sha256 || "").slice(0, 10)}`),
+        el("span", "", `SDK hash ${(file.sha256 || "").slice(0, 10)}`),
         el(
           "span",
           "",
-          `${new TextEncoder().encode(file.text || "").length} bayt`,
+          `${new TextEncoder().encode(file.text || "").length} bytes`,
         ),
       );
       details.append(summary, source, metadata);
@@ -363,8 +363,8 @@
       emptyPanel(
         target,
         "changes",
-        "Henüz bir değişiklik yok",
-        "Hafızaya yazılan veya güncellenen kayıtların önceki ve sonraki satırları burada karşılaştırılır.",
+        "No changes yet",
+        "Compare the source lines before and after a memory write or update.",
       );
       return;
     }
@@ -400,11 +400,11 @@
             el(
               "span",
               "diff-line context",
-              "… Görünüm kısaltıldı. Tam kaynak Kayıtlar sekmesinde.",
+              "… Display shortened. See the source excerpt in the Sources tab.",
             ),
           );
         card.append(body);
-      } else card.append(el("p", "diff-empty", "Kaynak satırları aynı."));
+      } else card.append(el("p", "diff-empty", "Source lines are unchanged."));
       target.append(card);
     }
   }
@@ -418,8 +418,8 @@
       emptyPanel(
         target,
         "activity",
-        "İlk işlem bekleniyor",
-        "Arama, kaynak okuma ve kaydetme çağrıları çalıştıklarında burada kendi sonuçlarıyla görünür.",
+        "Waiting for the first action",
+        "Search, source reads, and save calls appear here with their actual results.",
       );
       return;
     }
@@ -429,7 +429,7 @@
       const status = knownStatuses[event.status] || ["", event.status || ""];
       summary.append(
         el("span", `event-dot ${status[0]}`),
-        el("span", "event-label", event.label || event.kind || "İşlem"),
+        el("span", "event-label", event.label || event.kind || "Action"),
         el("span", "event-status", status[1]),
       );
       details.append(summary);
@@ -462,49 +462,49 @@
     $("status-line").classList.toggle("ready", ready && !replay);
     const model = state.model?.name
       ? state.model.name.replace(/^openai\//, "")
-      : "Gerçek model";
+      : "Real model";
     $("model-status").textContent = replay
-      ? `${model} · kayıtlı çalışma`
+      ? `${model} · recorded run`
       : ready
-        ? `${model} · canlı model`
+        ? `${model} · live model`
         : noBudget
-          ? `${model} · sohbet kapalı`
-          : "Model bağlantısı ayarlanmamış";
+          ? `${model} · chat disabled`
+          : "Model connection is not configured";
     $("budget-status").textContent = replay
-      ? "Yeni model çağrısı yapılmaz"
+      ? "No new model calls"
       : Number.isFinite(Number(budget.remainingUsd))
-        ? "Tahmini kalan $" +
+        ? "Estimated remaining $" +
           money.format(Math.max(0, Number(budget.remainingUsd)))
         : "";
     document.querySelector(".demo-label").textContent = replay
-      ? "tekrar"
+      ? "replay"
       : "demo";
     const tour = state.tour || {};
     $("tour-label").textContent = tour.done
-      ? "Kaydı indir"
+      ? "Download capture"
       : tour.step > 0
-        ? "Adım " +
+        ? "Step " +
           Math.min(Number(tour.step) + 1, Number(tour.total) || 5) +
           "/" +
           (tour.total || 5)
-        : "Rehberli deneme";
+        : "Guided walkthrough";
     $("tour-next").title =
-      tour.label || "Gerçek bir hafıza akışını adım adım dene";
+      tour.label || "Try a real memory flow, one step at a time";
     if (replay)
       $("composer-note").textContent =
-        "Bu, gerçek bir çalışmanın salt okunur kaydı. Sohbeti, kaynakları ve gerçekleşen işlemleri inceleyebilirsin.";
+        "This is a read-only run capture. Explore the conversation, sources, and executed actions.";
     else if (noBudget)
       $("composer-note").textContent =
-        "Canlı sohbet için sunucuda bir deneme bütçesi seçilmeli. Kayıtları sağ panelden inceleyebilirsin.";
+        "Choose a demo budget on the server to enable live chat. You can still inspect the sources.";
     else if (!ready)
       $("composer-note").textContent =
-        "Canlı sohbet için sunucuda model bağlantısı yapılandırılmalı. Kayıtları sağ panelden inceleyebilirsin.";
+        "Configure the model connection on the server to enable live chat. You can still inspect the sources.";
     else if (!modelAllowed())
       $("composer-note").textContent =
-        "Bu çalışma için sohbet bütçesi kalmadı. Mevcut kayıtları inceleyebilir ve çalışma kaydını indirebilirsin.";
+        "This run has no chat allowance left. You can inspect the sources and download the capture.";
     else
       $("composer-note").textContent =
-        "Enter ile gönder, Shift + Enter ile yeni satır. Yanıtın kaynağını da kontrol et.";
+        "Enter to send, Shift + Enter for a new line. Check the sources behind the answer.";
     renderHistory();
     renderMessages();
     renderMemory();
@@ -531,18 +531,20 @@
       value = await response.json();
     } catch {
       throw new Error(
-        "Sunucudan okunabilir bir yanıt gelmedi. Bağlantıyı ve sunucu terminalini kontrol et.",
+        "The server returned an unreadable response. Check the connection and server terminal.",
       );
     }
     if (!response.ok) {
       if (value.state) state = value.state;
       throw new Error(
-        typeof value.error === "string" ? value.error : "İşlem tamamlanamadı.",
+        typeof value.error === "string"
+          ? value.error
+          : "The operation could not be completed.",
       );
     }
     if (!value || typeof value !== "object" || !value.conversation)
       throw new Error(
-        "Sunucu durumu eksik. İşlemin sonucunu sunucu terminalinden kontrol et.",
+        "The server state is incomplete. Check the operation outcome in the server terminal.",
       );
     return value;
   }
@@ -563,7 +565,7 @@
       state = await request(path, body);
       succeeded = true;
     } catch (error) {
-      errorMessage(error.message || "İşlem tamamlanamadı.");
+      errorMessage(error.message || "The operation could not be completed.");
     } finally {
       pending = false;
       pendingMessage = null;
@@ -683,9 +685,9 @@
       render();
     })
     .catch((error) => {
-      $("model-status").textContent = "Sunucuya bağlanılamadı";
+      $("model-status").textContent = "Could not connect to the server";
       $("budget-status").textContent = "";
-      errorMessage(error.message || "Uygulamaya bağlanılamadı.");
+      errorMessage(error.message || "Could not connect to the app.");
       updateControls();
     });
 })();

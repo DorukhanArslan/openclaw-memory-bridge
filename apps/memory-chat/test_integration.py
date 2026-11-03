@@ -47,8 +47,8 @@ class ProtocolFixtureProvider:
         self.requests += 1
         assert {t["function"]["name"] for t in tools} >= {"memory_save", "memory_search", "memory_get"}
         user = next(m["content"] for m in reversed(messages) if m["role"] == "user")
-        updating = "Nova olarak değiştir" in user
-        recalling = "Hafızada ara" in user
+        updating = "code name to Nova" in user
+        recalling = "Search memory" in user
         if messages[-1]["role"] == "user":
             self.turn_inputs.append(deepcopy(messages))
             if recalling:
@@ -56,7 +56,7 @@ class ProtocolFixtureProvider:
             elif updating:
                 result = self._call("memory_get", path="memory/preference.md")
             else:
-                result = self._call("memory_save", text="# Demo project\nKod adı: Atlas\nTeslim günü: cuma.\n")
+                result = self._call("memory_save", text="# Demo project\nCode name: Atlas\nDelivery day: Friday.\n")
         else:
             previous = next(m for m in reversed(messages) if m["role"] == "assistant")
             tool = previous["tool_calls"][0]["function"]["name"]
@@ -67,11 +67,11 @@ class ProtocolFixtureProvider:
                 hit = next(h for h in observed["results"] if h["path"] == "memory/preference.md")
                 result = self._call("memory_get", path=hit["path"])
             elif tool == "memory_get" and updating:
-                self.assert_source(observed, "Atlas", "cuma")
+                self.assert_source(observed, "Atlas", "Friday")
                 result = self._call("memory_save", text=observed["text"].replace("Atlas", "Nova"))
             elif tool == "memory_get":
-                self.assert_source(observed, "Nova", "cuma")
-                result = {"role": "assistant", "content": "Kod adı Nova; teslim günü cuma. Kaynak: memory/preference.md"}
+                self.assert_source(observed, "Nova", "Friday")
+                result = {"role": "assistant", "content": "The code name is Nova; the delivery day is Friday. Source: memory/preference.md"}
             elif tool == "memory_save":
                 assert observed["path"] == "memory/preference.md" and "index" in observed
                 result = {"role": "assistant", "content": "Protocol fixture: actual SDK write/index receipt observed."}
@@ -111,7 +111,7 @@ class NativeDemoAcceptance(unittest.TestCase):
                 source = first["memory"]["files"][0]
                 self.assertEqual(source["path"], "memory/preference.md")
                 self.assertIn("Atlas", source["text"])
-                self.assertIn("cuma", source["text"])
+                self.assertIn("Friday", source["text"])
                 self.assertEqual(source["sha256"], hashlib.sha256(source["text"].encode()).hexdigest())
                 self.assertIsNone(first["changes"][0]["before"])
                 self.assertEqual(first["changes"][0]["after"], source["text"])
@@ -121,7 +121,7 @@ class NativeDemoAcceptance(unittest.TestCase):
                 self.assertEqual(updated["tour"]["step"], 2)
                 self.assertIn("Nova", updated["memory"]["files"][0]["text"])
                 self.assertNotIn("Atlas", updated["memory"]["files"][0]["text"])
-                self.assertIn("cuma", updated["memory"]["files"][0]["text"])
+                self.assertIn("Friday", updated["memory"]["files"][0]["text"])
                 self.assertEqual(updated["changes"][0]["before"], source["text"])
                 self.assertEqual(updated["changes"][0]["removed"], 1)
                 self.assertEqual(updated["changes"][0]["added"], 1)
@@ -302,7 +302,7 @@ class FailureVisibility(unittest.TestCase):
     def test_first_update_baselines_an_existing_unobserved_preference(self):
         with tempfile.TemporaryDirectory(prefix="memory-chat-existing-baseline-") as temporary:
             root = Path(temporary)
-            original = f"Kod adı: Atlas\nTeslim günü: cuma.\nLiteral source path: {root}\n"
+            original = f"Code name: Atlas\nDelivery day: Friday.\nLiteral source path: {root}\n"
             saved = {"memory/preference.md": original}
 
             class ExistingPreference:
@@ -326,7 +326,7 @@ class FailureVisibility(unittest.TestCase):
             demo = ChatDemo(FOUNDATION, root, ProtocolFixtureProvider(), client_factory=ExistingPreference)
             try:
                 self.assertEqual(demo.observed_paths, set())
-                demo.chat("Demo projemin güncel kod adını Nova olarak değiştir.")
+                demo.chat("Change my demo project's current code name to Nova.")
                 self.assertEqual(demo.changes[0]["before"], original)
                 self.assertEqual(demo.changes[0]["after"], original.replace("Atlas", "Nova"))
                 self.assertEqual(demo.changes[0]["removed"], 1)
@@ -370,7 +370,7 @@ class FailureVisibility(unittest.TestCase):
             def complete(self, messages, tools):
                 self.requests += 1
                 if messages[-1]["role"] == "user":
-                    return self._call("memory_save", text="Kod adı: Atlas\nTeslim günü: cuma.\n"), {"fixture": True}
+                    return self._call("memory_save", text="Code name: Atlas\nDelivery day: Friday.\n"), {"fixture": True}
                 error_result = json.loads(messages[-1]["content"])
                 assert error_result["ok"] is False
                 return {"role": "assistant", "content": "Protocol fixture: the source was saved but indexing failed."}, {"fixture": True}
@@ -379,7 +379,7 @@ class FailureVisibility(unittest.TestCase):
             provider = IndexFailureFixture()
             demo = ChatDemo(FOUNDATION, Path(temporary), provider, client_factory=SavedButUnindexed)
             try:
-                with self.assertRaisesRegex(RuntimeError, "indeksleme"):
+                with self.assertRaisesRegex(RuntimeError, "save/index"):
                     demo.tour_next()
                 self.assertEqual(demo.state()["tour"]["step"], 0)
                 self.assertFalse(demo.state()["tour"]["done"])
@@ -521,7 +521,7 @@ class FailureVisibility(unittest.TestCase):
                 self.assertTrue(demo.conversation["blocked"])
                 self.assertIsNone(demo.turns[-1]["assistant"])
                 self.assertEqual(provider.requests, 1)
-                with self.assertRaisesRegex(ValueError, "yeni sohbet"):
+                with self.assertRaisesRegex(ValueError, "new chat"):
                     demo.chat("Do not automatically replay the failed request.")
                 self.assertEqual(provider.requests, 1)
                 demo.new_conversation()
