@@ -3,8 +3,13 @@
   let state = null;
   let pending = false;
   let pendingMessage = null;
+  let pendingMessageCount = 0;
+  let polling = false;
+  let cancelling = false;
+  let refreshing = false;
   let activeTab = "memory";
   let lastConversationId = null;
+  const renderedViews = new Map();
   const money = new Intl.NumberFormat("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 3,
@@ -29,6 +34,13 @@
     if (className) node.className = className;
     if (text !== undefined && text !== null) node.textContent = String(text);
     return node;
+  }
+
+  function changedView(name, value) {
+    const signature = JSON.stringify(value);
+    if (renderedViews.get(name) === signature) return false;
+    renderedViews.set(name, signature);
+    return true;
   }
 
   function icon(kind) {
@@ -83,11 +95,14 @@
       button.disabled = busy;
     });
     document.querySelectorAll("[data-prompt]").forEach((button) => {
-      button.disabled = !state || busy || replay || blocked;
+      button.disabled = !state || replay || blocked;
     });
-    $("refresh-memory").disabled = busy;
+    $("refresh-memory").disabled = !state || refreshing;
+    $("refresh-memory").title = busy
+      ? "Refresh operation status"
+      : "Refresh memory";
     $("message-input").disabled =
-      !state || busy || replay || blocked || !modelAllowed();
+      !state || replay || blocked || (!busy && !modelAllowed());
     $("send-message").disabled =
       busy ||
       replay ||
@@ -105,7 +120,20 @@
       blocked ||
       (!state.tour?.done && !modelAllowed());
     $("chat-form").setAttribute("aria-busy", String(busy));
-    $("export-run").setAttribute("aria-disabled", String(!state || busy));
+    $("export-run").setAttribute("aria-disabled", String(!state));
+    const activeJob = Boolean(state?.busy);
+    const stopping = cancelling || state?.job?.status === "cancelling";
+    $("job-bar").hidden = !busy;
+    $("job-label").textContent = state?.job?.label || "Starting your request…";
+    const startedAt = Date.parse(state?.job?.startedAt || "");
+    $("job-elapsed").textContent = Number.isFinite(startedAt)
+      ? `${Math.max(0, Math.floor((Date.now() - startedAt) / 1000))}s`
+      : "";
+    $("cancel-job").disabled = !activeJob || stopping || replay;
+    $("cancel-job").textContent = stopping ? "Stopping…" : "Stop";
+    $("cancel-job").title = stopping
+      ? "Waiting for the current bounded request to finish. No further action will be started."
+      : "Stop after the current request; do not start further model or memory actions";
   }
 
   function toggleInspector(open) {
@@ -161,6 +189,8 @@
   }
 
   function renderHistory() {
+    if (!changedView("history", [state.conversations, state.conversation.id]))
+      return;
     const target = $("conversation-list");
     const conversations = Array.isArray(state.conversations)
       ? state.conversations
@@ -255,6 +285,15 @@
   }
 
   function renderMessages() {
+    if (
+      !changedView("messages", [
+        state.conversation,
+        pendingMessage,
+        isBusy(),
+        state.job?.label,
+      ])
+    )
+      return;
     const scroll = $("chat-scroll");
     const nearBottom =
       scroll.scrollHeight - scroll.scrollTop - scroll.clientHeight < 150;
@@ -268,8 +307,15 @@
     const target = $("messages");
     target.replaceChildren();
     for (const message of messages) target.append(messageNode(message));
-    if (pendingMessage) {
+    const pendingCommitted = messages
+      .slice(pendingMessageCount)
+      .some(
+        (message) =>
+          message.role === "user" && message.content === pendingMessage,
+      );
+    if (pendingMessage && !pendingCommitted)
       target.append(messageNode({ role: "user", content: pendingMessage }));
+    if (isBusy()) {
       const row = el("div", "message assistant");
       const avatar = el("span", "message-avatar");
       avatar.append(icon("spark"));
@@ -280,22 +326,41 @@
       row.append(
         avatar,
         dots,
-        el("span", "typing-label", "Preparing sources and response…"),
+        el(
+          "span",
+          "typing-label",
+          state.job?.label || "Waiting for the model…",
+        ),
       );
       target.append(row);
     }
-    if (changed || nearBottom || pendingMessage)
+    if (changed || nearBottom)
       requestAnimationFrame(() => {
         scroll.scrollTop = scroll.scrollHeight;
       });
   }
 
   function renderMemory() {
+    if (!changedView("memory", state.memory)) return;
     const files = Array.isArray(state.memory.files) ? state.memory.files : [];
     $("memory-count").textContent = String(files.length);
     $("memory-revision").textContent = state.memory.revision
       ? `capture ${String(state.memory.revision).slice(0, 9)}`
       : "no sources read";
+    const unavailable = state.memory.available === false;
+    const stale = Boolean(state.memory.stale);
+    $("memory-warning").hidden = !unavailable && !stale && !state.memory.error;
+    $("memory-warning-title").textContent = unavailable
+      ? "Memory is unavailable"
+      : "Previously captured sources";
+    $("memory-warning-copy").textContent = unavailable
+      ? "Chat still works. Saved facts could not be verified." +
+        (files.length
+          ? " These excerpts are from the last verified capture."
+          : "")
+      : "These source excerpts have not been checked during this session. Refresh memory to verify them.";
+    $("memory-warning-detail").textContent = state.memory.error || "";
+    $("memory-warning-details").hidden = !state.memory.error;
     const target = $("memory-files");
     const opened = new Set(
       [...target.querySelectorAll("details[open]")].map(
@@ -369,6 +434,7 @@
   }
 
   function renderChanges() {
+    if (!changedView("changes", state.changes)) return;
     const changes = Array.isArray(state.changes) ? state.changes : [];
     $("changes-count").textContent = String(changes.length);
     const target = $("source-changes");
@@ -424,9 +490,15 @@
   }
 
   function renderActivity() {
+    if (!changedView("activity", state.events)) return;
     const events = Array.isArray(state.events) ? state.events : [];
     $("activity-count").textContent = String(events.length);
     const target = $("activity-events");
+    const opened = new Set(
+      [...target.querySelectorAll("details[open]")].map(
+        (card) => card.dataset.key,
+      ),
+    );
     target.replaceChildren();
     if (!events.length) {
       emptyPanel(
@@ -437,8 +509,10 @@
       );
       return;
     }
-    for (const event of events) {
+    for (const [index, event] of events.entries()) {
       const details = el("details", "activity-card");
+      details.dataset.key = `${index}:${event.kind}:${event.label}`;
+      details.open = opened.has(details.dataset.key);
       const summary = el("summary");
       const status = knownStatuses[event.status] || ["", event.status || ""];
       summary.append(
@@ -524,48 +598,128 @@
     else
       $("composer-note").textContent =
         "Enter to send, Shift + Enter for a new line. Check the sources behind the answer.";
+    $("notice-banner").textContent = state.notice || "";
+    $("notice-banner").hidden = !state.notice;
     renderHistory();
     renderMessages();
     renderMemory();
     renderChanges();
     renderActivity();
     updateControls();
-    if (state.error) errorMessage(state.error);
   }
 
   async function request(path, body) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 10000);
     const options = {
       method: body === undefined ? "GET" : "POST",
       cache: "no-store",
       credentials: "same-origin",
       headers: { Accept: "application/json" },
+      signal: controller.signal,
     };
     if (body !== undefined) {
       options.headers["Content-Type"] = "application/json";
       options.body = JSON.stringify(body);
     }
-    const response = await fetch(path, options);
-    let value;
     try {
-      value = await response.json();
-    } catch {
-      throw new Error(
-        "The server returned an unreadable response. Check the connection and server terminal.",
-      );
+      const response = await fetch(path, options);
+      let value;
+      try {
+        value = await response.json();
+      } catch (error) {
+        if (error.name === "AbortError") throw error;
+        throw new Error(
+          "The server returned an unreadable response. Check the server terminal.",
+        );
+      }
+      if (!response.ok) {
+        if (value.state) state = value.state;
+        throw new Error(
+          typeof value.error === "string"
+            ? value.error
+            : "The operation could not be completed.",
+        );
+      }
+      if (!value || typeof value !== "object" || !value.conversation)
+        throw new Error(
+          "The server state is incomplete. Check the server terminal.",
+        );
+      return value;
+    } catch (error) {
+      if (error.name === "AbortError")
+        throw new Error(
+          "The server did not respond within 10 seconds. The request may still be running; refresh its status before submitting it again.",
+        );
+      if (error instanceof TypeError)
+        throw new Error(
+          "Could not reach the local server. Keep its terminal open and refresh the operation status before trying again.",
+        );
+      throw error;
+    } finally {
+      clearTimeout(timer);
     }
-    if (!response.ok) {
-      if (value.state) state = value.state;
-      throw new Error(
-        typeof value.error === "string"
-          ? value.error
-          : "The operation could not be completed.",
-      );
+  }
+
+  async function waitForJob() {
+    if (!state?.busy || polling) return;
+    polling = true;
+    const deadline = performance.now() + 165000;
+    try {
+      while (state?.busy) {
+        if (performance.now() >= deadline)
+          throw new Error(
+            "This operation is taking longer than expected. The page is still usable: stop the operation or refresh its status. It has not been retried.",
+          );
+        await new Promise((resolve) => setTimeout(resolve, 600));
+        state = await request("/api/state");
+        render();
+      }
+    } finally {
+      polling = false;
     }
-    if (!value || typeof value !== "object" || !value.conversation)
-      throw new Error(
-        "The server state is incomplete. Check the operation outcome in the server terminal.",
+  }
+
+  function showJobOutcome() {
+    if (state?.job?.status === "failed")
+      errorMessage(
+        state.job.error ||
+          state.error ||
+          "The operation failed. You can try a new message.",
       );
-    return value;
+    else if (state?.job?.status === "cancelled")
+      errorMessage(
+        state.job.error ||
+          "The operation was stopped. No further action was started.",
+      );
+  }
+
+  async function watchExistingJob() {
+    if (polling || !state?.busy) return;
+    try {
+      await waitForJob();
+      showJobOutcome();
+    } catch (error) {
+      errorMessage(error.message);
+    } finally {
+      render();
+    }
+  }
+
+  async function cancelJob() {
+    if (!state?.busy || cancelling || state.mode === "replay") return;
+    cancelling = true;
+    updateControls();
+    try {
+      state = await request("/api/cancel", {});
+      render();
+      if (!polling) await watchExistingJob();
+    } catch (error) {
+      errorMessage(error.message);
+    } finally {
+      cancelling = false;
+      updateControls();
+    }
   }
 
   async function mutate(path, body, options = {}) {
@@ -578,20 +732,33 @@
       return;
     pending = true;
     pendingMessage = options.message || null;
+    pendingMessageCount = state?.conversation?.messages?.length || 0;
     errorMessage("");
     if (options.closeSidebar) toggleSidebar(false);
     render();
     let succeeded = false;
+    const previousJobId = state?.job?.id;
     try {
       state = await request(path, body);
-      succeeded = true;
+      render();
+      const startedJob =
+        state.busy || (state.job?.id && state.job.id !== previousJobId);
+      if (startedJob) {
+        await waitForJob();
+        succeeded = !["failed", "cancelled"].includes(state?.job?.status);
+        showJobOutcome();
+      } else succeeded = true;
     } catch (error) {
       errorMessage(error.message || "The operation could not be completed.");
     } finally {
       pending = false;
       pendingMessage = null;
       render();
-      if (succeeded && options.message) {
+      if (
+        succeeded &&
+        options.message &&
+        $("message-input").value === options.message
+      ) {
         $("message-input").value = "";
         resizeInput();
       }
@@ -638,19 +805,26 @@
     mutate("/api/tour/next", {});
   });
   $("refresh-memory").addEventListener("click", async () => {
-    if (isBusy()) return;
-    pending = true;
+    if (refreshing) return;
+    if (!isBusy()) {
+      mutate("/api/memory/refresh", {});
+      return;
+    }
+    refreshing = true;
     updateControls();
     errorMessage("");
     try {
       state = await request("/api/state");
+      if (state.busy && !polling) watchExistingJob();
+      else showJobOutcome();
     } catch (error) {
       errorMessage(error.message);
     } finally {
-      pending = false;
+      refreshing = false;
       render();
     }
   });
+  $("cancel-job").addEventListener("click", cancelJob);
   $("toggle-inspector").addEventListener("click", () =>
     toggleInspector(!document.body.classList.contains("inspector-open")),
   );
@@ -663,7 +837,7 @@
   });
   $("dismiss-error").addEventListener("click", () => errorMessage(""));
   $("export-run").addEventListener("click", (event) => {
-    if (!state || isBusy()) event.preventDefault();
+    if (!state) event.preventDefault();
   });
   document.querySelectorAll("[data-tab]").forEach((button) => {
     button.addEventListener("click", () => selectTab(button.dataset.tab));
@@ -684,7 +858,7 @@
   });
   document.querySelectorAll("[data-prompt]").forEach((button) => {
     button.addEventListener("click", () => {
-      if (isBusy()) return;
+      if (state?.mode === "replay" || conversationBlocked()) return;
       $("message-input").value = button.dataset.prompt;
       resizeInput();
       updateControls();
@@ -705,6 +879,8 @@
     .then((value) => {
       state = value;
       render();
+      if (state.error) errorMessage(state.error);
+      if (state.busy) watchExistingJob();
     })
     .catch((error) => {
       $("model-status").textContent = "Could not connect to the server";

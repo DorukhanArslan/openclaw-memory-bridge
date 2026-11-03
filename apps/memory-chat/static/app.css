@@ -1353,3 +1353,132 @@ button svg {
     transition: none !important;
   }
 }
+
+.sidebar-demo {
+  margin: 19px 4px 0;
+  padding: 0 5px;
+}
+.sidebar-demo-label {
+  display: block;
+  margin: 0 7px 5px;
+  color: #949494;
+  font-size: 10px;
+}
+.sidebar-demo .tour-button {
+  width: 100%;
+  justify-content: flex-start;
+  background: transparent;
+  border-color: transparent;
+  padding: 7px;
+  font-size: 11px;
+  color: #777;
+}
+.sidebar-demo .tour-button span {
+  display: inline;
+  max-width: none;
+  white-space: normal;
+  text-align: left;
+}
+.sidebar-demo .tour-button:hover:not(:disabled) {
+  background: #eee;
+}
+.notice-banner {
+  margin: 12px 25px 0;
+  padding: 10px 14px;
+  border: 1px solid #e3ebe6;
+  background: #f7faf8;
+  color: #5b655f;
+  border-radius: 9px;
+  font-size: 11px;
+  line-height: 1.6;
+  max-height: 95px;
+  overflow-y: auto;
+}
+.job-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 9px 2px 0;
+  padding: 7px 9px 7px 12px;
+  border: 1px solid #e5ebe7;
+  border-radius: 12px;
+  background: #f8faf9;
+  color: #58665e;
+  font-size: 11px;
+  line-height: 1.5;
+}
+.job-bar > div {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+.job-indicator {
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #7eaa94;
+  animation: typing 1.3s ease-in-out infinite;
+}
+#job-elapsed {
+  flex-shrink: 0;
+  color: #929b96;
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+}
+#cancel-job {
+  flex-shrink: 0;
+  min-width: 58px;
+  min-height: 30px;
+  padding: 4px 11px;
+  border: 1px solid #d8dfda;
+  border-radius: 8px;
+  background: #fff;
+  color: #394b40;
+  font-size: 11px;
+}
+#cancel-job:hover:not(:disabled) {
+  background: #eef4f0;
+}
+#cancel-job:disabled {
+  color: #8c9690;
+}
+.memory-warning {
+  margin: 0 0 16px;
+  padding: 12px;
+  border: 1px solid #eadfbf;
+  border-radius: 10px;
+  background: #fffaf0;
+  color: #76623a;
+  font-size: 11px;
+  line-height: 1.6;
+}
+.memory-warning strong {
+  font-size: 12px;
+}
+.memory-warning p {
+  margin: 5px 0 0;
+}
+.memory-warning details {
+  margin-top: 8px;
+}
+.memory-warning summary {
+  cursor: pointer;
+}
+.memory-warning pre {
+  max-height: 150px;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font: 10px/1.6 var(--mono);
+}
+@media (max-width: 767px) {
+  .notice-banner {
+    margin: 10px 13px 0;
+  }
+  .job-bar {
+    font-size: 10px;
+  }
+}

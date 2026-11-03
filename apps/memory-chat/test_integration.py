@@ -35,7 +35,7 @@ class ProtocolFixtureProvider:
         self.turn_inputs = []
 
     def state(self):
-        return {"limitUsd": 0, "reservedUsd": 0, "remainingUsd": 0, "requests": self.requests}
+        return {"limitUsd": 1, "reservedUsd": 0, "remainingUsd": 1, "requests": self.requests}
 
     def _call(self, name, **arguments):
         return {"role": "assistant", "content": None, "tool_calls": [{
@@ -379,7 +379,7 @@ class FailureVisibility(unittest.TestCase):
             provider = IndexFailureFixture()
             demo = ChatDemo(FOUNDATION, Path(temporary), provider, client_factory=SavedButUnindexed)
             try:
-                with self.assertRaisesRegex(RuntimeError, "save/index"):
+                with self.assertRaisesRegex(RuntimeError, "memory save was not verified"):
                     demo.tour_next()
                 self.assertEqual(demo.state()["tour"]["step"], 0)
                 self.assertFalse(demo.state()["tour"]["done"])
@@ -391,9 +391,11 @@ class FailureVisibility(unittest.TestCase):
                 self.assertIn("index failure", failed["detail"]["error"]["message"])
                 self.assertFalse(any(e["kind"] == "tool" and e["status"] == "completed" for e in demo.events))
                 actual = saved["memory/preference.md"]
-                self.assertEqual(demo.state()["memory"]["files"][0]["text"], actual)
-                self.assertEqual(demo.changes[0]["after"], actual)
-                self.assertIsNone(demo.changes[0]["before"])
+                self.assertIn("Atlas", actual)
+                self.assertFalse(demo.state()["memory"]["available"])
+                self.assertEqual(demo.state()["memory"]["files"], [])
+                self.assertEqual(demo.changes, [])
+                self.assertFalse(demo.turns[-1]["snapshotVerified"])
                 self.assertIn("indexing failed", demo.turns[-1]["assistant"])
             finally:
                 demo.close()
@@ -432,11 +434,14 @@ class FailureVisibility(unittest.TestCase):
             provider = ProtocolFixtureProvider()
             demo = ChatDemo(FOUNDATION, Path(temporary), provider, client_factory=ControlledClient)
             try:
+                # The SDK is lazy now. Seed an already-open poisoned transport
+                # rather than requiring startup to create one unnecessarily.
+                demo.memory = ControlledClient(demo._config)
                 original_id = demo.current
                 demo.restart_memory()
                 self.assertEqual(operations, [("open", 0), ("close", 0), ("open", 1),
-                                              ("restart", 1), ("close", 1), ("open", 2)])
-                self.assertEqual(len(clients), 3)
+                                              ("restart", 1), ("close", 1)])
+                self.assertEqual(len(clients), 2)
                 self.assertTrue(clients[0].closed)
                 self.assertEqual(clients[0].restarts, 0)
                 self.assertEqual(provider.requests, 0)
@@ -487,9 +492,9 @@ class FailureVisibility(unittest.TestCase):
                     demo.chat("This controlled fixture requests stop after its first response.")
                 self.assertEqual(provider.requests, 1)
                 self.assertEqual(operations, [])
-                self.assertEqual(demo.turns[-1]["status"], "failed")
+                self.assertEqual(demo.turns[-1]["status"], "cancelled")
                 self.assertIsNone(demo.turns[-1]["assistant"])
-                self.assertTrue(demo.conversation["blocked"])
+                self.assertFalse(demo.conversation["blocked"])
                 self.assertEqual([m["role"] for m in demo.conversation["messages"]], ["user"])
             finally:
                 demo.close()
@@ -518,12 +523,12 @@ class FailureVisibility(unittest.TestCase):
                     demo.chat("This fixture request fails.")
                 self.assertEqual([m["role"] for m in demo.conversation["messages"]], ["user"])
                 self.assertEqual(demo.turns[-1]["status"], "failed")
-                self.assertTrue(demo.conversation["blocked"])
-                self.assertTrue(demo.state()["conversation"]["blocked"])
+                self.assertFalse(demo.conversation["blocked"])
+                self.assertFalse(demo.state()["conversation"]["blocked"])
                 self.assertIsNone(demo.turns[-1]["assistant"])
                 self.assertEqual(provider.requests, 1)
-                with self.assertRaisesRegex(ValueError, "new chat"):
-                    demo.chat("Do not automatically replay the failed request.")
+                self.assertEqual([message["role"] for message in demo.conversation["modelMessages"]], ["system"])
+                demo.state()
                 self.assertEqual(provider.requests, 1)
                 demo.new_conversation()
                 self.assertEqual(len(demo.conversation["modelMessages"]), 1)

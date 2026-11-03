@@ -1,0 +1,407 @@
+{
+  "schemaVersion": 1,
+  "kind": "memory-chat-live-run-summary",
+  "evidenceKind": "live-provider",
+  "capturedAt": "2026-11-03T21:31:00.184281+00:00",
+  "method": "Manual messages entered through the actual browser UI; genuine OpenRouter responses and public Python SDK operations on one retained memory corpus.",
+  "model": "openai/gpt-6-sol",
+  "runtime": "OpenClaw 2026.9.9",
+  "sourceCaptureSha256": "2592a3376534b98270db2f642264e1d498665879220318b204fd6f9f38206283",
+  "sourceContract": "Observed public SDK excerpts; stale/unavailable snapshots are explicitly marked.",
+  "automaticRetries": 0,
+  "retainedAllowanceReset": false,
+  "steps": [
+    {
+      "step": 1,
+      "action": "Ordinary chat",
+      "status": "completed",
+      "conversationId": "c-f497024b17a145ddaf893c77",
+      "newConversationVerified": false,
+      "user": "Hi. Reply with exactly HELLO. Do not use memory tools.",
+      "assistant": "HELLO",
+      "elapsedMs": 2468,
+      "toolOperations": [],
+      "sourceBefore": [],
+      "sourceAfter": [],
+      "sourceSnapshotVerified": false,
+      "changes": [],
+      "progressVisible": true,
+      "draftEditableDuringJob": true,
+      "inspectorResponsive": true,
+      "uiInteractiveAfterReply": true,
+      "javascriptErrors": []
+    },
+    {
+      "step": 2,
+      "action": "Save Atlas and Friday",
+      "status": "completed",
+      "conversationId": "c-f497024b17a145ddaf893c77",
+      "newConversationVerified": false,
+      "user": "For this demo, remember that my project code name is Atlas and its delivery day is Friday. Save both facts.",
+      "assistant": "Saved: your project code name is Atlas, and its delivery day is Friday.",
+      "elapsedMs": 38322,
+      "toolOperations": [
+        {
+          "name": "memory_search",
+          "status": "completed",
+          "arguments": {
+            "query": "canonical preference note project code name delivery day Atlas Friday"
+          },
+          "result": {
+            "results": [],
+            "provider": "none",
+            "citations": "auto"
+          }
+        },
+        {
+          "name": "memory_search",
+          "status": "completed",
+          "arguments": {
+            "query": "preferences"
+          },
+          "result": {
+            "results": [],
+            "provider": "none",
+            "citations": "auto"
+          }
+        },
+        {
+          "name": "memory_save",
+          "status": "completed",
+          "arguments": {
+            "text": "Project code name: Atlas. Delivery day: Friday."
+          },
+          "result": {
+            "adapter": "Markdown write",
+            "path": "memory/preference.md",
+            "needsIndex": true,
+            "index": "Memory index updated (main): 1 file indexed."
+          }
+        }
+      ],
+      "sourceBefore": [],
+      "sourceAfter": [
+        {
+          "path": "memory/preference.md",
+          "text": "Project code name: Atlas. Delivery day: Friday.",
+          "sha256": "0f5b85d9f27a78e4aa87c16baf2401886602861d58375872dbe8819319c0b206",
+          "excerpt": true,
+          "maxLines": 200
+        }
+      ],
+      "sourceSnapshotVerified": true,
+      "changes": [
+        {
+          "path": "memory/preference.md",
+          "before": null,
+          "after": "Project code name: Atlas. Delivery day: Friday.",
+          "added": 1,
+          "removed": 0
+        }
+      ],
+      "progressVisible": true,
+      "draftEditableDuringJob": true,
+      "inspectorResponsive": true,
+      "uiInteractiveAfterReply": true,
+      "javascriptErrors": [],
+      "maxObservedStateReadMs": 43
+    },
+    {
+      "step": 3,
+      "action": "Recall in a new conversation",
+      "status": "completed",
+      "conversationId": "c-f604da984e1142168a69a213",
+      "newConversationVerified": true,
+      "user": "What are my project code name and delivery day? Search memory and read the source before answering.",
+      "assistant": "Your project code name is **Atlas**, and the delivery day is **Friday**. Source: `memory/preference.md#L1`",
+      "elapsedMs": 4013,
+      "toolOperations": [
+        {
+          "name": "memory_search",
+          "status": "completed",
+          "arguments": {
+            "query": "project code name delivery day"
+          },
+          "result": {
+            "results": [
+              {
+                "path": "memory/preference.md",
+                "startLine": 1,
+                "endLine": 2,
+                "score": 0.772862142832143,
+                "textScore": 4.999975000124999e-06,
+                "snippet": "Project code name: Atlas. Delivery day: Friday.\n\nSource: memory/preference.md#L1-L2",
+                "source": "memory",
+                "provenance": {
+                  "originClass": "agent",
+                  "sessionKind": "unknown",
+                  "observedAt": 1793741310512
+                },
+                "corpus": "memory",
+                "citation": "memory/preference.md#L1-L2"
+              }
+            ],
+            "provider": "none",
+            "citations": "auto"
+          }
+        },
+        {
+          "name": "memory_get",
+          "status": "completed",
+          "arguments": {
+            "path": "memory/preference.md"
+          },
+          "result": {
+            "status": "ok",
+            "text": "Project code name: Atlas. Delivery day: Friday.",
+            "path": "memory/preference.md",
+            "from": 1,
+            "lines": 1
+          }
+        }
+      ],
+      "sourceBefore": [
+        {
+          "path": "memory/preference.md",
+          "text": "Project code name: Atlas. Delivery day: Friday.",
+          "sha256": "0f5b85d9f27a78e4aa87c16baf2401886602861d58375872dbe8819319c0b206",
+          "excerpt": true,
+          "maxLines": 200
+        }
+      ],
+      "sourceAfter": [
+        {
+          "path": "memory/preference.md",
+          "text": "Project code name: Atlas. Delivery day: Friday.",
+          "sha256": "0f5b85d9f27a78e4aa87c16baf2401886602861d58375872dbe8819319c0b206",
+          "excerpt": true,
+          "maxLines": 200
+        }
+      ],
+      "sourceSnapshotVerified": true,
+      "changes": [],
+      "progressVisible": true,
+      "draftEditableDuringJob": true,
+      "inspectorResponsive": true,
+      "uiInteractiveAfterReply": true,
+      "javascriptErrors": [],
+      "maxObservedStateReadMs": 49
+    },
+    {
+      "step": 4,
+      "action": "Update Atlas to Nova",
+      "status": "completed",
+      "conversationId": "c-f604da984e1142168a69a213",
+      "newConversationVerified": false,
+      "user": "Update the saved project code name from Atlas to Nova. Keep its delivery day Friday unchanged. Read the source first, then save the updated facts.",
+      "assistant": "Updated the saved project code name to **Nova**. The delivery day remains **Friday**.",
+      "elapsedMs": 31973,
+      "toolOperations": [
+        {
+          "name": "memory_search",
+          "status": "completed",
+          "arguments": {
+            "query": "project code name Atlas delivery day Friday"
+          },
+          "result": {
+            "results": [
+              {
+                "path": "memory/preference.md",
+                "startLine": 1,
+                "endLine": 2,
+                "score": 0.8300069999510005,
+                "textScore": 6.999951000342996e-06,
+                "snippet": "Project code name: Atlas. Delivery day: Friday.\n\nSource: memory/preference.md#L1-L2",
+                "source": "memory",
+                "provenance": {
+                  "originClass": "agent",
+                  "sessionKind": "unknown",
+                  "observedAt": 1793741310512
+                },
+                "corpus": "memory",
+                "citation": "memory/preference.md#L1-L2"
+              }
+            ],
+            "provider": "none",
+            "citations": "auto"
+          }
+        },
+        {
+          "name": "memory_get",
+          "status": "completed",
+          "arguments": {
+            "path": "memory/preference.md"
+          },
+          "result": {
+            "status": "ok",
+            "text": "Project code name: Atlas. Delivery day: Friday.",
+            "path": "memory/preference.md",
+            "from": 1,
+            "lines": 1
+          }
+        },
+        {
+          "name": "memory_save",
+          "status": "completed",
+          "arguments": {
+            "text": "Project code name: Nova. Delivery day: Friday."
+          },
+          "result": {
+            "adapter": "Markdown write",
+            "path": "memory/preference.md",
+            "needsIndex": true,
+            "index": "Memory index updated (main): 1 file indexed."
+          }
+        }
+      ],
+      "sourceBefore": [
+        {
+          "path": "memory/preference.md",
+          "text": "Project code name: Atlas. Delivery day: Friday.",
+          "sha256": "0f5b85d9f27a78e4aa87c16baf2401886602861d58375872dbe8819319c0b206",
+          "excerpt": true,
+          "maxLines": 200
+        }
+      ],
+      "sourceAfter": [
+        {
+          "path": "memory/preference.md",
+          "text": "Project code name: Nova. Delivery day: Friday.",
+          "sha256": "abb4c3dbe319d51f2062fd9c7c26b16dee7e4e4c1529739b44ddacadac4b1615",
+          "excerpt": true,
+          "maxLines": 200
+        }
+      ],
+      "sourceSnapshotVerified": true,
+      "changes": [
+        {
+          "path": "memory/preference.md",
+          "before": "Project code name: Atlas. Delivery day: Friday.",
+          "after": "Project code name: Nova. Delivery day: Friday.",
+          "added": 1,
+          "removed": 1
+        }
+      ],
+      "progressVisible": true,
+      "draftEditableDuringJob": true,
+      "inspectorResponsive": true,
+      "uiInteractiveAfterReply": true,
+      "javascriptErrors": [],
+      "maxObservedStateReadMs": 165
+    },
+    {
+      "step": 5,
+      "action": "Restart memory and recall in a new conversation",
+      "status": "completed",
+      "conversationId": "c-b9920ada2d2a4acd85bd27b0",
+      "newConversationVerified": true,
+      "user": "What are my project code name and delivery day? Search memory and read the source before answering.",
+      "assistant": "Your project code name is **Nova**, and the delivery day is **Friday**. Source: `memory/preference.md#L1`",
+      "elapsedMs": 19406,
+      "toolOperations": [
+        {
+          "name": "memory_search",
+          "status": "completed",
+          "arguments": {
+            "query": "project code name delivery day"
+          },
+          "result": {
+            "results": [
+              {
+                "path": "memory/preference.md",
+                "startLine": 1,
+                "endLine": 2,
+                "score": 0.772862142832143,
+                "textScore": 4.999975000124999e-06,
+                "snippet": "Project code name: Nova. Delivery day: Friday.\n\nSource: memory/preference.md#L1-L2",
+                "source": "memory",
+                "provenance": {
+                  "originClass": "agent",
+                  "sessionKind": "unknown",
+                  "observedAt": 1793741380715
+                },
+                "corpus": "memory",
+                "citation": "memory/preference.md#L1-L2"
+              }
+            ],
+            "provider": "none",
+            "citations": "auto"
+          }
+        },
+        {
+          "name": "memory_get",
+          "status": "completed",
+          "arguments": {
+            "path": "memory/preference.md"
+          },
+          "result": {
+            "status": "ok",
+            "text": "Project code name: Nova. Delivery day: Friday.",
+            "path": "memory/preference.md",
+            "from": 1,
+            "lines": 1
+          }
+        }
+      ],
+      "sourceBefore": [
+        {
+          "path": "memory/preference.md",
+          "text": "Project code name: Nova. Delivery day: Friday.",
+          "sha256": "abb4c3dbe319d51f2062fd9c7c26b16dee7e4e4c1529739b44ddacadac4b1615",
+          "excerpt": true,
+          "maxLines": 200
+        }
+      ],
+      "sourceAfter": [
+        {
+          "path": "memory/preference.md",
+          "text": "Project code name: Nova. Delivery day: Friday.",
+          "sha256": "abb4c3dbe319d51f2062fd9c7c26b16dee7e4e4c1529739b44ddacadac4b1615",
+          "excerpt": true,
+          "maxLines": 200
+        }
+      ],
+      "sourceSnapshotVerified": true,
+      "changes": [],
+      "progressVisible": true,
+      "draftEditableDuringJob": true,
+      "inspectorResponsive": true,
+      "uiInteractiveAfterReply": true,
+      "javascriptErrors": [],
+      "maxObservedStateReadMs": 165,
+      "restart": {
+        "status": "completed",
+        "events": [
+          {
+            "kind": "restart",
+            "label": "Gateway and SDK reopened",
+            "status": "completed",
+            "detail": {
+              "restarted": true,
+              "runtime": "OpenClaw 2026.9.9"
+            }
+          }
+        ],
+        "modelRequestsBeforeAndAfterRestart": 12
+      }
+    }
+  ],
+  "responsiveness": {
+    "maxObservedCachedStateReadMs": 165,
+    "javascriptErrors": [],
+    "scope": "Observed during this run; not a general latency guarantee."
+  },
+  "allowance": {
+    "limitUsd": 1,
+    "reservedUsd": 0.872331,
+    "remainingUsd": 0.127669,
+    "requests": 15,
+    "accounting": "Retained conservative request reservations in USD, not a provider invoice or billing hard cap."
+  },
+  "limits": [
+    "This is a curated summary of the retained actual capture, not a replay-format capture or a new acceptance execution.",
+    "The optional guided-button sequence was covered by controlled tests, not fully executed against the genuine provider in this run.",
+    "The run establishes this cloud browser/model/SDK flow; it does not identify the cause of the original local-machine Gateway startup failure.",
+    "Native save/update and Gateway restart can take tens of seconds; progress and cached state remain available."
+  ]
+}

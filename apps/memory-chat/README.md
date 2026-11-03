@@ -1,6 +1,6 @@
 # Memory Chat
 
-A local chatbot demo with an OpenAI-style interface, genuine model replies, and an inspector for saved memory, source changes, and executed tools. The application uses the installed public Python SDK. It adds no memory engine.
+A local chatbot demo with an OpenAI-style interface, genuine model replies, and an optional inspector for saved memory, source changes, and executed tools. Start with ordinary chat; the guided walkthrough is an optional sidebar action. Memory operations use the installed public Python SDK.
 
 ## Start
 
@@ -12,7 +12,9 @@ npm run chat -- --budget-usd 1
 
 Open the localhost URL printed by the server, normally `http://127.0.0.1:8765`. The server binds to loopback. A cloud machine's localhost is not your computer's localhost; this repository does not provide a public preview URL or tunnel. Run the app on your computer to open it there.
 
-Opening the page does not send a model request. Sending messages or running guided steps uses the configured genuine OpenRouter model and can incur charges. The explicit allowance is an estimated local request bound, not a provider billing hard cap. Its ledger persists under the selected data root; a new conversation or restart does not reset it. Start an existing positive allowance with the same `--budget-usd` value: changing that flag cannot replace its budget or policy. On a fresh data root, starting without the flag enables inspection only and consumes no allowance.
+Opening the page starts neither a model request nor the memory Gateway. Ordinary model chat can work while memory is unavailable. The SDK process is created only when a memory tool, explicit memory refresh, or restart needs it. Long operations show progress while the page continues polling cached state; **Stop** prevents further dispatches after the current operation.
+
+Sending messages or running guided steps can incur model charges. The allowance is a retained local estimate, not a provider billing hard cap. A new conversation, Stop, failed request, or restart does not refund it. Restart an existing positive allowance with the same `--budget-usd` value; changing the flag cannot replace its budget or policy. On a fresh root, omitting the flag disables model requests without consuming an allowance.
 
 The launcher uses `PYTHON` when set, then `.bootstrap/python/bin/python` if available, otherwise `python3`. The selected interpreter must have the SDK installed. For a fresh checkout:
 
@@ -26,15 +28,15 @@ Set the API key in the server's environment before starting. It stays server-sid
 
 ## Try one continuous flow
 
-Use the guided controls or send these messages yourself:
+Use the optional walkthrough or send these messages yourself:
 
 1. Save a fact: “My project's code name is Atlas and its delivery day is Friday. Remember both.” Inspect the actual saved source and tool results.
 2. Update one fact: “Change the code name to Nova. Keep the delivery day unchanged.” Inspect the source diff.
 3. Start a new conversation and ask for the code name and delivery day. The host conversation starts empty while the same memory corpus remains available.
-4. Restart memory, then ask again. The demo restarts the Gateway and reopens the SDK before recall.
+4. Restart memory, then ask again. The demo restarts the Gateway, closes the SDK connection, and creates a new connection when the next memory operation needs it.
 5. Export the run. Inspect the recorded messages, actual tool results, source snapshots, changes, and outcomes. The export describes that run; it is not a newly executed acceptance test.
 
-The inspector distinguishes assistant claims from completed SDK operations. A failed operation stays visible. Empty sources and unsuccessful steps are not replaced with invented records or simulated replies. Existing demo data is preserved; the guided flow does not silently clear it. Select a separate `--root /path/to/new-demo-data` when an empty corpus is required.
+The inspector distinguishes assistant claims from completed SDK operations. Failed or stale memory reads are labelled; a genuine model reply remains visible even if memory or its later source snapshot fails. Unverified changes are not presented as successful writes. Existing demo data is preserved. Select a separate `--root /path/to/new-demo-data` when an empty corpus is required.
 
 ## Replay an exported run
 
@@ -62,10 +64,14 @@ That command is relative to this app's directory. Keep one server process per da
 
 ## Verification
 
-`npm run test:chat` passed 20 tests, including an actual installed-SDK/OpenClaw flow through writes, updates, empty-conversation recall, Gateway/SDK restart, and capture/replay. That automated flow uses an explicitly labelled model protocol fixture; it does not claim a fresh genuine-model tour. A separate bounded live-provider check returned a genuine model response. Chromium checks covered desktop/mobile layout and actual page/API interaction. Typecheck and lint passed. No existing consumed scenario allowance was reset.
+Automated checks cover actual installed-SDK/OpenClaw operations, asynchronous jobs, cancellation, failure recovery, and replay. Automated model conversations use a labelled protocol fixture.
+
+A separate [genuine browser/model/SDK run](../../reports/memory-chat-live-run.json) passed in one retained corpus: ordinary chat without Gateway startup (2.4 seconds), save Atlas/Friday, recall in a new chat, update to Nova while preserving Friday, then restart and fresh-chat recall of Nova/Friday. Cached state reads took at most 165 ms during that run, with zero JavaScript errors. This exercised manual free chat; the guided button sequence has controlled-test coverage but was not fully live-tested. Existing data and scenario allowances remain preserved.
 
 ## Troubleshooting
 
-After a failed or uncertain turn, choose **New chat** before sending another message or continuing the walkthrough. This clears the conversation context while preserving saved memory and the retained allowance; it does not replay the failed operation.
+After an ordinary provider failure, you can explicitly send another message in the same chat; the failed turn stays visible and is not retried automatically. Only an uncertain memory-write acknowledgement requires **New chat**. On startup, an interrupted blocked conversation opens a fresh host conversation while preserving its history, saved memory, and allowance.
 
-If Gateway startup fails, report the full terminal error and your operating system. Startup diagnostics include the transport cause, runtime, console output, and a bounded native log tail. The tail may include earlier starts. Preserve the data directory and request records while investigating.
+**Stop** requests cancellation; an already-dispatched request can finish before cancellation is observed. No additional model or memory operation starts afterward, and its reservation remains charged. Provider requests have a 30-second transport timeout. A response that reaches its output limit is shown as partial, with a notice; no paid continuation is started automatically.
+
+If memory fails, continue ordinary chat or use the inspector's explicit refresh/restart controls. Source panels show their unavailable/stale state. Preserve the data directory and request records when reporting a Gateway failure; the diagnostics do not establish the cause of unrelated historical failures.

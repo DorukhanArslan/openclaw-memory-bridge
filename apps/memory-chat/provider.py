@@ -11,6 +11,7 @@ from copy import deepcopy
 from decimal import Decimal, InvalidOperation
 import hashlib
 import json
+from math import isfinite
 import os
 from pathlib import Path
 import re
@@ -78,13 +79,17 @@ def _price(value) -> Decimal:
 
 class Provider:
     def __init__(self, ledger: Path, budget_usd: float, *, key: str | None = None,
-                 max_output_tokens: int = 512):
+                 max_output_tokens: int = 512, timeout_seconds: float = 30):
         self.ledger = Path(ledger).absolute()
         self.admission = self.ledger.with_name(self.ledger.name + ".admission")
         self._limit = _money(budget_usd)
         if type(max_output_tokens) is not int or not 1 <= max_output_tokens <= 512:
             raise ValueError("Output bound must be an integer from 1 to 512.")
         self._output = max_output_tokens
+        if (isinstance(timeout_seconds, bool) or not isinstance(timeout_seconds, (int, float))
+                or not isfinite(timeout_seconds) or not 1 <= timeout_seconds <= 120):
+            raise ValueError("Provider timeout must be finite and between 1 and 120 seconds.")
+        self._timeout = float(timeout_seconds)
         self._key = os.environ.get("OPENROUTER_API_KEY") if key is None else key
         if self._key is not None and (not isinstance(self._key, str)
                 or len(self._key) > 16384 or any(c in self._key for c in "\r\n\0")):
@@ -103,6 +108,7 @@ class Provider:
         self._empty_zero = self._limit == 0 and not self.ledger.exists() and not self.admission.exists()
         if not self._empty_zero:
             self._initialize()
+        self._cached_counts = self._read()
         try:
             context = ssl.create_default_context()
             extra_ca = os.environ.get("NODE_EXTRA_CA_CERTS")
@@ -120,7 +126,23 @@ class Provider:
 
     @property
     def ready(self) -> bool:
-        return bool(self._key and self._key.strip()) and self._limit > 0
+        return self.status()["ready"]
+
+    def status(self) -> dict:
+        """Configuration/allowance snapshot; never wait on an in-flight request.
+
+        This does not claim that the server credential has been authenticated.
+        Ledger authorization still rereads the durable counters before dispatch.
+        """
+        if not self._key or not self._key.strip():
+            reason = "missing_api_key"
+        elif self._limit <= 0:
+            reason = "budget_disabled"
+        elif self._cached_counts["reservedNanos"] >= self._limit:
+            reason = "allowance_exhausted"
+        else:
+            reason = None
+        return {"ready": reason is None, "reason": reason}
 
     def _prepare_directory(self):
         parent = self.ledger.parent
@@ -211,6 +233,7 @@ class Provider:
             os.replace(temporary, self.ledger)
             temporary = None
             self._sync_directory()
+            self._cached_counts = dict(value)
         except (OSError, ValueError):
             raise RuntimeError("Provider allowance could not be retained; request was not sent.") from None
         finally:
@@ -223,6 +246,7 @@ class Provider:
     def state(self) -> dict:
         with self._lock:
             value = self._read()
+            self._cached_counts = dict(value)
             return {"limitUsd": self._limit / _NANOS,
                     "reservedUsd": value["reservedNanos"] / _NANOS,
                     "remainingUsd": (self._limit - value["reservedNanos"]) / _NANOS,
@@ -230,7 +254,7 @@ class Provider:
 
     def _response_json(self, request, limit: int):
         try:
-            with self._http.open(request, timeout=60) as response:
+            with self._http.open(request, timeout=self._timeout) as response:
                 if response.status != 200:
                     raise RuntimeError("Model provider returned an unsuccessful response.")
                 raw = response.read(limit + 1)
@@ -241,9 +265,25 @@ class Provider:
                 raise ValueError
             return value
         except urllib.error.HTTPError as error:
-            raise RuntimeError(f"Model provider returned HTTP {error.code}; no retry was made.") from None
-        except (urllib.error.URLError, TimeoutError, OSError):
-            raise RuntimeError("Model provider connection failed or timed out; no retry was made.") from None
+            hints = {
+                401: "Check OPENROUTER_API_KEY in the server environment.",
+                402: "Check the provider balance and the API key's spending limit.",
+                403: "Check the API key's access to the selected model.",
+                404: "The selected model or provider endpoint is unavailable.",
+                429: "The provider is rate limiting requests; wait before sending another message.",
+            }
+            hint = hints.get(error.code, "Check the provider service and server connection.")
+            raise RuntimeError(f"Model provider returned HTTP {error.code}. {hint} No retry was made.") from None
+        except TimeoutError:
+            raise RuntimeError(f"Model provider timed out after {self._timeout:g} seconds; no retry was made.") from None
+        except urllib.error.URLError as error:
+            if isinstance(error.reason, TimeoutError):
+                raise RuntimeError(f"Model provider timed out after {self._timeout:g} seconds; no retry was made.") from None
+            if isinstance(error.reason, ssl.SSLCertVerificationError):
+                raise RuntimeError("Model provider TLS verification failed; check the server's CA and proxy settings. No retry was made.") from None
+            raise RuntimeError("Model provider connection failed; check the server's network, proxy, and CA settings. No retry was made.") from None
+        except (OSError, ssl.SSLError):
+            raise RuntimeError("Model provider connection failed; check the server's network, proxy, and CA settings. No retry was made.") from None
         except (ValueError, UnicodeError):
             raise RuntimeError("Model provider returned invalid JSON.") from None
 
@@ -331,7 +371,7 @@ class Provider:
         if not isinstance(choices, list) or len(choices) != 1 or not isinstance(choices[0], dict):
             raise RuntimeError("Model provider returned no unambiguous completion.")
         choice = choices[0]
-        if not isinstance(choice.get("finish_reason"), str) or choice.get("finish_reason") not in {"stop", "tool_calls"}:
+        if not isinstance(choice.get("finish_reason"), str) or choice.get("finish_reason") not in {"stop", "tool_calls", "length"}:
             raise RuntimeError("Model response stopped before completion.")
         source = choice.get("message")
         if not isinstance(source, dict) or source.get("role") != "assistant":
@@ -344,6 +384,11 @@ class Provider:
             raise RuntimeError("Model provider returned invalid tool calls.")
         result = {"role": "assistant", "content": content,
                   **Provider._reasoning_fields(source)}
+        truncated = choice["finish_reason"] == "length"
+        if truncated and calls:
+            raise RuntimeError("The model reached its response token limit during a tool call; no truncated tool was executed.")
+        if truncated and (not isinstance(content, str) or not content.strip()):
+            raise RuntimeError("The model reached its response token limit without producing a visible answer. No automatic continuation was sent.")
         clean_calls, identifiers = [], set()
         for call in calls:
             if not isinstance(call, dict):
@@ -371,7 +416,7 @@ class Provider:
             result["tool_calls"] = clean_calls
         elif not isinstance(content, str) or not content.strip():
             raise RuntimeError("Model provider returned an empty answer.")
-        elif choice["finish_reason"] != "stop":
+        elif choice["finish_reason"] not in {"stop", "length"}:
             raise RuntimeError("Model provider returned ambiguous completion metadata.")
         usage = value.get("usage")
         clean_usage = {}
@@ -380,11 +425,18 @@ class Provider:
                 number = usage.get(name)
                 if isinstance(number, (int, float)) and not isinstance(number, bool) and 0 <= number < 1e15:
                     clean_usage[name] = number
+        if truncated:
+            # This is actual model text, clearly marked incomplete. The host
+            # displays the limit notice; it must not auto-continue or execute
+            # partially returned tools.
+            clean_usage["completion_truncated"] = True
         return result, clean_usage or None
 
     def complete(self, messages: list, tools: list) -> tuple[dict, dict | None]:
         with self._lock:
             if not self.ready:
+                if self.status()["reason"] == "allowance_exhausted":
+                    raise RuntimeError("The retained estimated demo allowance is exhausted; no model request was sent.")
                 raise RuntimeError("A server-side OpenRouter key and an explicit positive demo budget are required.")
             names = self._validate_input(messages, tools)
             payload = {"model": MODEL, "messages": messages,
@@ -394,7 +446,10 @@ class Provider:
             body = _encoded(payload)
             if len(body) > _MAX_BODY:
                 raise RuntimeError("Conversation exceeds the demo request size; start a new conversation.")
-            self._verify_prices()
+            try:
+                self._verify_prices()
+            except RuntimeError as error:
+                raise RuntimeError(f"Model pricing preflight failed: {error} No completion request was sent.") from None
             current = self._read()
             estimate = (len(body) + _FRAMING) * _INPUT_NANOS + self._output * _OUTPUT_NANOS
             if current["reservedNanos"] + estimate > self._limit:

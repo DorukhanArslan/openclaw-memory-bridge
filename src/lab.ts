@@ -3213,7 +3213,13 @@ export class Lab {
       !this.oneUserFollowupLedger
     )
       assertGatewayAllowed(this.credentialNames().length > 0);
-    if (this.child) return;
+    if (this.child) {
+      if (this.child.exitCode === null && this.child.signalCode === null)
+        return;
+      // A completed child is not a usable connection. Start a new Gateway
+      // for this new operation; never replay an operation already dispatched.
+      await this.stop();
+    }
     this.port = await freePort();
     this.token = randomBytes(32).toString("hex");
     await this.provision();

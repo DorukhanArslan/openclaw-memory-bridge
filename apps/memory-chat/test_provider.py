@@ -8,6 +8,7 @@ from pathlib import Path
 import ssl
 import stat
 import tempfile
+from threading import Event, Thread
 import unittest
 from unittest.mock import MagicMock, patch
 import urllib.error
@@ -51,9 +52,11 @@ class Transport:
         self.completion = reply() if completion is None else completion
         self.failure = failure
         self.calls = []
+        self.timeouts = []
 
     def open(self, request, timeout):
         self.calls.append(request)
+        self.timeouts.append(timeout)
         if request.full_url.endswith("/models"):
             return Response(self.prices)
         if self.failure:
@@ -162,7 +165,7 @@ class ProviderTests(unittest.TestCase):
         invalid = [b"not-json", b"\xff", b"x" * (1024 * 1024 + 1),
                    {"choices": []}, {"choices": [{"finish_reason": []}]},
                    {"choices": [{"finish_reason": "length", "message": {
-                       "role": "assistant", "content": "truncated"}}]}, reply("")]
+                       "role": "assistant", "content": None}}]}, reply("")]
         for value in invalid:
             with self.subTest(valueType=type(value).__name__):
                 provider = self.provider(transport=Transport(completion=value))
@@ -271,6 +274,115 @@ class ProviderTests(unittest.TestCase):
         self.assertNotIn("secret-body", str(caught.exception))
         self.assertEqual(provider.state()["requests"], 1)
         self.assertEqual(len(provider._http.calls), 2)
+
+    def test_finite_transport_timeout_survives_restart_without_changing_allowance(self):
+        transport = Transport(failure=TimeoutError("private timeout detail"))
+        provider = self.provider(transport=transport)
+        with self.assertRaisesRegex(RuntimeError, "timed out after 30 seconds") as caught:
+            provider.complete(MESSAGES, [])
+        self.assertNotIn("private timeout detail", str(caught.exception))
+        self.assertEqual(transport.timeouts, [30, 30])
+        retained = provider.state()
+        self.assertEqual(retained["requests"], 1)
+        resumed_transport = Transport()
+        resumed = self.provider(transport=resumed_transport, timeout_seconds=1.5)
+        self.assertEqual(resumed.state(), retained)
+        resumed.complete(MESSAGES, [])
+        self.assertEqual(resumed_transport.timeouts, [1.5, 1.5])
+        self.assertEqual(resumed.state()["requests"], 2)
+        for invalid in [0, -1, True, float("nan"), float("inf"), 121]:
+            with self.subTest(timeout=invalid):
+                with self.assertRaisesRegex(ValueError, "Provider timeout"):
+                    self.provider(timeout_seconds=invalid)
+
+    def test_status_is_actionable_and_does_not_wait_on_the_network_lock(self):
+        disabled = self.provider(0)
+        self.assertEqual(disabled.status(), {"ready": False, "reason": "budget_disabled"})
+        disabled._key = None
+        self.assertEqual(disabled.status(), {"ready": False, "reason": "missing_api_key"})
+
+        entered, release, status_returned = Event(), Event(), Event()
+
+        class PendingTransport(Transport):
+            def open(self, request, timeout):
+                if not request.full_url.endswith("/models"):
+                    entered.set()
+                    release.wait(3)
+                return super().open(request, timeout)
+
+        provider = self.provider(transport=PendingTransport())
+        outcome = {}
+
+        def complete():
+            outcome["reply"] = provider.complete(MESSAGES, [])
+
+        def inspect():
+            outcome["status"] = provider.status()
+            status_returned.set()
+
+        pending = Thread(target=complete)
+        inspection = Thread(target=inspect)
+        pending.start()
+        try:
+            self.assertTrue(entered.wait(2))
+            inspection.start()
+            self.assertTrue(status_returned.wait(1), "Status must remain available while a model request is pending.")
+            self.assertEqual(outcome["status"], {"ready": True, "reason": None})
+            self.assertTrue(pending.is_alive())
+        finally:
+            release.set()
+            pending.join(5)
+            if inspection.ident is not None:
+                inspection.join(5)
+        self.assertFalse(pending.is_alive())
+        self.assertIn("reply", outcome)
+
+        # Labelled retained-allowance fixture, not an actual provider charge.
+        exhausted = json.loads(self.path.read_text())
+        exhausted["reservedNanos"] = 1_000_000_000
+        self.path.write_text(json.dumps(exhausted))
+        provider.state()
+        self.assertEqual(provider.status(), {"ready": False, "reason": "allowance_exhausted"})
+        count = len(provider._http.calls)
+        with self.assertRaisesRegex(RuntimeError, "allowance is exhausted"):
+            provider.complete(MESSAGES, [])
+        self.assertEqual(len(provider._http.calls), count)
+
+    def test_pricing_failure_explains_that_no_completion_was_sent(self):
+        provider = self.provider(transport=Transport(prices={"data": []}))
+        with self.assertRaisesRegex(RuntimeError, "pricing preflight failed.*No completion request was sent"):
+            provider.complete(MESSAGES, [])
+        self.assertEqual(provider.state()["requests"], 0)
+        self.assertEqual(len(provider._http.calls), 1)
+
+    def test_visible_truncated_text_is_preserved_without_auto_continuation(self):
+        value = {"choices": [{"finish_reason": "length", "message": {
+            "role": "assistant", "content": "Actual partial model text."}}]}
+        provider = self.provider(transport=Transport(completion=value))
+        message, usage = provider.complete(MESSAGES, [])
+        self.assertEqual(message, {"role": "assistant", "content": "Actual partial model text."})
+        self.assertTrue(usage["completion_truncated"])
+        self.assertEqual(provider.state()["requests"], 1)
+        self.assertEqual(len(provider._http.calls), 2)
+        self.assertEqual(json.loads(provider._http.calls[-1].data)["max_completion_tokens"], 512)
+
+    def test_truncated_tools_or_invisible_reasoning_never_become_an_answer(self):
+        call = {"id": "partial-call", "type": "function", "function": {
+            "name": "memory_search", "arguments": '{"query":"Atlas"}'}}
+        values = [
+            ({"role": "assistant", "content": "Partial", "tool_calls": [call]}, "truncated tool"),
+            ({"role": "assistant", "content": "", "reasoning": "Private reasoning."}, "without producing a visible answer"),
+        ]
+        for message, reason in values:
+            with self.subTest(reason=reason):
+                provider = self.provider(transport=Transport(completion={
+                    "choices": [{"finish_reason": "length", "message": message}]}))
+                count = provider.state()["requests"]
+                with self.assertRaisesRegex(RuntimeError, reason) as caught:
+                    provider.complete(MESSAGES, TOOLS)
+                self.assertNotIn("Private reasoning", str(caught.exception))
+                self.assertEqual(provider.state()["requests"], count + 1)
+                self.assertEqual(len(provider._http.calls), 2)
 
 
 if __name__ == "__main__":
