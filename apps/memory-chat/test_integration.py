@@ -519,6 +519,7 @@ class FailureVisibility(unittest.TestCase):
                 self.assertEqual([m["role"] for m in demo.conversation["messages"]], ["user"])
                 self.assertEqual(demo.turns[-1]["status"], "failed")
                 self.assertTrue(demo.conversation["blocked"])
+                self.assertTrue(demo.state()["conversation"]["blocked"])
                 self.assertIsNone(demo.turns[-1]["assistant"])
                 self.assertEqual(provider.requests, 1)
                 with self.assertRaisesRegex(ValueError, "new chat"):
@@ -527,6 +528,7 @@ class FailureVisibility(unittest.TestCase):
                 demo.new_conversation()
                 self.assertEqual(len(demo.conversation["modelMessages"]), 1)
                 self.assertEqual(demo.conversation["messages"], [])
+                self.assertFalse(demo.state()["conversation"]["blocked"])
                 self.assertEqual(demo.turns[-1]["status"], "failed")
             finally:
                 demo.close()

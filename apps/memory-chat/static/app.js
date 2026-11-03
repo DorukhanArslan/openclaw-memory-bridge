@@ -62,6 +62,10 @@
     return pending || Boolean(state?.busy);
   }
 
+  function conversationBlocked() {
+    return Boolean(state?.conversation?.blocked);
+  }
+
   function modelAllowed() {
     if (!state?.model?.ready) return false;
     const remaining = Number(state.budget?.remainingUsd);
@@ -71,6 +75,7 @@
   function updateControls() {
     const busy = isBusy();
     const replay = Boolean(state && state.mode === "replay");
+    const blocked = conversationBlocked();
     document.querySelectorAll("[data-mutates]").forEach((button) => {
       button.disabled = !state || busy || replay;
     });
@@ -78,18 +83,27 @@
       button.disabled = busy;
     });
     document.querySelectorAll("[data-prompt]").forEach((button) => {
-      button.disabled = !state || busy || replay;
+      button.disabled = !state || busy || replay || blocked;
     });
     $("refresh-memory").disabled = busy;
-    $("message-input").disabled = !state || busy || replay || !modelAllowed();
+    $("message-input").disabled =
+      !state || busy || replay || blocked || !modelAllowed();
     $("send-message").disabled =
-      busy || replay || !modelAllowed() || !$("message-input").value.trim();
+      busy ||
+      replay ||
+      blocked ||
+      !modelAllowed() ||
+      !$("message-input").value.trim();
     $("send-message").classList.toggle(
       "loading",
       pending && Boolean(pendingMessage),
     );
     $("tour-next").disabled =
-      !state || busy || replay || (!state.tour?.done && !modelAllowed());
+      !state ||
+      busy ||
+      replay ||
+      blocked ||
+      (!state.tour?.done && !modelAllowed());
     $("chat-form").setAttribute("aria-busy", String(busy));
     $("export-run").setAttribute("aria-disabled", String(!state || busy));
   }
@@ -480,6 +494,7 @@
       ? "replay"
       : "demo";
     const tour = state.tour || {};
+    const blocked = conversationBlocked();
     $("tour-label").textContent = tour.done
       ? "Download capture"
       : tour.step > 0
@@ -488,11 +503,15 @@
           "/" +
           (tour.total || 5)
         : "Guided walkthrough";
-    $("tour-next").title =
-      tour.label || "Try a real memory flow, one step at a time";
+    $("tour-next").title = blocked
+      ? "Start a new chat to continue the walkthrough using the saved memory."
+      : tour.label || "Try a real memory flow, one step at a time";
     if (replay)
       $("composer-note").textContent =
         "This is a read-only run capture. Explore the conversation, sources, and executed actions.";
+    else if (blocked)
+      $("composer-note").textContent =
+        "This conversation stopped after a failed operation. Start a new chat to keep using the saved memory.";
     else if (noBudget)
       $("composer-note").textContent =
         "Choose a demo budget on the server to enable live chat. You can still inspect the sources.";
@@ -552,6 +571,8 @@
   async function mutate(path, body, options = {}) {
     if (
       isBusy() ||
+      (conversationBlocked() &&
+        ["/api/chat", "/api/tour/next"].includes(path)) ||
       (state && state.mode === "replay" && path !== "/api/conversations/select")
     )
       return;
@@ -589,7 +610,8 @@
   $("chat-form").addEventListener("submit", (event) => {
     event.preventDefault();
     const message = $("message-input").value.trim();
-    if (!message || !modelAllowed() || isBusy()) return;
+    if (!message || !modelAllowed() || isBusy() || conversationBlocked())
+      return;
     mutate("/api/chat", { message }, { message, focusInput: true });
   });
   $("message-input").addEventListener("input", () => {

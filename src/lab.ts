@@ -25,6 +25,10 @@ import {
 import { consolidationCheckpoint } from "./consolidation-checkpoint.ts";
 import { ReadyGateway } from "./gateway.ts";
 import {
+  formatGatewayStartupFailure,
+  readGatewayLogTail,
+} from "./gateway-startup-diagnostics.ts";
+import {
   CONSOLIDATION_LIMITS,
   createLifecycleLedger,
   E2E_LIMITS,
@@ -308,6 +312,7 @@ export class Lab {
   private redact(text: string): string {
     return redactCredentials(text, {
       ...forwardCredentials(this.credentialNames(), process.env),
+      GATEWAY_TOKEN: this.token,
       // Proxy URLs may contain authentication; keep them out of child logs.
       ...Object.fromEntries(
         Object.entries(forwardNetworkEnvironment(process.env)).filter(
@@ -3245,7 +3250,8 @@ export class Lab {
     child.stdout.on("data", consume);
     child.stderr.on("data", consume);
     // Readiness is a successful authenticated native memory tool call, not a log match.
-    const deadline = Date.now() + 60000;
+    const startedAt = Date.now();
+    const deadline = startedAt + 60000;
     try {
       while (Date.now() < deadline) {
         if (spawnError) throw spawnError;
@@ -3283,9 +3289,30 @@ export class Lab {
       }
       throw new Error("Gateway readiness timed out");
     } catch (error) {
+      // Preserve the initiating state before stop() clears the connection and
+      // terminates an otherwise-running child. Cleanup is not the exit cause.
+      const exitCode = child.exitCode;
+      const signal = child.signalCode;
+      const token = this.token;
       await this.stop();
+      const fileLog = await readGatewayLogTail(
+        join(this.directory, "openclaw.log"),
+      );
       throw new Error(
-        `${(error as Error).message}\nGateway diagnostics: ${this.logTail}`,
+        formatGatewayStartupFailure({
+          error,
+          elapsedMs: Date.now() - startedAt,
+          exitCode,
+          signal,
+          consoleLog: this.logTail,
+          fileLog,
+          nodeVersion: process.version,
+          platform: `${process.platform}/${process.arch}`,
+          redact: (text) => {
+            const redacted = this.redact(text);
+            return token ? redacted.split(token).join("[REDACTED]") : redacted;
+          },
+        }),
       );
     }
   }

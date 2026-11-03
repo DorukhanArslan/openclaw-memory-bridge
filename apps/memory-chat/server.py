@@ -228,7 +228,8 @@ class ChatDemo:
             revision = hashlib.sha256(json.dumps(self.files, sort_keys=True).encode()).hexdigest()
             conversation = self.conversation
             result = {"mode": "live", "model": {"name": MODEL, "ready": bool(self.provider.ready)},
-                      "conversation": {k: conversation[k] for k in ["id", "messages"]},
+                      "conversation": {"id": conversation["id"], "messages": conversation["messages"],
+                                       "blocked": bool(conversation.get("blocked"))},
                       "conversations": [{"id": c["id"], "title": c["title"] if c["messages"] else "New chat",
                                          "updatedAt": c["updatedAt"]} for c in reversed(self.conversations)],
                       "memory": {"files": self.files, "revision": revision}, "changes": self.changes,

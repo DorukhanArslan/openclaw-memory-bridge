@@ -63,3 +63,9 @@ That command is relative to this app's directory. Keep one server process per da
 ## Verification
 
 `npm run test:chat` passed 20 tests, including an actual installed-SDK/OpenClaw flow through writes, updates, empty-conversation recall, Gateway/SDK restart, and capture/replay. That automated flow uses an explicitly labelled model protocol fixture; it does not claim a fresh genuine-model tour. A separate bounded live-provider check returned a genuine model response. Chromium checks covered desktop/mobile layout and actual page/API interaction. Typecheck and lint passed. No existing consumed scenario allowance was reset.
+
+## Troubleshooting
+
+After a failed or uncertain turn, choose **New chat** before sending another message or continuing the walkthrough. This clears the conversation context while preserving saved memory and the retained allowance; it does not replay the failed operation.
+
+If Gateway startup fails, report the full terminal error and your operating system. Startup diagnostics include the transport cause, runtime, console output, and a bounded native log tail. The tail may include earlier starts. Preserve the data directory and request records while investigating.
