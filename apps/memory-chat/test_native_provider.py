@@ -98,6 +98,7 @@ class NativeProviderTransport(unittest.TestCase):
                 self.assertEqual(outcomes[0][0], 400)
                 self.assertEqual(captures, [])
                 self.assertEqual(len(provider.calls), 1)
+                self.assertIsNone(broker.last_failure)
                 # Rejecting the old window must not poison the new one.
                 self.assertEqual(request(broker, payload())[0], 200)
                 self.assertEqual(len(provider.calls), 2)
@@ -280,6 +281,43 @@ class NativeProviderTransport(unittest.TestCase):
                 self.assertEqual(remote.call_count, 2)
             reopened = Provider(ledger, 1, key="fixture-never-sent-key")
             self.assertEqual(reopened.state(), failed)
+
+    def test_cached_allowance_failure_is_actionable_without_dispatch_or_reset(self):
+        with tempfile.TemporaryDirectory(prefix="native-denial-diagnostic-fixture-") as temporary:
+            provider = Provider(Path(temporary)/"provider-ledger.json", 0.01,
+                                key="fixture-never-sent-key")
+            provider._prices_checked = True
+            broker = self.broker(provider)
+            original = provider.state()
+            with patch.object(provider, "_response_json", side_effect=AssertionError("No upstream request is permitted.")) as remote:
+                with broker.turn():
+                    self.assertIsNone(broker.last_failure)
+                    self.assertEqual(request(broker, payload())[0], 400)
+                    failure = broker.last_failure
+                    self.assertIn("retained estimated demo allowance is exhausted", failure)
+                    self.assertIn("no model request was sent", failure)
+                    self.assertNotIn("fixture-never-sent-key", failure)
+                    self.assertEqual(provider.state(), original)
+                    # Reading state and the diagnostic, or an internal retry,
+                    # cannot reserve funds or erase the actual failure.
+                    for _ in range(3):
+                        self.assertEqual(broker.last_failure, failure)
+                    self.assertEqual(request(broker, payload())[0], 400)
+                    self.assertEqual(broker.last_failure, failure)
+                self.assertEqual(broker.last_failure, failure)
+                with broker.turn():
+                    self.assertIsNone(broker.last_failure)
+                self.assertEqual(provider.state(), original)
+                remote.assert_not_called()
+
+    def test_unknown_peer_failure_does_not_publish_its_private_text(self):
+        provider = ProviderFixture()
+        provider.error = RuntimeError("PRIVATE_FIXTURE_KEY_PROMPT_AND_HTTP_BODY")
+        broker = self.broker(provider)
+        with broker.turn():
+            self.assertEqual(request(broker, payload())[0], 400)
+            self.assertEqual(broker.last_failure, "The native model request failed or was stopped.")
+        self.assertNotIn("PRIVATE_FIXTURE", broker.last_failure)
 
 
 if __name__ == "__main__":

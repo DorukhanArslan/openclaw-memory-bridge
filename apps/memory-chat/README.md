@@ -4,10 +4,10 @@ A local chatbot demo with an OpenAI-style interface and OpenClaw-managed convers
 
 ## Start
 
-From a configured repository checkout, with `OPENROUTER_API_KEY` in the server process environment:
+For a fresh native demo, use a configured repository checkout with `OPENROUTER_API_KEY` in the server process environment:
 
 ```sh
-npm run chat -- --budget-usd 1
+npm run chat -- --root .lab/native-memory-chat --budget-usd 5
 ```
 
 Open the localhost URL printed by the server, normally `http://127.0.0.1:8765`. The server binds to loopback. A cloud machine's localhost is not your computer's localhost; this repository does not provide a public preview URL or tunnel. Run the app on your computer to open it there.
@@ -16,6 +16,8 @@ Opening the page starts no model request or memory Gateway. The first message cr
 
 Sending messages or running guided steps can incur model charges. The allowance is a retained local estimate, not a provider billing hard cap. A new conversation, Stop, failed request, or restart does not refund it. Restart an existing positive allowance with the same `--budget-usd` value; changing the flag cannot replace its budget or policy. On a fresh root, omitting the flag disables model requests without consuming an allowance.
 
+The example explicitly allows up to 5 USD in conservative request reservations for the multistep demo. One message can require several model calls; a 1 USD allowance may not cover the flow below. Reservations are not an invoice. The named root keeps this fresh demo separate from earlier `.lab/memory-chat` data and its consumed allowance; neither is reset.
+
 The launcher uses `PYTHON` when set, then `.bootstrap/python/bin/python` if available, otherwise `python3`. The selected interpreter must have the SDK installed. For a fresh checkout:
 
 ```sh
@@ -23,6 +25,15 @@ bash scripts/install.sh
 python3 -m venv .bootstrap/python
 .bootstrap/python/bin/python -m pip install ./python
 ```
+
+After an update, stop the running server and reinstall the SDK before restarting. With the launcher's default virtual environment:
+
+```sh
+git pull
+.bootstrap/python/bin/python -m pip install ./python
+```
+
+If `PYTHON` selects another interpreter, reinstall with that interpreter instead. Pulling the repository alone does not update an already installed SDK.
 
 Set the API key in the server's environment before starting. It stays server-side; there is no browser key field or credential export. The launcher does not load `.env` files.
 
@@ -61,7 +72,7 @@ See [SDK Connection](SDK-CONNECTION.md) for the imports, request path, state own
 To run the server directly, use an interpreter with the SDK installed:
 
 ```sh
-python server.py --foundation /path/to/openclaw-memory-bridge --root /path/to/app-data --budget-usd 1
+python server.py --foundation /path/to/openclaw-memory-bridge --root /path/to/app-data --budget-usd 5
 ```
 
 That command is relative to this app's directory. Keep one server process per data root. This is a trusted local demo, not an authenticated multi-tenant service. Workspace/user routing does not provide authorization. Native automatic fact supersession remains unsupported through the pinned ingestion path. Native flush and compaction now operate on OpenClaw-owned sessions; they do not manage unrelated external Python histories.
@@ -71,6 +82,8 @@ That command is relative to this app's directory. Keep one server process per da
 Native-chat checks must distinguish protocol fixtures, actual native lifecycle operations, and genuine provider runs. A protocol fixture verifies integration and ordering without establishing model behavior. See test output and the captured run for the version being evaluated.
 
 The [native integration validation](../../reports/memory-chat-native-validation.json) used the production host, installed SDK and actual OpenClaw processes. A natural coffee preference was recorded, indexed before a fresh session, then retrieved with native session search and source reads. Exact encrypted tool continuations survived, and private model metadata stayed out of the export. Model replies in this run were labelled protocol fixtures; no paid provider request was made.
+
+The [genuine native browser run](../../reports/memory-chat-native-live.json) recorded a coffee preference and the distinctive mug name “Zephyr-472” without a remember instruction. OpenClaw wrote a daily note, answered a source-backed follow-up in the same chat, and retrieved both facts in a fresh native session. The first fresh-session attempt reached its local reservation limit before a final answer. That failure remains recorded; after separately approved funding, a fact-free continuation in the same native session produced the correct genuine answer. This was completion after a budget interruption, not an uninterrupted walkthrough or a dreaming test.
 
 The [earlier genuine browser/model/SDK run](../../reports/memory-chat-live-run.json) remains historical evidence for the former independent Python model/tool loop. It verified explicit note save, update, and recall, but does not establish the new native-chat path or automatic conversation recall. Existing records and consumed allowances are preserved.
 

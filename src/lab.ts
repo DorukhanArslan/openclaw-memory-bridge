@@ -3023,10 +3023,15 @@ export class Lab {
     })) as { status?: string };
     if (completion.status === "timeout" || completion.status === "pending")
       return { completion };
-    if (completion.status !== "ok")
+    const terminalFailure =
+      completion.status === "error" || completion.status === "aborted";
+    if (completion.status !== "ok" && !(this.nativeChat && terminalFailure))
       throw new Error(
         `Native agent did not succeed: ${JSON.stringify(completion)}`,
       );
+    // A confirmed terminal failure is not a lost acknowledgement. Native-chat
+    // hosts need its actual history to report completed tools and distinguish
+    // a stopped run from an operation whose outcome remains unknown.
     return {
       completion,
       history: await this.sessionHistory(session),
@@ -3057,6 +3062,10 @@ export class Lab {
         result.completion.status === "pending"
       )
         continue;
+      if (result.completion.status !== "ok")
+        throw new Error(
+          `Native agent did not succeed: ${JSON.stringify(result.completion)}`,
+        );
       return { accepted, ...result };
     }
     await this.abortChat(session, accepted.runId as string);

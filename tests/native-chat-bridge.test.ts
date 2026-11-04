@@ -178,3 +178,119 @@ test("PROTOCOL FIXTURE: native chat preserves explicit session identity and retu
     await rm(root, { recursive: true, force: true });
   }
 });
+
+test("PROTOCOL FIXTURE: native terminal failures retain receipts without replaying the turn", async () => {
+  const root = await mkdtemp(join(PROJECT, ".lab-test-native-chat-failure-"));
+  const lab = await new Lab("chat", root).init();
+  const calls: Array<{ method: string; params: Record<string, unknown> }> = [];
+  let status = "error";
+  const history = {
+    sessionKey: "agent:main:explicit:one",
+    sessionId: "fixture-failed-session",
+    messages: [{ role: "user", content: "A controlled native turn." }],
+    activity: [
+      {
+        items: [
+          {
+            kind: "tool",
+            name: "memory_get",
+            phase: "end",
+            status: "completed",
+          },
+        ],
+      },
+    ],
+  };
+  try {
+    await lab.configureChat("http://127.0.0.1:9917/v1");
+    Reflect.set(
+      lab,
+      "rpc",
+      async (method: string, params: Record<string, unknown>) => {
+        calls.push({ method, params });
+        switch (method) {
+          case "sessions.create":
+            return {
+              sessionId: "fixture-failed-session",
+              entry: { compactionCount: 0 },
+            };
+          case "chat.send":
+            return { runId: "fixture-failed-run", status: "started" };
+          case "agent.wait":
+            return {
+              runId: params.runId,
+              status,
+              error: "Controlled provider denial.",
+            };
+          case "chat.history":
+            return history;
+          case "sessions.describe":
+            return { session: { sessionId: "fixture-failed-session" } };
+          default:
+            throw new Error(`Unexpected fixture RPC: ${method}`);
+        }
+      },
+    );
+
+    const accepted = await lab.startChat("one", "A controlled native turn.");
+    const failure = await lab.waitChat("one", accepted.runId as string);
+    assert.equal(failure.completion.status, "error");
+    assert.deepEqual(failure.history, history);
+    assert.ok(failure.state.session);
+    assert.equal(failure.state.session.sessionId, "fixture-failed-session");
+    assert.equal(calls.filter((call) => call.method === "chat.send").length, 1);
+    assert.equal(
+      calls.filter((call) => call.method === "agent.wait").length,
+      1,
+    );
+    assert.equal(
+      calls.filter((call) => call.method === "chat.abort").length,
+      0,
+    );
+
+    calls.length = 0;
+    await assert.rejects(
+      lab.chat("one", "A new explicit controlled turn."),
+      /Native agent did not succeed/,
+    );
+    assert.equal(calls.filter((call) => call.method === "chat.send").length, 1);
+    assert.equal(
+      calls.filter((call) => call.method === "agent.wait").length,
+      1,
+    );
+    assert.equal(
+      calls.filter((call) => call.method === "chat.history").length,
+      1,
+    );
+    assert.equal(
+      calls.filter((call) => call.method === "chat.abort").length,
+      0,
+    );
+
+    calls.length = 0;
+    status = "aborted";
+    const aborted = await lab.waitChat("one", "fixture-exact-aborted-run");
+    assert.equal(aborted.completion.status, "aborted");
+    assert.deepEqual(aborted.history, history);
+    assert.equal(calls.filter((call) => call.method === "chat.send").length, 0);
+    assert.equal(
+      calls.find((call) => call.method === "agent.wait")?.params.runId,
+      "fixture-exact-aborted-run",
+    );
+
+    calls.length = 0;
+    Reflect.set(lab, "nativeChat", undefined);
+    await assert.rejects(
+      lab.waitChat("one", "fixture-legacy-run"),
+      /Native agent did not succeed/,
+    );
+    assert.equal(
+      calls.filter((call) => call.method === "chat.history").length,
+      0,
+    );
+    assert.equal(calls.filter((call) => call.method === "chat.send").length, 0);
+  } finally {
+    await lab.close();
+    await rm(root, { recursive: true, force: true });
+  }
+});

@@ -1,0 +1,186 @@
+{
+  "schemaVersion": 1,
+  "kind": "memory-chat-native-genuine-validation",
+  "evidenceKind": "live-provider",
+  "status": "completed-after-explicit-funded-continuation",
+  "uninterruptedThreeStagePass": false,
+  "model": "openai/gpt-6-sol",
+  "nativeRuntime": "OpenClaw 2026.9.9",
+  "method": "Actual browser UI, production NativeChatDemo, installed public Python SDK, genuine OpenRouter responses and native OpenClaw storage/retrieval. Read-only public SDK observers captured session history; no native database was opened by the host.",
+  "implementationBaseCommit": "beb724748ca97d5b9031a0ea8ccdc3346f2d4741",
+  "automaticPaidRetries": 0,
+  "steps": [
+    {
+      "stage": 1,
+      "action": "Natural facts and automatic native write",
+      "status": "completed",
+      "user": "I take my coffee without sugar. My blue mug is called Zephyr-472.",
+      "assistant": "Got it: you take your coffee without sugar, and your blue mug is called Zephyr-472.",
+      "elapsedMs": 37179,
+      "maxCachedStateReadMs": 87,
+      "progressVisible": true,
+      "draftEditableDuringJob": true,
+      "sendDisabledDuringJob": true,
+      "inspectorResponsive": true,
+      "javascriptErrors": [],
+      "nativeSession": {
+        "id": "8680d60e-f23e-4c14-b867-575e0ba7b7aa",
+        "key": "agent:main:explicit:c-36043349ab744a1eb1a7ebdf"
+      },
+      "explicitRememberInstruction": false,
+      "nativeWrite": {
+        "toolCallId": "call_eEjvYELlzhRMPqA9CkfArp9r",
+        "name": "write",
+        "isError": false,
+        "receipt": "Successfully wrote 75 bytes to <test-data>/memory/w-fa64d711deaf3ee74e72b2fa07bc9e4d61daaa4e/workspace/memory/2026-11-04.md"
+      },
+      "verifiedDailySource": {
+        "path": "memory/2026-11-04.md",
+        "text": "- User takes coffee without sugar.\n- User's blue mug is called Zephyr-472.",
+        "sha256": "0d43403f99ae8596103ac330b1477a483e888d4ef310de6fc560c819660cd12c",
+        "excerpt": true,
+        "maxLines": 200
+      }
+    },
+    {
+      "stage": 2,
+      "action": "Same-conversation follow-up",
+      "status": "completed",
+      "user": "What is my blue mug called?",
+      "assistant": "Your blue mug is called Zephyr-472.",
+      "elapsedMs": 14811,
+      "maxCachedStateReadMs": 51,
+      "progressVisible": true,
+      "draftEditableDuringJob": true,
+      "sendDisabledDuringJob": true,
+      "inspectorResponsive": true,
+      "javascriptErrors": [],
+      "sameNativeSession": true,
+      "followUpTiming": "Separately authorized follow-up, not a claimed zero-delay submission."
+    },
+    {
+      "stage": 3,
+      "action": "Fresh conversation source retrieval; allowance failure",
+      "status": "failed",
+      "user": "How do I take my coffee, and what is my blue mug called?",
+      "assistant": null,
+      "elapsedMs": 29819,
+      "maxCachedStateReadMs": 50,
+      "progressVisible": true,
+      "draftEditableDuringJob": true,
+      "sendDisabledDuringJob": true,
+      "inspectorResponsive": true,
+      "javascriptErrors": [],
+      "nativeSession": {
+        "id": "aff8cdf0-abcf-4d39-975d-8657f91fd5df",
+        "key": "agent:main:explicit:c-88830113d6d14050bf4f897c"
+      },
+      "emptyHostHistoryBeforeQuestion": true,
+      "previousConversationIndexedBeforeFreshQuestion": {
+        "sessionId": "8680d60e-f23e-4c14-b867-575e0ba7b7aa",
+        "sessionKey": "agent:main:explicit:c-36043349ab744a1eb1a7ebdf",
+        "transcriptPersisted": true,
+        "indexed": true,
+        "pendingIndex": false
+      },
+      "actualNativeSourceReads": [
+        {
+          "name": "memory_search",
+          "toolCallId": "call_a04WJkh0Ewg0XQShgk0sbrSw",
+          "isError": false
+        },
+        {
+          "name": "memory_get",
+          "toolCallId": "call_SEFxKg0jx8YngP8HMVUvSpS1",
+          "isError": false
+        },
+        {
+          "name": "sessions_search",
+          "toolCallId": "call_Q3vUmFJHn93b4lZMcAL0VDzz",
+          "isError": false
+        },
+        {
+          "name": "sessions_history",
+          "toolCallId": "call_Mut4yoAiN5AdmyxZiDds4juY",
+          "isError": false
+        }
+      ],
+      "failureReason": "The retained estimated allowance could not admit the final completion; that completion was not dispatched.",
+      "originalNativeDiagnostic": "400 The retained estimated demo allowance is exhausted; no model request was sent.",
+      "visibleAssistantAnswerProduced": false
+    },
+    {
+      "stage": 4,
+      "action": "Explicitly funded continuation in the same fresh session",
+      "status": "completed",
+      "user": "Please answer my previous question using only the sources you have already read. Do not run more tools.",
+      "assistant": "You take your coffee **without sugar**, and your blue mug is called **Zephyr-472**.",
+      "elapsedMs": 25635,
+      "maxCachedStateReadMs": 59,
+      "progressVisible": true,
+      "draftEditableDuringJob": true,
+      "sendDisabledDuringJob": true,
+      "inspectorResponsive": true,
+      "javascriptErrors": [],
+      "sameFailedFreshNativeSession": true,
+      "factsResupplied": false,
+      "newToolCalls": [],
+      "manualHostGuardReconciliation": "The public SDK history after owned Gateway shutdown confirmed a terminal native error. Only the stale host blocked flag and verified native IDs were reconciled; the original failed turn, native transcript, source and model responses were preserved."
+    }
+  ],
+  "contextSeparation": {
+    "firstNativeSessionId": "8680d60e-f23e-4c14-b867-575e0ba7b7aa",
+    "freshNativeSessionId": "aff8cdf0-abcf-4d39-975d-8657f91fd5df",
+    "freshNativeUserPrompts": [
+      "How do I take my coffee, and what is my blue mug called?",
+      "Please answer my previous question using only the sources you have already read. Do not run more tools."
+    ],
+    "originalUserFactsCopiedIntoFreshUserHistory": false,
+    "retrievedOriginalUserMessage": {
+      "sessionKey": "agent:main:explicit:c-36043349ab744a1eb1a7ebdf",
+      "messageId": "d54629b2-b184-4121-a3b6-a451b36b41e6",
+      "text": "I take my coffee without sugar. My blue mug is called Zephyr-472."
+    }
+  },
+  "accounting": {
+    "authorizationsUsd": [
+      2,
+      1
+    ],
+    "actualModelRequests": 10,
+    "firstLedger": {
+      "limitUsd": 2.0,
+      "reservedUsd": 1.797309,
+      "remainingUsd": 0.202691,
+      "requests": 9
+    },
+    "continuationLedger": {
+      "limitUsd": 1.0,
+      "reservedUsd": 0.253861,
+      "remainingUsd": 0.746139,
+      "requests": 1
+    },
+    "totalReservedEstimateUsd": 2.05117,
+    "providerReportedUsageCostUsd": "0.0332436",
+    "previousLedgersUnchanged": true,
+    "contract": "Reservations are conservative local admission estimates, not invoice charges. usage.cost is provider-reported usage, not an invoice. The old 1 USD test ledger and the failed 2 USD case were not reset or refunded."
+  },
+  "responsiveness": {
+    "maxObservedCachedStateReadMs": 87,
+    "javascriptErrors": [],
+    "scope": "Observed during this validation, not a general latency guarantee."
+  },
+  "evidenceSha256": {
+    "stage1.export.json": "aff56e25d8a1b9060e3c22436f70cbb043e21ad1a4f5bf4e71cb6c4572003c80",
+    "stage2.export.json": "b0b6ec5f52c3a0f23724c09a3d8604bec58c7fa3ef66bd7464be8fc69383330c",
+    "stage3.export.json": "16f006627b7ba82fc325bd8d6f2a764d3c0a6f0dae103a1aa7d2860fbbcf28f0",
+    "stage4.export.json": "4c828c97951595af70031eb987858fcea56182e969b09e4448bdb792b39f3849",
+    "all-public-native-histories.json": "245aef7084450a0c0402be310a8ad5277a401e4ef5689e1b059255835d92f248",
+    "continuation-public-native-histories.json": "7400547e42e334e44341820a0ce515458eca0e516195d8c991f4f32b63c72754"
+  },
+  "limits": [
+    "The first fresh-chat attempt failed before its final answer and remains failed in the capture.",
+    "The final answer followed an explicit fact-free continuation after additional funding and host-guard reconciliation.",
+    "This run does not establish automatic dreaming, trusted-owner promotion, or automatic fact supersession."
+  ]
+}

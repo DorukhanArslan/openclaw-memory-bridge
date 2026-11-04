@@ -47,6 +47,7 @@ class BrokerFixture:
         self.on_completion = on_completion
         self.windows = 0
         self.closed = False
+        self.last_failure = None
 
     def start(self):
         return self
@@ -54,6 +55,7 @@ class BrokerFixture:
     @contextmanager
     def turn(self):
         self.windows += 1
+        self.last_failure = None
         yield self
 
     def close(self):
@@ -69,6 +71,8 @@ class PublicNativeFixture:
         self.transcripts = {}
         self.index_error = None
         self.chat_error = None
+        self.completion_status = "ok"
+        self.wait_hook = None
         self.entered = None
         self.release = None
         self.runs = {}
@@ -108,15 +112,21 @@ class PublicNativeFixture:
                         return {"completion": {"status": "pending"}}
                 messages = owner.transcripts[scope.session]
                 reply = "Protocol fixture native reply: conversation received."
+                if owner.wait_hook is not None:
+                    owner.wait_hook()
                 if not run["completed"]:
-                    messages.append({"role": "assistant", "content": [
-                        {"type": "thinking", "thinking": PRIVATE_REASONING},
-                        {"type": "text", "text": reply},
-                    ]})
+                    if owner.completion_status == "ok":
+                        messages.append({"role": "assistant", "content": [
+                            {"type": "thinking", "thinking": PRIVATE_REASONING},
+                            {"type": "text", "text": reply},
+                        ]})
+                    else:
+                        messages.append({"role": "assistant", "content": [],
+                                         "stopReason": "error", "errorMessage": "Controlled native terminal failure."})
                     run["completed"] = True
                 session_id = "fixture-" + scope.session
                 return {
-                    "completion": {"status": "ok"},
+                    "completion": {"status": owner.completion_status},
                     "history": {"sessionKey": "agent:main:explicit:" + scope.session,
                                 "sessionId": session_id, "messages": deepcopy(messages)},
                     "state": {"session": {"sessionId": session_id}},
@@ -304,6 +314,63 @@ class NativeChatHostTests(unittest.TestCase):
             self.demo.new_conversation()
         self.assertEqual(self.demo.current, previous)
         self.assertTrue(self.demo.state()["memory"]["lifecycle"]["pendingIndex"])
+
+    def test_known_terminal_failure_keeps_history_and_allows_explicit_same_session_followup(self):
+        reason = "The retained estimated demo allowance is exhausted; no model request was sent."
+        self.native.completion_status = "error"
+        self.native.wait_hook = lambda: setattr(self.demo.broker, "last_failure", reason)
+        budget = self.provider.state()
+        scope = self.demo.scope
+        failed_message = "How do I take my coffee?"
+
+        with self.assertRaisesRegex(RuntimeError, "allowance is exhausted"):
+            self.demo.chat(failed_message)
+
+        state = self.demo.state()
+        turn = self.demo.turns[-1]
+        self.assertEqual(state["error"], reason)
+        self.assertEqual(turn["error"], reason)
+        self.assertEqual(turn["status"], "failed")
+        self.assertIsNone(turn["assistant"])
+        self.assertEqual(turn["nativeReceipt"]["completion"]["status"], "error")
+        self.assertEqual(turn["nativeReceipt"]["sessionId"], "fixture-" + scope.session)
+        self.assertTrue(state["memory"]["lifecycle"]["transcriptPersisted"])
+        self.assertFalse(state["conversation"]["blocked"])
+        self.assertEqual([m["role"] for m in state["conversation"]["messages"]], ["user"])
+        self.assertEqual([op[2] for op in self.native.operations if op[0] == "chat"], [failed_message])
+        self.assertEqual([op for op in self.native.operations if op[0] == "abort_chat"], [])
+        self.assertEqual(self.provider.state(), budget)
+
+        self.native.completion_status = "ok"
+        self.native.wait_hook = None
+        next_message = "This is a new explicit question."
+        reply = self.demo.chat(next_message)
+        self.assertIn("Protocol fixture native reply", reply)
+        self.assertEqual(self.demo.scope, scope)
+        self.assertEqual([op[2] for op in self.native.operations if op[0] == "chat"],
+                         [failed_message, next_message])
+        self.assertEqual([turn["status"] for turn in self.demo.turns], ["failed", "completed"])
+        self.assertEqual([m["content"][0]["text"] for m in self.native.transcripts[scope.session]
+                          if m["role"] == "user"], [failed_message, next_message])
+        self.assertIsNone(self.demo.state()["error"])
+        self.assertEqual(self.provider.state(), budget)
+
+    def test_pre_window_gateway_failure_does_not_reuse_old_broker_reason(self):
+        stale = "The retained estimated demo allowance is exhausted; no model request was sent."
+        startup_error = "Controlled native Gateway startup failed."
+        self.demo.broker.last_failure = stale
+        budget = self.provider.state()
+        with patch.object(self.demo, "_client_factory", side_effect=RuntimeError(startup_error)):
+            with self.assertRaisesRegex(RuntimeError, "Gateway startup failed"):
+                self.demo.chat("I take my coffee without sugar.")
+        self.assertEqual(self.demo.broker.windows, 0)
+        self.assertEqual(self.demo.broker.last_failure, stale)
+        self.assertEqual(self.demo.state()["error"], startup_error)
+        self.assertEqual(self.demo.turns[-1]["error"], startup_error)
+        self.assertNotIn("allowance", self.demo.state()["error"])
+        self.assertFalse(self.demo.state()["conversation"]["blocked"])
+        self.assertEqual(self.native.operations, [])
+        self.assertEqual(self.provider.state(), budget)
 
     def test_restart_indexes_before_closing_sdk_and_preserves_allowance(self):
         self.demo.chat("I take my coffee without sugar.")

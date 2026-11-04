@@ -19,13 +19,15 @@ The broader capability inventory describes optional coverage and upstream featur
 
 The [Memory Chat app](apps/memory-chat/README.md) is a separate consumer of the installed public Python SDK. Its OpenAI-style interface sends messages through OpenClaw's native interactive agent, which owns conversation history, recall, tools, and pre-compaction flushing. Say “I drink my coffee without sugar,” open a new chat after memory preparation finishes, then ask “How do I take my coffee?” The inspector distinguishes saved conversations, indexing, and curated notes. Export a run for read-only replay without further model calls.
 
-With the runtime and Python SDK installed and `OPENROUTER_API_KEY` set in the server environment:
+With the runtime and Python SDK installed and `OPENROUTER_API_KEY` set in the server environment, start a fresh native demo:
 
 ```sh
-npm run chat -- --budget-usd 1
+npm run chat -- --root .lab/native-memory-chat --budget-usd 5
 ```
 
-Open `http://127.0.0.1:8765` on the computer running the server. The explicit estimated allowance is retained across restarts; it is not a provider billing hard cap. The app opens without making model calls. See [how the app connects to the SDK](apps/memory-chat/SDK-CONNECTION.md) for the exact ownership and integration boundary.
+Open `http://127.0.0.1:8765` on the computer running the server. The explicit estimated allowance is retained across restarts; it is not an invoice or a provider billing hard cap. One message can make several model calls, so a 1 USD allowance may not cover the multistep demo. The separate root preserves earlier demo data and limits. The app opens without making model calls. After `git pull`, reinstall the SDK with the server's interpreter (`.bootstrap/python/bin/python -m pip install ./python` for the default environment). See [how the app connects to the SDK](apps/memory-chat/SDK-CONNECTION.md) for the exact ownership and integration boundary.
+
+The [genuine native run](reports/memory-chat-native-live.json) verifies natural fact capture and source-backed recall. Its fresh-session final answer completed after an explicitly funded continuation; the original reservation-limit failure remains in the report.
 
 ## One memory story
 

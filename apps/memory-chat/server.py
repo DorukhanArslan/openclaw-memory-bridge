@@ -810,11 +810,13 @@ class NativeChatDemo(ChatDemo):
             native_settled = False
             abort_confirmed = False
             dispatch_attempted = False
+            window_started = False
             run_id = None
             try:
                 self._progress("Waiting for the OpenClaw conversation")
                 client = self._get_memory()
                 with self.broker.turn():
+                    window_started = True
                     dispatch_attempted = True
                     accepted = client.start_chat(self.scope, message)
                     run_id = accepted.get("runId")
@@ -838,8 +840,6 @@ class NativeChatDemo(ChatDemo):
                             except Exception:
                                 pass
                 self._check_stopping()
-                if receipt.get("completion", {}).get("status") != "ok":
-                    raise RuntimeError("OpenClaw did not confirm completion of this conversation turn.")
                 history = receipt.get("history", {})
                 messages = history.get("messages", [])
                 user_index = next((i for i in range(len(messages) - 1, -1, -1)
@@ -870,6 +870,8 @@ class NativeChatDemo(ChatDemo):
                         details = entry.get("details")
                         if isinstance(details, dict):
                             self._observe(details)
+                if receipt.get("completion", {}).get("status") != "ok":
+                    raise RuntimeError("OpenClaw did not complete this conversation turn.")
                 reply = next((native_text(entry.get("content")) for entry in reversed(new_messages)
                               if entry.get("role") == "assistant" and native_text(entry.get("content")).strip()), None)
                 if not reply:
@@ -886,9 +888,13 @@ class NativeChatDemo(ChatDemo):
                 # A lost native receipt can include writes; never silently
                 # replay the user request into a new session.
                 conversation["blocked"] = bool(getattr(self.memory, "poisoned", False)) or (dispatch_attempted and not native_settled and not abort_confirmed)
-                self.error = self._clean(str(error))[:12000]
-                if not isinstance(error, TurnCancelled):
+                failure = getattr(self.broker, "last_failure", None) if window_started else None
+                self.error = self._clean(failure or str(error))[:12000]
+                turn["error"] = self.error
+                if not native_settled and not isinstance(error, TurnCancelled):
                     self.memory_error = self.error
+                if failure and not isinstance(error, TurnCancelled):
+                    raise RuntimeError(self.error) from error
                 raise
             finally:
                 self._native_turn = None
@@ -903,7 +909,7 @@ class NativeChatDemo(ChatDemo):
                         self.memory_error = self._clean(str(error))[:12000]
                         turn["snapshotError"] = self.memory_error
                 turn["after"] = deepcopy(self.files)
-                turn["snapshotVerified"] = self.memory_available is True and not self.memory_stale and not turn.get("snapshotError")
+                turn["snapshotVerified"] = turn["status"] == "completed" and self.memory_available is True and not self.memory_stale and not turn.get("snapshotError")
                 known_before = {source["path"] for source in turn["before"]}
                 self.changes = [change for change in source_changes(turn["before"], self.files)
                                 if change["path"] in turn["attemptedWritePaths"] and change["path"] in known_before]

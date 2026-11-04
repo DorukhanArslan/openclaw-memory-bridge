@@ -17,7 +17,7 @@ import time
 from urllib.parse import urlsplit
 import uuid
 
-from provider import MODEL
+from provider import MODEL, Provider
 
 
 MAX_REQUEST_BYTES = 128_000
@@ -120,11 +120,18 @@ class NativeProviderBroker:
         self._request_lock = threading.Lock()
         self._window = None
         self._failed = False
+        self._last_failure = None
         self._closed = False
         self._server = None
         self._worker = None
         self._prefix = "/" + secrets.token_urlsafe(32) + "/v1"
         self.base_url = None
+
+    @property
+    def last_failure(self):
+        """Cached safe diagnostic; reading it never dispatches or reserves."""
+        with self._state_lock:
+            return self._last_failure
 
     def start(self):
         if self._closed:
@@ -221,6 +228,7 @@ class NativeProviderBroker:
                 raise RuntimeError("A native provider operation is already active or closed.")
             window = self._window = object()
             self._failed = False
+            self._last_failure = None
         try:
             yield self
         finally:
@@ -238,12 +246,21 @@ class NativeProviderBroker:
             with self._state_lock:
                 if self._closed or self._window is not window or self._failed:
                     raise RuntimeError("No active native model operation permits this request.")
+            provider_failure = None
             try:
                 if self.allow_request is not None and self.allow_request() is False:
                     raise RuntimeError("The native model operation was stopped.")
                 # Provider.complete keeps its exact fixed policy, durable
                 # reservation, price preflight and single upstream dispatch.
-                message, usage = self.provider.complete(messages, tools)
+                try:
+                    message, usage = self.provider.complete(messages, tools)
+                except RuntimeError as error:
+                    # The fixed Provider emits bounded, actionable diagnostics
+                    # rather than credential values or raw upstream bodies.
+                    # Unknown/custom peers do not get to publish arbitrary text.
+                    if type(self.provider) is Provider:
+                        provider_failure = str(error)[:1500]
+                    raise
                 with self._state_lock:
                     if self._closed or self._window is not window or self._failed:
                         raise RuntimeError("The native model operation is no longer active.")
@@ -263,6 +280,7 @@ class NativeProviderBroker:
                 with self._state_lock:
                     if self._window is window:
                         self._failed = True
+                        self._last_failure = provider_failure or "The native model request failed or was stopped."
                 raise
             return message, usage
 
