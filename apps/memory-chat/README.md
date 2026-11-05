@@ -14,9 +14,17 @@ Open the localhost URL printed by the server, normally `http://127.0.0.1:8765`. 
 
 Opening the page starts no model request or memory Gateway. The first message creates the SDK connection and uses the native Gateway; there is no separate plain-chat fallback. Long operations show progress while the page continues polling cached state. You can draft another message, but it is not dispatched until the active operation finishes. **Stop** prevents subsequent model dispatches after the current bounded request.
 
-Sending messages or running guided steps can incur model charges. The allowance is a retained local estimate, not a provider billing hard cap. A new conversation, Stop, failed request, or restart does not refund it. Restart an existing positive allowance with the same `--budget-usd` value; changing the flag cannot replace its budget or policy. On a fresh root, omitting the flag disables model requests without consuming an allowance.
+Sending messages or running guided steps can incur model charges. Each request reserves a conservative estimate before dispatch. New, validated successful replies settle that estimate using the provider's returned cost. Missing costs, failed or uncertain attempts, and reservations from earlier versions remain fully held; earlier requests are not retroactively settled. The local allowance is neither an invoice nor a provider billing hard cap. A new conversation, Stop, or restart does not clear its history. On a fresh root, omitting the flag disables model requests without consuming an allowance.
 
-The example explicitly allows up to 5 USD in conservative request reservations for the multistep demo. One message can require several model calls; a 1 USD allowance may not cover the flow below. Reservations are not an invoice. The named root keeps this fresh demo separate from earlier `.lab/memory-chat` data and its consumed allowance; neither is reset.
+The example sets a total local ceiling of 5 USD. One message can require several model calls, each of which must fit a conservative reservation before it starts. The named root keeps this fresh demo separate from earlier `.lab/memory-chat` data and its retained allowance.
+
+To increase an existing allowance, stop the server with **Ctrl+C in its terminal**, then restart with the same root and a higher `--budget-usd` value. For the default data root:
+
+```sh
+npm run chat -- --budget-usd 10
+```
+
+This raises the **total ceiling to 10 USD**, including prior committed usage; it does not add another 10 USD. Notes, conversations, the original admission record, and cumulative request/reservation counters are preserved. Repeating the command keeps the same ceiling. A lower ceiling or a different model/output/pricing policy is rejected. An active server must be stopped before the ceiling can change.
 
 The launcher uses `PYTHON` when set, then `.bootstrap/python/bin/python` if available, otherwise `python3`. The selected interpreter must have the SDK installed. For a fresh checkout:
 
@@ -33,10 +41,10 @@ git pull
 .bootstrap/python/bin/python -m pip install './python[chat]'
 ```
 
-If `PYTHON` selects another interpreter, reinstall with that interpreter instead. Pulling the repository alone does not update an already installed SDK. Restart with the same `--root` and `--budget-usd` arguments you used before. For the original default-root, 1 USD setup:
+If `PYTHON` selects another interpreter, reinstall with that interpreter instead. Pulling the repository alone does not update an already installed SDK. Restart with the same `--root` and saved ceiling, or explicitly increase that ceiling as shown above. For the original default-root setup with its ceiling increased to 10 USD:
 
 ```sh
-npm run chat -- --budget-usd 1
+npm run chat -- --budget-usd 10
 ```
 
 The `chat` extra installs native system-trust support and a public CA bundle for Python HTTPS. On macOS, the app uses Keychain trust alongside those public roots. Certificate-chain and hostname verification remain enabled.
@@ -105,6 +113,6 @@ If a VPN or HTTPS proxy inspects traffic, its root certificate must be trusted i
 
 A Gateway failure now fails the native chat operation visibly; the app does not silently substitute an independent model conversation. Preserve the data directory and request records when reporting it. Cached state and inspector controls remain available while native work runs.
 
-**Stop** requests cancellation of subsequent dispatches. An already-dispatched request can finish before cancellation is observed, and its reservation remains charged. All native main-agent, recall-agent, and flush model requests pass through the same server-side broker and retained allowance. Completion requests outside an explicitly active chat operation are rejected; automatic background model spending is disabled. A provider failure closes that operation's admission window rather than authorizing an automatic paid retry.
+**Stop** requests cancellation of subsequent dispatches. An already-dispatched request can finish before cancellation is observed and remains recorded. Only a validated successful response with a returned provider cost can settle its estimate. All native main-agent, recall-agent, and flush model requests pass through the same server-side broker and retained allowance. Completion requests outside an explicitly active chat operation are rejected; automatic background model spending is disabled. A provider failure closes that operation's admission window rather than authorizing an automatic paid retry.
 
 If preparation for a new conversation fails, do not treat that as successful fresh-context recall. The error remains visible and the previous data is retained. A completed assistant reply or a saved transcript alone is not proof that semantic indexing or long-term fact consolidation completed.

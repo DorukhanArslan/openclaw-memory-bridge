@@ -603,13 +603,22 @@
         ? `${model} · live model`
         : noBudget
           ? `${model} · chat disabled`
-          : "Model connection is not configured";
+          : state.model?.reason === "allowance_exhausted"
+            ? `${model} · local budget exhausted`
+            : state.model?.reason === "allowance_unavailable"
+              ? `${model} · cost accounting paused`
+              : "Model connection is not configured";
     $("budget-status").textContent = replay
       ? "No new model calls"
       : Number.isFinite(Number(budget.remainingUsd))
-        ? "Estimated remaining $" +
+        ? "Local budget left $" +
           money.format(Math.max(0, Number(budget.remainingUsd)))
         : "";
+    $("budget-status").title = replay
+      ? "Recorded usage; no new model calls."
+      : `Provider-reported cost: $${Number(budget.providerReportedCostUsd || 0).toFixed(6)}. ` +
+        `Unsettled estimates: $${Number(budget.unsettledEstimateUsd || 0).toFixed(6)}. ` +
+        "This local allowance is not the provider's account balance.";
     document.querySelector(".demo-label").textContent = replay
       ? "replay"
       : "demo";

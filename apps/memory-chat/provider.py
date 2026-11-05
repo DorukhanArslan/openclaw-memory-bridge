@@ -1,14 +1,14 @@
-"""Fixed genuine-model transport and a retained estimated demo allowance.
+"""Fixed genuine-model transport and a retained local demo allowance.
 
-The allowance reserves conservative request estimates, not provider billing.
-Unknown/failed dispatches remain reserved. No SDK or native paid gate is changed.
+Requests reserve conservative estimates; validated replies settle to reported
+cost. Unknown/failed dispatches remain reserved. No SDK paid gate is changed.
 The demo server owns the state directory exclusively; this adapter serializes
 its own callers and never recreates a lost consumed allowance.
 """
 from __future__ import annotations
 
 from copy import deepcopy
-from decimal import Decimal, InvalidOperation
+from decimal import Decimal, InvalidOperation, ROUND_CEILING
 import hashlib
 import json
 from math import isfinite
@@ -34,6 +34,8 @@ _FRAMING = 1024
 _MAX_BODY = 96 * 1024
 _MAX_RESPONSE = 1024 * 1024
 _MAX_METADATA = 8 * 1024 * 1024
+_MAX_LEDGER = 1024 * 1024
+_MAX_ATTEMPTS = 10000
 _NAME = re.compile(r"[A-Za-z0-9_-]{1,64}\Z")
 
 
@@ -98,6 +100,7 @@ class Provider:
             raise ValueError("Invalid provider credential configuration.")
         self._lock = Lock()
         self._prices_checked = False
+        self._accounting_failed = False
         self._policy = {"version": 1, "model": MODEL, "limitNanos": self._limit,
                         "maxOutputTokens": self._output,
                         "inputNanosPerUnit": _INPUT_NANOS,
@@ -114,7 +117,8 @@ class Provider:
         self._prepare_directory()
         # An inspection-only launch consumes no admission. Enabling the same
         # fresh root later with an explicit positive budget remains possible.
-        self._empty_zero = self._limit == 0 and not self.ledger.exists() and not self.admission.exists()
+        self._empty_zero = (self._limit == 0 and not os.path.lexists(self.ledger)
+                            and not os.path.lexists(self.admission) and not self._grants())
         if not self._empty_zero:
             self._initialize()
         self._cached_counts = self._read()
@@ -133,7 +137,9 @@ class Provider:
             reason = "missing_api_key"
         elif self._limit <= 0:
             reason = "budget_disabled"
-        elif self._cached_counts["reservedNanos"] >= self._limit:
+        elif self._accounting_failed or any("overageNanos" in row for row in self._cached_counts.get("attempts", [])):
+            reason = "allowance_unavailable"
+        elif self._committed(self._cached_counts) >= self._limit:
             reason = "allowance_exhausted"
         else:
             reason = None
@@ -164,10 +170,10 @@ class Provider:
             try:
                 info = os.fstat(fd)
                 if (not stat.S_ISREG(info.st_mode) or info.st_nlink != 1
-                        or info.st_size > 65536 or stat.S_IMODE(info.st_mode) & 0o077):
+                        or info.st_size > _MAX_LEDGER or stat.S_IMODE(info.st_mode) & 0o077):
                     raise ValueError
                 with os.fdopen(fd, "rb", closefd=False) as stream:
-                    value = json.loads(stream.read(65537).decode("utf-8"))
+                    value = json.loads(stream.read(_MAX_LEDGER + 1).decode("utf-8"))
             finally:
                 os.close(fd)
             if not isinstance(value, dict):
@@ -187,64 +193,177 @@ class Provider:
             os.close(fd)
         self._sync_directory()
 
+    def _grants(self):
+        return list(self.ledger.parent.glob(self.ledger.name + ".limit-*.json"))
+
+    def _retained_limit(self):
+        limit = self._policy["limitNanos"]
+        for path in self._grants():
+            grant = self._read_json(path)
+            total = grant.get("limitNanos")
+            if (set(grant) != {"version", "basePolicySha256", "limitNanos"}
+                    or type(grant["version"]) is not int or grant["version"] != 1
+                    or grant["basePolicySha256"] != self._policy_hash
+                    or not _integer(total) or total <= self._policy["limitNanos"]
+                    or path.name != self.ledger.name + f".limit-{total}.json"):
+                raise RuntimeError("Existing provider allowance grant is invalid; it was not reset.")
+            limit = max(limit, total)
+        return limit
+
+    def _publish(self, path, value):
+        """Publish complete private JSON atomically, including total-ceiling grants."""
+        raw = _encoded(value)
+        if len(raw) > _MAX_LEDGER:
+            raise RuntimeError("Provider allowance history is full; no request was sent.")
+        temporary = None
+        try:
+            fd, temporary = tempfile.mkstemp(prefix=".provider-", dir=self.ledger.parent)
+            with os.fdopen(fd, "wb") as stream:
+                stream.write(raw)
+                stream.flush()
+                os.fsync(stream.fileno())
+            os.replace(temporary, path)
+            temporary = None
+            self._sync_directory()
+        finally:
+            if temporary:
+                os.unlink(temporary)
+
     def _initialize(self):
         try:
-            if not self.admission.exists() and not self.ledger.exists():
+            if not os.path.lexists(self.admission) and not os.path.lexists(self.ledger):
+                if self._grants():
+                    raise RuntimeError("Provider allowance artifacts are incomplete; no reset was attempted.")
                 # The immutable admission is durable first. A crash between
                 # these writes cannot reopen a zeroed allowance automatically.
                 self._create(self.admission, self._policy)
                 self._create(self.ledger, {"policySha256": self._policy_hash,
                                           "reservedNanos": 0, "requests": 0})
+            original = self._read_json(self.admission)
+            if (set(original) != set(self._policy) or not _integer(original.get("limitNanos"))
+                    or _encoded({**original, "limitNanos": self._limit}) != _encoded(self._policy)):
+                raise RuntimeError("Existing provider allowance uses a different budget or policy; it was not reset.")
+            self._policy = original
+            self._policy_hash = hashlib.sha256(_encoded(original)).hexdigest()
+            retained = self._retained_limit()
+            # Check consumed state under the *retained* ceiling before granting
+            # anything. Missing or corrupt state cannot be repaired by raising.
+            self._validate_record(self._read_json(self.ledger), retained)
+            if self._limit < retained:
+                raise RuntimeError(f"Requested budget is lower than the retained total limit ${retained / _NANOS:g}; "
+                                   f"restart with --budget-usd {retained / _NANOS:g}. No reset was attempted.")
+            if self._limit > retained:
+                if os.path.lexists(self.ledger.parent / "chat.lock"):
+                    raise RuntimeError("Stop the running chat before increasing its total budget.")
+                grant = self.ledger.with_name(self.ledger.name + f".limit-{self._limit}.json")
+                self._publish(grant, {"version": 1, "basePolicySha256": self._policy_hash,
+                                      "limitNanos": self._limit})
             self._read()
         except OSError:
             raise RuntimeError("Provider allowance initialization failed; no reset was attempted.") from None
 
+    @staticmethod
+    def _charges(value):
+        if "attempts" not in value:
+            return 0, value["reservedNanos"]
+        reported = sum(row.get("actualNanos", 0) for row in value["attempts"])
+        held = value["legacy"]["reservedNanos"] + sum(
+            row["estimateNanos"] for row in value["attempts"] if "actualNanos" not in row)
+        return reported, held
+
+    @classmethod
+    def _committed(cls, value):
+        return sum(cls._charges(value))
+
+    def _validate_record(self, value, limit):
+        try:
+            if (set(value) not in ({"policySha256", "reservedNanos", "requests"},
+                                   {"policySha256", "reservedNanos", "requests", "legacy", "attempts"})
+                    or value["policySha256"] != self._policy_hash
+                    or not _integer(value["reservedNanos"]) or not _integer(value["requests"])):
+                raise ValueError
+            if "attempts" in value:
+                legacy, attempts = value["legacy"], value["attempts"]
+                if (not isinstance(legacy, dict) or set(legacy) != {"reservedNanos", "requests"}
+                        or not all(_integer(v) for v in legacy.values())
+                        or not isinstance(attempts, list) or not 1 <= len(attempts) <= _MAX_ATTEMPTS):
+                    raise ValueError
+                for row in attempts:
+                    if (not isinstance(row, dict) or set(row) not in (
+                            {"estimateNanos"}, {"estimateNanos", "actualNanos"}, {"estimateNanos", "overageNanos"})
+                            or not _integer(row["estimateNanos"]) or row["estimateNanos"] == 0):
+                        raise ValueError
+                    if "actualNanos" in row and (not _integer(row["actualNanos"])
+                                                  or row["actualNanos"] > row["estimateNanos"]):
+                        raise ValueError
+                    if "overageNanos" in row and (not _integer(row["overageNanos"])
+                                                   or row["overageNanos"] <= row["estimateNanos"]):
+                        raise ValueError
+                if (value["requests"] != legacy["requests"] + len(attempts)
+                        or value["reservedNanos"] != legacy["reservedNanos"] + sum(row["estimateNanos"] for row in attempts)):
+                    raise ValueError
+            if self._committed(value) > limit:
+                raise ValueError
+        except (KeyError, TypeError, ValueError):
+            raise RuntimeError("Existing provider allowance is invalid; it was not reset.") from None
+        return value
+
     def _read(self):
         if self._empty_zero:
-            if self.ledger.exists() or self.admission.exists():
+            if os.path.lexists(self.ledger) or os.path.lexists(self.admission) or self._grants():
                 raise RuntimeError("Provider allowance changed; restart the demo explicitly.")
             return {"policySha256": self._policy_hash, "reservedNanos": 0, "requests": 0}
         if _encoded(self._read_json(self.admission)) != _encoded(self._policy):
             raise RuntimeError("Existing provider allowance uses a different budget or policy; it was not reset.")
-        value = self._read_json(self.ledger)
-        if (set(value) != {"policySha256", "reservedNanos", "requests"}
-                or value["policySha256"] != self._policy_hash
-                or not _integer(value["reservedNanos"]) or not _integer(value["requests"])
-                or value["reservedNanos"] > self._limit):
-            raise RuntimeError("Existing provider allowance is invalid; it was not reset.")
-        return value
+        if self._retained_limit() != self._limit:
+            raise RuntimeError("Provider total allowance changed; restart the demo explicitly.")
+        return self._validate_record(self._read_json(self.ledger), self._limit)
+
+    @staticmethod
+    def _validate_transition(current, value):
+        """Only append one reservation or finalize one existing attempt."""
+        baseline = current.get("legacy", {"reservedNanos": current["reservedNanos"], "requests": current["requests"]})
+        previous = current.get("attempts", [])
+        following = value.get("attempts", [])
+        if value.get("legacy") != baseline:
+            raise RuntimeError("Provider allowance history cannot be changed.")
+        if len(following) == len(previous) + 1:
+            valid = following[:-1] == previous and set(following[-1]) == {"estimateNanos"}
+        elif len(following) == len(previous):
+            changed = [(before, after) for before, after in zip(previous, following) if before != after]
+            valid = len(changed) == 1 and set(changed[0][0]) == {"estimateNanos"}
+            if valid:
+                before, after = changed[0]
+                valid = (after["estimateNanos"] == before["estimateNanos"]
+                         and set(after) in ({"estimateNanos", "actualNanos"}, {"estimateNanos", "overageNanos"}))
+        else:
+            valid = False
+        if (not valid or value["requests"] < current["requests"]
+                or value["reservedNanos"] < current["reservedNanos"]):
+            raise RuntimeError("Provider allowance history cannot be changed.")
 
     def _write(self, value):
-        temporary = None
         try:
-            fd, temporary = tempfile.mkstemp(prefix=".provider-", dir=self.ledger.parent)
-            with os.fdopen(fd, "wb") as stream:
-                stream.write(_encoded(value))
-                stream.flush()
-                os.fsync(stream.fileno())
             # Revalidate the actual destination before replacing it. The demo
             # server also retains exclusive ownership of this private root.
-            self._read()
-            os.replace(temporary, self.ledger)
-            temporary = None
-            self._sync_directory()
-            self._cached_counts = dict(value)
+            current = self._read()
+            self._validate_record(value, self._limit)
+            self._validate_transition(current, value)
+            self._publish(self.ledger, value)
+            self._cached_counts = deepcopy(value)
         except (OSError, ValueError):
             raise RuntimeError("Provider allowance could not be retained; request was not sent.") from None
-        finally:
-            if temporary:
-                try:
-                    os.unlink(temporary)
-                except FileNotFoundError:
-                    pass
 
     def state(self) -> dict:
         with self._lock:
             value = self._read()
-            self._cached_counts = dict(value)
+            self._cached_counts = deepcopy(value)
+            reported, held = self._charges(value)
             return {"limitUsd": self._limit / _NANOS,
                     "reservedUsd": value["reservedNanos"] / _NANOS,
-                    "remainingUsd": (self._limit - value["reservedNanos"]) / _NANOS,
+                    "remainingUsd": (self._limit - reported - held) / _NANOS,
+                    "providerReportedCostUsd": reported / _NANOS,
+                    "unsettledEstimateUsd": held / _NANOS,
                     "requests": value["requests"]}
 
     def _response_json(self, request, limit: int):
@@ -440,6 +559,8 @@ class Provider:
             if not self.ready:
                 if self.status()["reason"] == "allowance_exhausted":
                     raise RuntimeError("The retained estimated demo allowance is exhausted; no model request was sent.")
+                if self.status()["reason"] == "allowance_unavailable":
+                    raise RuntimeError("Provider cost accounting needs attention; no new model request was sent.")
                 raise RuntimeError("A server-side OpenRouter key and an explicit positive demo budget are required.")
             names = self._validate_input(messages, tools)
             payload = {"model": MODEL, "messages": messages,
@@ -449,16 +570,51 @@ class Provider:
             body = _encoded(payload)
             if len(body) > _MAX_BODY:
                 raise RuntimeError("Conversation exceeds the demo request size; start a new conversation.")
+            current = self._read()
+            estimate = (len(body) + _FRAMING) * _INPUT_NANOS + self._output * _OUTPUT_NANOS
+            if self._committed(current) + estimate > self._limit:
+                raise RuntimeError("The retained estimated demo allowance is exhausted; no model request was sent.")
             try:
                 self._verify_prices()
             except RuntimeError as error:
                 raise RuntimeError(f"Model pricing preflight failed: {error} No completion request was sent.") from None
             current = self._read()
-            estimate = (len(body) + _FRAMING) * _INPUT_NANOS + self._output * _OUTPUT_NANOS
-            if current["reservedNanos"] + estimate > self._limit:
+            if any("overageNanos" in row for row in current.get("attempts", [])):
+                raise RuntimeError("Provider cost accounting needs attention; no new model request was sent.")
+            if self._committed(current) + estimate > self._limit:
                 raise RuntimeError("The retained estimated demo allowance is exhausted; no model request was sent.")
-            self._write({**current, "reservedNanos": current["reservedNanos"] + estimate,
-                         "requests": current["requests"] + 1})
+            reserved = deepcopy(current)
+            if "attempts" not in reserved:
+                reserved["legacy"] = {"reservedNanos": current["reservedNanos"], "requests": current["requests"]}
+                reserved["attempts"] = []
+            index = len(reserved["attempts"])
+            reserved["attempts"].append({"estimateNanos": estimate})
+            reserved["reservedNanos"] += estimate
+            reserved["requests"] += 1
+            self._write(reserved)
             request = urllib.request.Request(_ORIGIN + "/api/v1/chat/completions", data=body,
                 headers={"Authorization": "Bearer " + self._key, "Content-Type": "application/json"})
-            return self._message(self._response_json(request, _MAX_RESPONSE), names)
+            message, usage = self._message(self._response_json(request, _MAX_RESPONSE), names)
+            if usage and "cost" in usage:
+                actual = int((Decimal(str(usage["cost"])) * _NANOS).to_integral_value(rounding=ROUND_CEILING))
+                try:
+                    # Never finalize from a stale pre-dispatch snapshot or
+                    # credit an older request whose outcome remains unknown.
+                    settled = deepcopy(self._read())
+                    if (settled["legacy"] != reserved["legacy"]
+                            or settled["attempts"][index] != {"estimateNanos": estimate}):
+                        raise RuntimeError("Provider reservation changed during completion.")
+                    if actual > estimate:
+                        self._accounting_failed = True
+                        settled["attempts"][index]["overageNanos"] = actual
+                        usage["cost_settlement_pending"] = True
+                    else:
+                        settled["attempts"][index]["actualNanos"] = actual
+                    self._write(settled)
+                except (RuntimeError, OSError, ValueError, KeyError, IndexError):
+                    # A real answer must survive local accounting trouble.
+                    # Reservation publication preceded dispatch; no retry or
+                    # historical refund is authorized by this failure.
+                    self._accounting_failed = True
+                    usage["cost_settlement_pending"] = True
+            return message, usage

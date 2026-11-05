@@ -43,7 +43,7 @@ This fragment requires a running host-owned OpenAI-compatible loopback model end
 
 `chat` uses the public native `chat.send` operation, awaits the exact run's completion, then returns admission, completion, history, and session-state receipts. It enters a persistent interactive session rather than injecting a synthetic transcript. Workspace and user select the corpus; the session identifier selects conversation context. The native profile enables transcript indexing and cross-conversation Active Memory, allows native recall and source-reading tools, and retains normal pre-compaction flushing. Automatic dreaming and background model scheduling remain disabled in this demo.
 
-The production host uses the equivalent `start_chat`, `wait_chat`, and `abort_chat` operations so it can check Stop between bounded polls and cancel the exact native run. The broker also withholds a late model response when Stop arrives during inference, so that response cannot start a subsequent native tool call. Already-dispatched model attempts keep their reservations.
+The production host uses the equivalent `start_chat`, `wait_chat`, and `abort_chat` operations so it can check Stop between bounded polls and cancel the exact native run. The broker also withholds a late model response when Stop arrives during inference, so that response cannot start a subsequent native tool call. Already-dispatched model attempts remain recorded; a validated successful response with a returned provider cost can settle its estimate even when Stop prevents further native work.
 
 The earlier `ChatDemo` class and `MemoryTools` adapter remain an independent-host reference and controlled-test path. They are not the production UI's chat implementation. `MemoryTools` still supports search, source reads, canonical note replacement, and daily-note replacement, with indexing after writes; using those tools alone does not transfer an external model history into native session management.
 
@@ -53,7 +53,7 @@ Native user and assistant messages belong to the OpenClaw session. A second mess
 
 Native transcript indexing is normally asynchronous. Before **New chat** or restart creates fresh context, the demo waits for the public `index` operation, which runs the official native index command. The operation remains busy until this recall-preparation barrier succeeds. A failure is not labelled as successful indexing or fresh-session readiness. This explicit barrier can take time; cached polling and Stop remain available.
 
-Restart preserves notes, transcripts, indexes, UI records, and consumed request reservations. The SDK connection is recreated and its current broker URL rebound when needed. Starting a new conversation does not erase the previous native session.
+Restart preserves notes, transcripts, indexes, UI records, and cumulative request/reservation counters. The SDK connection is recreated and its current broker URL rebound when needed. Starting a new conversation does not erase the previous native session.
 
 Transcript persistence, retrieval readiness, and curated fact storage are distinct outcomes. OpenClaw can retrieve a past conversation without creating a preference note for every sentence. Native agent writes and flushing follow their supported policy; neither a model answer nor a transcript receipt proves automatic fact supersession or completed dreaming.
 
@@ -61,7 +61,9 @@ Transcript persistence, retrieval readiness, and curated fact storage are distin
 
 The real API key stays in the Python provider adapter. OpenClaw receives only a host-owned loopback endpoint. Every admitted native main-agent, recall-agent, and flush model request passes through the same `Provider` instance and durable allowance used by the demo. The broker forwards genuine results in the OpenAI-compatible response format; it does not generate replacement answers.
 
-A chat operation opens a bounded broker admission window. Outside it, completion requests are rejected. A provider failure closes the window against further completion attempts for that operation. In-flight or failed requests keep their reservations, and no restart, new conversation, or Stop refunds them. The allowance remains a conservative local estimate rather than a provider billing hard cap.
+A chat operation opens a bounded broker admission window. Outside it, completion requests are rejected. A provider failure closes the window against further completion attempts for that operation. Each dispatch first reserves a conservative estimate. New validated successful replies with a returned provider cost settle their own estimates; failed or uncertain attempts, missing costs, and earlier-version reservations remain fully committed. Settlement never decreases the historical request or reservation counters. Restart, new conversation, and Stop do not reset this accounting. The local allowance is neither an invoice nor a provider billing hard cap.
+
+The demo's `--budget-usd N` flag sets a total local ceiling. To increase an existing ceiling, stop its server and restart with the same data root and a higher value; for the default root, use `npm run chat -- --budget-usd 10`. This authorizes a total of 10 USD including prior committed usage, not an additional 10 USD. The original admission, request history, counters, and memory are retained. Restarting at the same ceiling adds no allowance; a lower ceiling or a different model/output/pricing policy is rejected. This policy belongs to the demo host rather than the public SDK.
 
 ## Responsive requests and evidence
 

@@ -440,6 +440,8 @@ class ChatDemo:
                     self._check_stopping()
                     if usage and usage.get("completion_truncated"):
                         self.notice = "The model reached its output limit. The displayed answer is its partial response."
+                    if usage and usage.get("cost_settlement_pending"):
+                        self.notice = "The model replied, but cost accounting needs attention. Further model requests are paused; no retry was made."
                     calls = response.get("tool_calls") or []
                     if not calls:
                         reply = response.get("content")
@@ -689,6 +691,8 @@ class NativeChatDemo(ChatDemo):
                             "detail": {"model": MODEL, "usage": usage}})
         if usage and usage.get("completion_truncated"):
             self.notice = "The model reached its output limit. The displayed answer may be partial."
+        if usage and usage.get("cost_settlement_pending"):
+            self.notice = "The model replied, but cost accounting needs attention. Further model requests are paused; no retry was made."
         self._progress("OpenClaw is completing the conversation")
 
     def _get_memory(self):
@@ -1196,7 +1200,7 @@ def main() -> None:
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8765)
     parser.add_argument("--budget-usd", type=float, default=0,
-                        help="Explicit retained estimated allowance for real model requests; zero disables chat.")
+                        help="Total local model budget; a higher value raises the retained ceiling. Zero disables a fresh root.")
     parser.add_argument("--replay", type=Path, help="View an exported run without constructing the SDK or provider.")
     args = parser.parse_args()
     demo = None
@@ -1215,7 +1219,7 @@ def main() -> None:
         signal.signal(signal.SIGTERM, stop)
         signal.signal(signal.SIGINT, stop)
         print(f"Memory Chat: http://127.0.0.1:{server.server_port}", flush=True)
-        print("Keys stay on the server. New conversations preserve memory and the retained estimated allowance.", flush=True)
+        print("Keys stay on the server. New conversations preserve memory and retained model usage.", flush=True)
         if not args.replay and not demo.provider.ready:
             print("Chat is disabled. Set OPENROUTER_API_KEY and explicitly choose --budget-usd to enable the real model.", flush=True)
         server.serve_forever(poll_interval=0.25)

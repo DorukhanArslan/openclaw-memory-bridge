@@ -25,7 +25,15 @@ With the runtime and Python SDK installed and `OPENROUTER_API_KEY` set in the se
 npm run chat -- --root .lab/native-memory-chat --budget-usd 5
 ```
 
-Open `http://127.0.0.1:8765` on the computer running the server. The explicit estimated allowance is retained across restarts; it is not an invoice or a provider billing hard cap. One message can make several model calls, so a 1 USD allowance may not cover the multistep demo. The separate root preserves earlier demo data and limits. The app opens without making model calls. After `git pull`, install chat support with the server's interpreter (`.bootstrap/python/bin/python -m pip install './python[chat]'` for the default environment), then restart with the same data root and allowance. Chat HTTPS uses the system trust store, including macOS Keychain, plus public root certificates. See [chat setup and certificate troubleshooting](apps/memory-chat/README.md) and [how the app connects to the SDK](apps/memory-chat/SDK-CONNECTION.md).
+Open `http://127.0.0.1:8765` on the computer running the server. Each model call first reserves a conservative estimate; new validated successful replies settle their estimates using returned provider cost. Unknown or failed attempts, missing costs, and earlier-version reservations remain fully held. Cumulative request/reservation counters stay intact across restarts. This local allowance is neither an invoice nor a provider billing hard cap. One message can make several model calls. The separate root preserves earlier demo data and limits, and opening the page makes no model calls.
+
+Stop the server with **Ctrl+C in its terminal** before increasing an existing total ceiling. For the default data root, restart with:
+
+```sh
+npm run chat -- --budget-usd 10
+```
+
+This sets a **total ceiling of 10 USD**, including prior committed usage, while preserving memory, the original admission record, and request history. Repeating the value adds no allowance; lowering it or changing another model/output/pricing policy is rejected. Keep the same `--root` if you originally supplied one. After `git pull`, install chat support with the server's interpreter (`.bootstrap/python/bin/python -m pip install './python[chat]'` for the default environment), then restart. Chat HTTPS uses the system trust store, including macOS Keychain, plus public root certificates. See [chat setup and certificate troubleshooting](apps/memory-chat/README.md) and [how the app connects to the SDK](apps/memory-chat/SDK-CONNECTION.md).
 
 The [genuine native run](reports/memory-chat-native-live.json) verifies natural fact capture and source-backed recall. Its fresh-session final answer completed after an explicitly funded continuation; the original reservation-limit failure remains in the report.
 
@@ -126,7 +134,7 @@ Read-only comparison on October 17 also found no supported producer in the offic
 
 OpenClaw owns retrieval, storage, provenance, and native agent maintenance. Adapters own application note writes, routing, and process supervision. The SDK exposes `configure_chat` / `chat` for native interactive conversations, daily-note writes, status/restart, session/dreaming inspection, and explicit `configure_maintenance` / `run_maintenance` / `explain_promotion`. The native run stages canonical daily notes, triggers OpenClaw’s managed dreaming job, and observes its real diary publishers before shutting down. Scheduling stays manual; one retained finite request ledger is shared by the SDK root. Model configuration is currently the approved OpenRouter GPT-6 Sol lab profile.
 
-The primary agent and tool loop stay in your Python app. The SDK has no chat wrapper. Native flush and compaction manage OpenClaw-owned sessions; external Python message history remains the host’s responsibility. A daily-note write is an application checkpoint, not a native flush. Supplied scope IDs are trusted routing inputs; your host supplies authentication and deployment isolation.
+Independent host agents keep their model and tool loop in the Python app. Apps using the SDK's native chat operations delegate that loop and session history to OpenClaw. Native flush and compaction manage OpenClaw-owned sessions; external Python message history remains the host’s responsibility. A daily-note write is an application checkpoint, not a native flush. Supplied scope IDs are trusted routing inputs; your host supplies authentication and deployment isolation.
 
 Ready host adapters are included: `MemoryTools(client, scope, day)` provides tool definitions and dispatch; `MaintenanceJob(client, scope)` calls native maintenance from your scheduler. The existing host agent uses these adapters. Run the real residence test or a finite maintenance schedule from this repository with the installed Python client and `python-dotenv`:
 

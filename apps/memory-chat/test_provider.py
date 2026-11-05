@@ -87,7 +87,8 @@ class ProviderTests(unittest.TestCase):
         provider = self.provider(0)
         self.assertFalse(provider.ready)
         self.assertEqual(provider.state(), {
-            "limitUsd": 0, "reservedUsd": 0, "remainingUsd": 0, "requests": 0})
+            "limitUsd": 0, "reservedUsd": 0, "remainingUsd": 0, "requests": 0,
+            "providerReportedCostUsd": 0, "unsettledEstimateUsd": 0})
         self.assertFalse(self.path.exists())
         with self.assertRaisesRegex(RuntimeError, "positive demo budget"):
             provider.complete(MESSAGES, [])
@@ -123,14 +124,13 @@ class ProviderTests(unittest.TestCase):
             provider.complete(MESSAGES, [])
         self.assertEqual(provider.state()["requests"], 0)
         self.assertEqual(provider.state()["reservedUsd"], 0)
-        self.assertEqual(len(provider._http.calls), 1)
-        self.assertTrue(provider._http.calls[0].full_url.endswith("/models"))
+        self.assertEqual(provider._http.calls, [])
 
     def test_changed_policy_missing_record_symlinks_and_corruption_cannot_reset(self):
         provider = self.provider()
         provider.complete(MESSAGES, [])
         reserved = self.path.read_bytes()
-        for kwargs in [{"budget": 2}, {"max_output_tokens": 128}]:
+        for kwargs in [{"max_output_tokens": 128}]:
             with self.subTest(kwargs=kwargs):
                 with self.assertRaisesRegex(RuntimeError, "different budget or policy"):
                     self.provider(**kwargs)
@@ -358,6 +358,9 @@ class ProviderTests(unittest.TestCase):
 
         # Labelled retained-allowance fixture, not an actual provider charge.
         exhausted = json.loads(self.path.read_text())
+        # Model a fully consumed historical three-field allowance.
+        exhausted.pop("attempts")
+        exhausted.pop("legacy")
         exhausted["reservedNanos"] = 1_000_000_000
         self.path.write_text(json.dumps(exhausted))
         provider.state()
