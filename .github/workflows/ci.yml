@@ -13,6 +13,20 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  macos-chat-tls:
+    runs-on: macos-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Verify native macOS HTTPS trust without model requests
+        run: |
+          command -v openssl
+          python3 -m venv .bootstrap/python-tls
+          .bootstrap/python-tls/bin/python -m pip install './python[chat]'
+          .bootstrap/python-tls/bin/python -m unittest discover -s apps/memory-chat -p test_tls.py -v
+
   checks:
     runs-on: ubuntu-latest
     timeout-minutes: 45
@@ -37,7 +51,7 @@ jobs:
           FOUNDATION_ROOT: ${{ github.workspace }}
         run: |
           python3 -m venv .bootstrap/python-ci
-          .bootstrap/python-ci/bin/python -m pip install ./python
+          .bootstrap/python-ci/bin/python -m pip install './python[chat]'
           .bootstrap/python-ci/bin/python -m unittest discover -s python/tests -v
       - name: Test the separate chatbot SDK consumer
         env:

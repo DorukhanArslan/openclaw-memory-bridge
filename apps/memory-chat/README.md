@@ -23,17 +23,23 @@ The launcher uses `PYTHON` when set, then `.bootstrap/python/bin/python` if avai
 ```sh
 bash scripts/install.sh
 python3 -m venv .bootstrap/python
-.bootstrap/python/bin/python -m pip install ./python
+.bootstrap/python/bin/python -m pip install './python[chat]'
 ```
 
 After an update, stop the running server and reinstall the SDK before restarting. With the launcher's default virtual environment:
 
 ```sh
 git pull
-.bootstrap/python/bin/python -m pip install ./python
+.bootstrap/python/bin/python -m pip install './python[chat]'
 ```
 
-If `PYTHON` selects another interpreter, reinstall with that interpreter instead. Pulling the repository alone does not update an already installed SDK.
+If `PYTHON` selects another interpreter, reinstall with that interpreter instead. Pulling the repository alone does not update an already installed SDK. Restart with the same `--root` and `--budget-usd` arguments you used before. For the original default-root, 1 USD setup:
+
+```sh
+npm run chat -- --budget-usd 1
+```
+
+The `chat` extra installs native system-trust support and a public CA bundle for Python HTTPS. On macOS, the app uses Keychain trust alongside those public roots. Certificate-chain and hostname verification remain enabled.
 
 Set the API key in the server's environment before starting. It stays server-side; there is no browser key field or credential export. The launcher does not load `.env` files.
 
@@ -88,6 +94,14 @@ The [genuine native browser run](../../reports/memory-chat-native-live.json) rec
 The [earlier genuine browser/model/SDK run](../../reports/memory-chat-live-run.json) remains historical evidence for the former independent Python model/tool loop. It verified explicit note save, update, and recall, but does not establish the new native-chat path or automatic conversation recall. Existing records and consumed allowances are preserved.
 
 ## Troubleshooting
+
+### HTTPS certificate errors on macOS
+
+Stop the server, apply the upgrade commands above, and restart with your existing data root and allowance. The optional chat dependencies supply system trust through `truststore` and public roots through `certifi`, including when Python's default CA file is missing.
+
+If a VPN or HTTPS proxy inspects traffic, its root certificate must be trusted in macOS Keychain or supplied as a trusted PEM file through `SSL_CERT_FILE` or `NODE_EXTRA_CA_CERTS`. `SSL_CERT_FILE`, `SSL_CERT_DIR`, and `NODE_EXTRA_CA_CERTS` supplement the system/public roots; invalid nonempty locations are rejected with the variable name in the error. Keep certificate verification enabled.
+
+### Native operations
 
 A Gateway failure now fails the native chat operation visibly; the app does not silently substitute an independent model conversation. Preserve the data directory and request records when reporting it. Cached state and inspector controls remain available while native work runs.
 

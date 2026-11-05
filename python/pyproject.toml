@@ -10,5 +10,8 @@ readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
 
+[project.optional-dependencies]
+chat = ["certifi>=2025.1.31", "truststore>=0.10.0,<1"]
+
 [tool.setuptools.packages.find]
 where = ["src"]

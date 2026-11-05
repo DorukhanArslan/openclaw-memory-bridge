@@ -9,6 +9,14 @@ bash scripts/install.sh
 python3 -m pip install ./python
 ```
 
+For Memory Chat's Python HTTPS connection, install the optional chat support with the interpreter that runs the server:
+
+```sh
+python3 -m pip install './python[chat]'
+```
+
+This adds `truststore` for native system trust, including macOS Keychain, and `certifi` for public root certificates. Memory Chat keeps certificate-chain and hostname verification enabled and accepts additional trusted CA locations through `SSL_CERT_FILE`, `SSL_CERT_DIR`, and `NODE_EXTRA_CA_CERTS`. The memory-only client keeps its standard-library installation above. See [chat setup and certificate troubleshooting](https://github.com/DorukhanArslan/openclaw-memory-bridge/blob/main/apps/memory-chat/README.md) for upgrades; retain the existing data root and allowance when applying a TLS repair.
+
 See the repository [README](https://github.com/DorukhanArslan/openclaw-memory-bridge) for the runnable example, native/SDK boundary, and recorded feature story. Use synthetic data and an application-owned state root. Workspace/user routes separate corpora; they do not authenticate users.
 
 The client provides note write/delete, index/search/get, status/restart, session/dreaming inspection, and native interactive chat. Reindex after note changes. Close the client after a transport timeout. Installing the package alone writes no memory notes.

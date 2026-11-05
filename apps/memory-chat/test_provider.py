@@ -255,16 +255,35 @@ class ProviderTests(unittest.TestCase):
     def test_transport_inherits_proxies_and_keeps_tls_verification(self):
         context = MagicMock(spec=ssl.SSLContext)
         opener = object()
-        with patch.dict(os.environ, {"NODE_EXTRA_CA_CERTS": "/fixture/extra-ca.pem"}), \
-             patch("provider.ssl.create_default_context", return_value=context), \
+        with patch("provider.create_tls_context", return_value=context) as trust, \
              patch("provider.urllib.request.ProxyHandler") as proxy, \
              patch("provider.urllib.request.HTTPSHandler") as https, \
              patch("provider.urllib.request.build_opener", return_value=opener):
             provider = Provider(self.path, 0, key="fixture-only")
         proxy.assert_called_once_with()
-        context.load_verify_locations.assert_called_once_with(cafile="/fixture/extra-ca.pem")
+        trust.assert_called_once_with()
         https.assert_called_once_with(context=context)
         self.assertIs(provider._http, opener)
+
+    def test_missing_chat_https_support_does_not_create_an_allowance(self):
+        with patch.dict("sys.modules", {"certifi": None, "truststore": None}):
+            with self.assertRaisesRegex(RuntimeError, r"python\[chat\]"):
+                Provider(self.path, 1, key="fixture-only")
+        self.assertFalse(self.path.exists())
+        self.assertFalse(self.path.with_name(self.path.name + ".admission").exists())
+
+    def test_tls_preflight_keeps_the_safe_certificate_reason_and_does_not_charge(self):
+        certificate_error = ssl.SSLCertVerificationError(1, "private raw certificate detail")
+        certificate_error.verify_message = "unable to get local issuer certificate"
+        provider = self.provider()
+        provider._http.open = MagicMock(side_effect=urllib.error.URLError(certificate_error))
+        with self.assertRaisesRegex(RuntimeError, "unable to get local issuer certificate") as failure:
+            provider.complete(MESSAGES, [])
+        self.assertNotIn("private raw certificate detail", str(failure.exception))
+        self.assertIn("No completion request was sent", str(failure.exception))
+        self.assertEqual(provider.state()["requests"], 0)
+        self.assertEqual(provider.state()["reservedUsd"], 0)
+        provider._http.open.assert_called_once()
 
     def test_http_errors_redact_bodies_and_do_not_retry(self):
         failure = urllib.error.HTTPError("https://openrouter.ai", 429, "secret-body", {}, None)

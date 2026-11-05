@@ -22,6 +22,8 @@ from threading import Lock
 import urllib.error
 import urllib.request
 
+from https_trust import create_tls_context
+
 
 MODEL = "openai/gpt-6-sol"
 _ORIGIN = "https://openrouter.ai"
@@ -102,6 +104,13 @@ class Provider:
                         "outputNanosPerToken": _OUTPUT_NANOS,
                         "framingUnits": _FRAMING}
         self._policy_hash = hashlib.sha256(_encoded(self._policy)).hexdigest()
+        # Validate HTTPS support before creating any persistent allowance.
+        context = create_tls_context()
+        # ProxyHandler preserves inherited proxy/NO_PROXY selection. Native OS
+        # trust and public roots keep both chain and hostname checks enabled.
+        self._http = urllib.request.build_opener(
+            urllib.request.ProxyHandler(),
+            urllib.request.HTTPSHandler(context=context), _NoRedirect())
         self._prepare_directory()
         # An inspection-only launch consumes no admission. Enabling the same
         # fresh root later with an explicit positive budget remains possible.
@@ -109,20 +118,6 @@ class Provider:
         if not self._empty_zero:
             self._initialize()
         self._cached_counts = self._read()
-        try:
-            context = ssl.create_default_context()
-            extra_ca = os.environ.get("NODE_EXTRA_CA_CERTS")
-            if extra_ca:
-                if len(extra_ca) > 16384 or any(c in extra_ca for c in "\r\n\0"):
-                    raise ValueError
-                context.load_verify_locations(cafile=extra_ca)
-            # ProxyHandler() preserves inherited proxy/NO_PROXY selection.
-            # HTTPSHandler keeps certificate and hostname verification enabled.
-            self._http = urllib.request.build_opener(
-                urllib.request.ProxyHandler(),
-                urllib.request.HTTPSHandler(context=context), _NoRedirect())
-        except (OSError, ValueError, ssl.SSLError):
-            raise RuntimeError("Provider TLS configuration is unavailable.") from None
 
     @property
     def ready(self) -> bool:
@@ -280,7 +275,15 @@ class Provider:
             if isinstance(error.reason, TimeoutError):
                 raise RuntimeError(f"Model provider timed out after {self._timeout:g} seconds; no retry was made.") from None
             if isinstance(error.reason, ssl.SSLCertVerificationError):
-                raise RuntimeError("Model provider TLS verification failed; check the server's CA and proxy settings. No retry was made.") from None
+                reason = getattr(error.reason, "verify_message", "certificate chain was not trusted")
+                reason = re.sub(r"[\x00-\x1f\x7f]", " ", str(reason))[:160]
+                raise RuntimeError(
+                    "Model provider TLS verification failed: " + reason + ". "
+                    "The connection was rejected by the system/public trust store. "
+                    "If a VPN or HTTPS proxy inspects TLS, its root certificate must be trusted "
+                    "by macOS Keychain/Windows or supplied through SSL_CERT_FILE/NODE_EXTRA_CA_CERTS. "
+                    "No retry was made."
+                ) from None
             raise RuntimeError("Model provider connection failed; check the server's network, proxy, and CA settings. No retry was made.") from None
         except (OSError, ssl.SSLError):
             raise RuntimeError("Model provider connection failed; check the server's network, proxy, and CA settings. No retry was made.") from None
