@@ -220,6 +220,7 @@ export class Lab {
   // The host owns this loopback model endpoint and its request allowance.
   // It is deliberately process-local: restarting a client must rebind it.
   private nativeChat?: { baseUrl: string; model: string };
+  private chatConnection?: import("./native-chat-connection.ts").NativeChatConnection;
 
   constructor(name = "alpha", root = join(PROJECT, ".lab")) {
     this.root = resolve(root);
@@ -3221,6 +3222,33 @@ export class Lab {
     timeout = 30000,
   ) {
     await this.start();
+    if (this.nativeChat) {
+      // An idle connection can close between explicit user operations. No
+      // request was dispatched on it by this new call, so open a fresh socket.
+      if (this.chatConnection?.closed) {
+        await this.chatConnection.close().catch(() => {});
+        this.chatConnection = undefined;
+      }
+      if (!this.chatConnection) {
+        const { NativeChatConnection } = await import(
+          "./native-chat-connection.ts"
+        );
+        this.chatConnection = new NativeChatConnection({
+          url: `ws://127.0.0.1:${this.port}`,
+          token: this.token,
+        });
+      }
+      const connection = this.chatConnection;
+      try {
+        return await connection.request(method, params, timeout);
+      } catch (error) {
+        // A later explicit operation may establish a fresh socket. Never retry
+        // the request whose acknowledgement failed on this connection.
+        if (this.chatConnection === connection) this.chatConnection = undefined;
+        await connection.close().catch(() => {});
+        throw error;
+      }
+    }
     return JSON.parse(
       await this.native(
         [
@@ -3507,6 +3535,10 @@ export class Lab {
   }
 
   async stop() {
+    const connection = this.chatConnection;
+    this.chatConnection = undefined;
+    // Socket cleanup must not prevent termination of the owned Gateway.
+    await connection?.close().catch(() => {});
     const child = this.child;
     if (!child) return;
     if (child.exitCode === null && child.signalCode === null) {

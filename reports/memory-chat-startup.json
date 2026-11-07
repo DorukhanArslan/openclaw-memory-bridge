@@ -1,0 +1,99 @@
+{
+  "title": "Memory Chat startup measurements",
+  "kind": "actual-native-runtime-labelled-model-fixture",
+  "measurementHarness": "apps/memory-chat/profile_startup.py",
+  "baselineCommit": "0d57d9b45e9b0e17e0d9c9b0bbf2a27d84ed23b8",
+  "environment": {
+    "system": "Linux",
+    "architecture": "x86_64",
+    "pythonVersion": "3.12.14",
+    "nodeVersion": "24.16.0",
+    "openclawVersion": "2026.9.9",
+    "executor": "managed Linux cloud environment"
+  },
+  "genuineModel": false,
+  "paidProviderCalls": 0,
+  "method": "Fresh temporary corpus for each sample; actual installed SDK, native Gateway, authenticated RPCs and persisted transcripts. Two sequential messages use immediate labelled local model protocol replies.",
+  "samples": [
+    {
+      "name": "Before: per-call CLI transport, no preparation",
+      "transport": "A new OpenClaw CLI process for each Gateway RPC",
+      "sampleCount": 1,
+      "paidProviderCalls": 0,
+      "nativeTranscriptPersisted": true,
+      "firstTurn": {
+        "replySeconds": 32.31452,
+        "untilFirstModelFixtureSeconds": 26.250391
+      },
+      "secondTurn": {
+        "replySeconds": 7.757107,
+        "untilFirstModelFixtureSeconds": 3.206423
+      },
+      "chatStartSeconds": [
+        22.357008,
+        2.885282
+      ],
+      "modelFixtureCalls": 2
+    },
+    {
+      "name": "After: persistent native transport, no preparation",
+      "transport": "Persistent official OpenClaw GatewayClient",
+      "sampleCount": 1,
+      "paidProviderCalls": 0,
+      "nativeTranscriptPersisted": true,
+      "firstTurn": {
+        "replySeconds": 20.503883,
+        "untilFirstModelFixtureSeconds": 20.06387
+      },
+      "secondTurn": {
+        "replySeconds": 0.556406,
+        "untilFirstModelFixtureSeconds": 0.3704
+      },
+      "chatStartSeconds": [
+        16.670125,
+        0.078218
+      ],
+      "modelFixtureCalls": 2
+    },
+    {
+      "name": "After: persistent native transport and background preparation",
+      "transport": "Persistent official OpenClaw GatewayClient",
+      "sampleCount": 1,
+      "paidProviderCalls": 0,
+      "nativeTranscriptPersisted": true,
+      "firstTurn": {
+        "replySeconds": 4.527267,
+        "untilFirstModelFixtureSeconds": 4.118549
+      },
+      "secondTurn": {
+        "replySeconds": 0.539545,
+        "untilFirstModelFixtureSeconds": 0.354
+      },
+      "chatStartSeconds": [
+        1.488065,
+        0.068416
+      ],
+      "modelFixtureCalls": 2,
+      "preparationSeconds": 15.399419,
+      "modelFixtureCallsDuringPreparation": 0
+    }
+  ],
+  "interpretation": [
+    "Persistent RPC transport removed repeated CLI process startup from subsequent calls.",
+    "Background preparation starts and authenticates native memory before messaging; it made zero model calls.",
+    "Preparation moved roughly 15 seconds before the first message in this sample; it did not remove native startup work.",
+    "The first agent execution still performs native lazy initialization after memory is ready."
+  ],
+  "limits": [
+    "One sample per configuration, not a median, percentile, performance guarantee or controlled benchmark.",
+    "These are Linux cloud timings; no macOS speed claim is established.",
+    "Local fixture replies exclude real provider network/inference latency and establish no genuine model or recall behavior.",
+    "Cold means a fresh native process and corpus, not a cleared operating-system file cache.",
+    "The prepared first-turn timing starts after preparation; total time from server launch includes preparationSeconds."
+  ],
+  "reproduce": {
+    "cold": ".bootstrap/python/bin/python apps/memory-chat/profile_startup.py --output .bootstrap/memory-chat-startup-cold.json",
+    "prepared": ".bootstrap/python/bin/python apps/memory-chat/profile_startup.py --warmup --output .bootstrap/memory-chat-startup-prepared.json",
+    "prerequisites": "Install the pinned runtime and Python SDK chat dependencies. No API key is required. Run from the repository root."
+  }
+}

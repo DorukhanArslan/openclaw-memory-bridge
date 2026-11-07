@@ -12,7 +12,9 @@ npm run chat -- --root .lab/native-memory-chat --budget-usd 5
 
 Open the localhost URL printed by the server, normally `http://127.0.0.1:8765`. The server binds to loopback. A cloud machine's localhost is not your computer's localhost; this repository does not provide a public preview URL or tunnel. Run the app on your computer to open it there.
 
-Opening the page starts no model request or memory Gateway. The first message creates the SDK connection and uses the native Gateway; there is no separate plain-chat fallback. Long operations show progress while the page continues polling cached state. You can draft another message, but it is not dispatched until the active operation finishes. **Stop** prevents subsequent model dispatches after the current bounded request.
+When chat is enabled, the server prepares the SDK and native Gateway in the background as it starts. The page shows **Starting OpenClaw memory…** until preparation completes; messages submitted during startup wait for that same connection. Preparation reads native history without sending a model request or opening a paid admission window. Disabled chat and replay do not warm up the Gateway.
+
+Native chat reuses one authenticated Gateway connection instead of launching the OpenClaw CLI for every control call. OpenClaw still owns the conversation, memory, and receipts. A failed request is never automatically replayed. Long operations show progress while the page continues polling cached state. You can draft another message, but it is not dispatched until the active operation finishes. **Stop** prevents subsequent model dispatches after the current bounded request.
 
 Sending messages or running guided steps can incur model charges. Each request reserves a conservative estimate before dispatch. New, validated successful replies settle that estimate using the provider's returned cost. Missing costs, failed or uncertain attempts, and reservations from earlier versions remain fully held; earlier requests are not retroactively settled. The local allowance is neither an invoice nor a provider billing hard cap. A new conversation, Stop, or restart does not clear its history. On a fresh root, omitting the flag disables model requests without consuming an allowance.
 
@@ -94,6 +96,12 @@ That command is relative to this app's directory. Keep one server process per da
 ## Verification
 
 Native-chat checks must distinguish protocol fixtures, actual native lifecycle operations, and genuine provider runs. A protocol fixture verifies integration and ordering without establishing model behavior. See test output and the captured run for the version being evaluated.
+
+The [startup measurements](../../reports/memory-chat-startup.json) used real native processes with immediate labelled model fixtures and no paid requests. In one Linux sample, a reused control connection reduced the second reply from 7.76 to 0.56 seconds. A completely cold first reply still took 20.50 seconds. Preparing the Gateway at server startup took 15.40 seconds without model calls, followed by a 4.53-second first reply. Preparation moves that initial work earlier; real model latency and timings on other computers will differ. Reproduce the current path with:
+
+```sh
+.bootstrap/python/bin/python apps/memory-chat/profile_startup.py --warmup --output .bootstrap/chat-startup-profile.json
+```
 
 The [native integration validation](../../reports/memory-chat-native-validation.json) used the production host, installed SDK and actual OpenClaw processes. A natural coffee preference was recorded, indexed before a fresh session, then retrieved with native session search and source reads. Exact encrypted tool continuations survived, and private model metadata stayed out of the export. Model replies in this run were labelled protocol fixtures; no paid provider request was made.
 

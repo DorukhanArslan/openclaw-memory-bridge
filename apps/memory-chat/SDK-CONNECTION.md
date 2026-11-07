@@ -16,7 +16,7 @@ flowchart LR
 
 The production server uses `NativeChatDemo`. The browser submits a message to the host, which calls the public SDK's native chat operation. OpenClaw owns the model/tool loop and authoritative session history. The Python host retains UI records, operation evidence, cancellation state, and the estimated provider allowance. It does not reconstruct new-session context by copying old messages into a model prompt.
 
-Opening the page constructs neither the SDK connection nor a model request. The first native operation connects lazily. Unlike the earlier independent model/tool demo, a native chat turn requires the Gateway.
+The enabled demo server prepares the SDK and Gateway in a background worker at startup. It calls `configure_chat`, then the public read-only `session_history` operation, without opening a broker admission window or sending a model request. Cached page state remains available, and a first message waits for the same prepared client. Disabled chat and replay do not prepare native processes. Other SDK consumers remain lazy unless their host explicitly prepares a connection.
 
 ## Public SDK wiring
 
@@ -44,6 +44,8 @@ This fragment requires a running host-owned OpenAI-compatible loopback model end
 `chat` uses the public native `chat.send` operation, awaits the exact run's completion, then returns admission, completion, history, and session-state receipts. It enters a persistent interactive session rather than injecting a synthetic transcript. Workspace and user select the corpus; the session identifier selects conversation context. The native profile enables transcript indexing and cross-conversation Active Memory, allows native recall and source-reading tools, and retains normal pre-compaction flushing. Automatic dreaming and background model scheduling remain disabled in this demo.
 
 The production host uses the equivalent `start_chat`, `wait_chat`, and `abort_chat` operations so it can check Stop between bounded polls and cancel the exact native run. The broker also withholds a late model response when Stop arrives during inference, so that response cannot start a subsequent native tool call. Already-dispatched model attempts remain recorded; a validated successful response with a returned provider cost can settle its estimate even when Stop prevents further native work.
+
+The bridge sends native-chat control RPCs over one public `GatewayClient` connection with read/write operator scopes. Session creation, admission, polling, history, and metadata retain their native semantics without repeatedly starting the CLI. Connection loss or a request deadline stops that socket without replaying the request. A later explicit operation can create a fresh connection; stopping or reconfiguring the Gateway closes the previous one.
 
 The earlier `ChatDemo` class and `MemoryTools` adapter remain an independent-host reference and controlled-test path. They are not the production UI's chat implementation. `MemoryTools` still supports search, source reads, canonical note replacement, and daily-note replacement, with indexing after writes; using those tools alone does not transfer an external model history into native session management.
 

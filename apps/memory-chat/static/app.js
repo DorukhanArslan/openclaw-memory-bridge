@@ -5,6 +5,7 @@
   let pendingMessage = null;
   let pendingMessageCount = 0;
   let polling = false;
+  let pollTask = null;
   let cancelling = false;
   let refreshing = false;
   let activeTab = "memory";
@@ -593,21 +594,30 @@
     const ready = Boolean(state.model?.ready);
     const budget = state.budget || {};
     const noBudget = Number(budget.limitUsd) === 0;
-    $("status-line").classList.toggle("ready", ready && !replay);
+    const connection = state.memory?.connection?.status;
+    const starting = connection === "starting";
+    $("status-line").classList.toggle(
+      "ready",
+      ready && !replay && !starting && connection !== "failed",
+    );
     const model = state.model?.name
       ? state.model.name.replace(/^openai\//, "")
       : "Real model";
     $("model-status").textContent = replay
       ? `${model} · recorded run`
-      : ready
-        ? `${model} · live model`
-        : noBudget
-          ? `${model} · chat disabled`
-          : state.model?.reason === "allowance_exhausted"
-            ? `${model} · local budget exhausted`
-            : state.model?.reason === "allowance_unavailable"
-              ? `${model} · cost accounting paused`
-              : "Model connection is not configured";
+      : starting
+        ? "Starting OpenClaw memory…"
+        : connection === "failed"
+          ? "OpenClaw memory could not start"
+          : ready
+            ? `${model} · live model`
+            : noBudget
+              ? `${model} · chat disabled`
+              : state.model?.reason === "allowance_exhausted"
+                ? `${model} · local budget exhausted`
+                : state.model?.reason === "allowance_unavailable"
+                  ? `${model} · cost accounting paused`
+                  : "Model connection is not configured";
     $("budget-status").textContent = replay
       ? "No new model calls"
       : Number.isFinite(Number(budget.remainingUsd))
@@ -721,23 +731,36 @@
     }
   }
 
+  function needsPolling() {
+    return state?.busy || state?.memory?.connection?.status === "starting";
+  }
+
   async function waitForJob() {
-    if (!state?.busy || polling) return;
+    // A message submitted during preparation joins this same watcher. Keep
+    // its pending message visible until the queued chat actually finishes.
+    if (pollTask) return pollTask;
+    if (!needsPolling()) return;
     polling = true;
-    const deadline = performance.now() + 165000;
-    try {
-      while (state?.busy) {
-        if (performance.now() >= deadline)
-          throw new Error(
-            "This operation is taking longer than expected. The page is still usable: stop the operation or refresh its status. It has not been retried.",
-          );
-        await new Promise((resolve) => setTimeout(resolve, 600));
-        state = await request("/api/state");
-        render();
+    const deadline =
+      performance.now() +
+      (state?.memory?.connection?.status === "starting" ? 240000 : 165000);
+    pollTask = (async () => {
+      try {
+        while (needsPolling()) {
+          if (performance.now() >= deadline)
+            throw new Error(
+              "This operation is taking longer than expected. The page is still usable: stop the operation or refresh its status. It has not been retried.",
+            );
+          await new Promise((resolve) => setTimeout(resolve, 600));
+          state = await request("/api/state");
+          render();
+        }
+      } finally {
+        polling = false;
+        pollTask = null;
       }
-    } finally {
-      polling = false;
-    }
+    })();
+    return pollTask;
   }
 
   function showJobOutcome() {
@@ -755,7 +778,7 @@
   }
 
   async function watchExistingJob() {
-    if (polling || !state?.busy) return;
+    if (polling || !needsPolling()) return;
     try {
       await waitForJob();
       showJobOutcome();
@@ -881,7 +904,7 @@
     errorMessage("");
     try {
       state = await request("/api/state");
-      if (state.busy && !polling) watchExistingJob();
+      if (needsPolling() && !polling) watchExistingJob();
       else showJobOutcome();
     } catch (error) {
       errorMessage(error.message);
@@ -946,7 +969,7 @@
       state = value;
       render();
       if (state.error) errorMessage(state.error);
-      if (state.busy) watchExistingJob();
+      if (needsPolling()) watchExistingJob();
     })
     .catch((error) => {
       $("model-status").textContent = "Could not connect to the server";

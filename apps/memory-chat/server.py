@@ -635,6 +635,8 @@ class NativeChatDemo(ChatDemo):
         self.broker = None
         self._native_configured = False
         self._native_turn = None
+        self._warmup_thread = None
+        self._connection_state = {"status": "idle"}
         super().__init__(foundation, root, provider, client_factory=client_factory)
         self._config = replace(self._config, timeout=180)
         try:
@@ -665,8 +667,59 @@ class NativeChatDemo(ChatDemo):
                      "error": self.memory_error}
         with self._view_lock:
             self._published["memory"]["lifecycle"] = lifecycle
+            self._published["memory"]["connection"] = deepcopy(self._connection_state)
             self._published["conversation"]["readOnly"] = bool(self.conversation["messages"] and "native" not in self.conversation)
             self._published["tour"]["label"] = NATIVE_TOUR[min(self.tour_step, len(NATIVE_TOUR) - 1)]
+
+    def start_warmup(self):
+        """Prepare native memory in the background without admitting inference.
+
+        The normal host lock serializes this read with the first user request.
+        The page keeps serving its cached state while OpenClaw starts.
+        """
+        with self._view_lock:
+            if (self._warmup_thread is not None or self.closed
+                    or self._stopping.is_set() or not self.provider.ready):
+                return
+            self._connection_state = {"status": "starting"}
+            self._warmup_thread = threading.Thread(target=self._warmup_memory,
+                                                   name="memory-chat-warmup", daemon=True)
+        self._publish()
+        self._warmup_thread.start()
+
+    def _warmup_memory(self):
+        started = time.monotonic()
+        with self._lock:
+            try:
+                self._check_stopping()
+                self._progress("Starting OpenClaw memory")
+                client = self._get_memory()
+                # Public read-only history starts and authenticates the Gateway.
+                # No new session, transcript, index, or broker admission window.
+                client.session_history(self.scope)
+                self._check_stopping()
+                self._connection_state = {"status": "ready"}
+                self.memory_error = None
+            except Exception as error:
+                stopped = isinstance(error, TurnCancelled)
+                detail = self._clean(str(error))[:12000]
+                self._connection_state = {"status": "idle" if stopped else "failed"}
+                if not stopped:
+                    self._connection_state["error"] = detail
+                    self.memory_error = detail
+                    self.memory_available, self.memory_stale = False, bool(self.files)
+                # Do not leave a failed or partly constructed SDK for the first
+                # user turn. A later explicit request can make a fresh client.
+                client, self.memory = self.memory, None
+                self._native_configured = False
+                if client is not None:
+                    try:
+                        client.close()
+                    except Exception:
+                        pass
+            finally:
+                self._connection_state["elapsedSeconds"] = round(time.monotonic() - started, 3)
+                self._publish()
 
     def _clean(self, value):
         value = super()._clean(value)
@@ -698,6 +751,7 @@ class NativeChatDemo(ChatDemo):
     def _get_memory(self):
         previous = self.memory
         client = super()._get_memory()
+        self._check_stopping()
         if client is not previous:
             self._native_configured = False
         if not self._native_configured:
@@ -723,6 +777,7 @@ class NativeChatDemo(ChatDemo):
             self.memory_error = self._clean(str(error))[:12000]
             self._save()
             raise RuntimeError("The conversation is saved, but recall indexing failed. A new chat was not opened. " + self.memory_error) from error
+        self._connection_state = {"status": "idle"}
         for conversation in pending:
             conversation["native"]["indexed"] = bool(conversation["native"].get("transcriptPersisted"))
             conversation["native"]["pendingIndex"] = False
@@ -823,6 +878,7 @@ class NativeChatDemo(ChatDemo):
                     window_started = True
                     dispatch_attempted = True
                     accepted = client.start_chat(self.scope, message)
+                    self._connection_state = {"status": "ready"}
                     run_id = accepted.get("runId")
                     if not isinstance(run_id, str) or not run_id:
                         raise RuntimeError("OpenClaw did not acknowledge this conversation run.")
@@ -933,6 +989,7 @@ class NativeChatDemo(ChatDemo):
             client.close()
             self.memory = None
             self._native_configured = False
+            self._connection_state = {"status": "idle"}
             self.memory_available, self.memory_stale, self.memory_error = None, bool(self.files), None
             super().new_conversation()
             self.events = [{"kind": "restart", "label": "OpenClaw connection restarted", "status": "completed", "detail": self._clean(receipt)}]
@@ -964,11 +1021,14 @@ class NativeChatDemo(ChatDemo):
             self._save()
 
     def close(self):
-        try:
-            super().close()
-        finally:
-            if self.broker is not None:
-                self.broker.close()
+        self.request_stop()
+        # A warmup owns the same client and must finish before its SDK closes.
+        with self._lock:
+            try:
+                super().close()
+            finally:
+                if self.broker is not None:
+                    self.broker.close()
 
 
 class ReplayDemo:
@@ -1222,6 +1282,8 @@ def main() -> None:
         print("Keys stay on the server. New conversations preserve memory and retained model usage.", flush=True)
         if not args.replay and not demo.provider.ready:
             print("Chat is disabled. Set OPENROUTER_API_KEY and explicitly choose --budget-usd to enable the real model.", flush=True)
+        if not args.replay:
+            demo.start_warmup()
         server.serve_forever(poll_interval=0.25)
     except KeyboardInterrupt:
         pass
